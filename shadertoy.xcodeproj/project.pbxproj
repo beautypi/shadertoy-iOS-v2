@@ -106,11 +106,15 @@
 				4BF7490D1B84C48200E2F772 /* LocalCache.h */,
 				4BF7490E1B84C48200E2F772 /* LocalCache.m */,
 				4BF748D41B84852A00E2F772 /* Main.storyboard */,
+				4BF7491F1B84E17B00E2F772 /* MainTabBarController.h */,
+				4BF749201B84E17B00E2F772 /* MainTabBarController.m */,
 				4BF748FB1B8498E100E2F772 /* QueryTableViewCell.h */,
 				4BF748FC1B8498E100E2F772 /* QueryTableViewCell.m */,
 				4BF748FD1B8498E100E2F772 /* QueryTableViewCell.xib */,
 				4BF748F31B8491A100E2F772 /* QueryTableViewController.h */,
 				4BF748F41B8491A100E2F772 /* QueryTableViewController.m */,
+				4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */,
+				4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */,
 				4BF749071B84B1B500E2F772 /* ShaderObject.h */,
 				4BF749081B84B1B500E2F772 /* ShaderObject.m */,
 				4BF7490A1B84BD8900E2F772 /* ShaderRepository.h */,
@@ -118,10 +122,6 @@
 				4BF749101B84CE3000E2F772 /* ShaderViewController.h */,
 				4BF749111B84CE3000E2F772 /* ShaderViewController.m */,
 				4BF748C71B84852A00E2F772 /* Supporting Files */,
-				4BF7491F1B84E17B00E2F772 /* MainTabBarController.h */,
-				4BF749201B84E17B00E2F772 /* MainTabBarController.m */,
-				4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */,
-				4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";

@@ -7,7 +7,10 @@
 //
 
 #import <GLKit/GLKit.h>
+#import "ShaderObject.h"
 
 @interface ShaderCanvasViewController : GLKViewController
+
+- (ShaderCanvasViewController *)updateWithShaderObject:(ShaderObject *)shader;
 
 @end

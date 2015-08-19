@@ -14,6 +14,7 @@
 @interface ShaderViewController () {
     ShaderObject* _shader;
     UIView* _shaderView;
+    BOOL _firstView;
 }
 
 @end
@@ -22,6 +23,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _firstView = YES;
     // Do any additional setup after loading the view.
 }
 
@@ -45,6 +47,13 @@
 }
 
 - (void) viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if( !_firstView ) {
+        _shaderView.layer.frame = _shaderImageView.layer.frame;
+        return;
+    }
+    
+    _firstView = NO;
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     ShaderCanvasViewController* viewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
     
@@ -52,6 +61,7 @@
     [self addChildViewController:viewController];
     _shaderView = viewController.view;
     [self.view addSubview:viewController.view];
+    [viewController updateWithShaderObject:_shader];
   //  [self.navigationController pushViewController:viewController animated:YES];
 }
 
