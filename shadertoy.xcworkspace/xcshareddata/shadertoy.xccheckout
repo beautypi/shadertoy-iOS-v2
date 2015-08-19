@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>C9AE8A34-CAEC-4214-8D40-EF53C780DDBE</string>
+	<key>IDESourceControlProjectName</key>
+	<string>shadertoy</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>FD80344B2BB2987194500CA9D98876C3B7CD5548</key>
+		<string>https://github.com/reindernijhoff/Shadertoy-iOS-app.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>shadertoy.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>FD80344B2BB2987194500CA9D98876C3B7CD5548</key>
+		<string>..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/reindernijhoff/Shadertoy-iOS-app.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>FD80344B2BB2987194500CA9D98876C3B7CD5548</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FD80344B2BB2987194500CA9D98876C3B7CD5548</string>
+			<key>IDESourceControlWCCName</key>
+			<string>shadertoy</string>
+		</dict>
+	</array>
+</dict>
+</plist>

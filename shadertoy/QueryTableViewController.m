@@ -15,6 +15,7 @@
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
     ShaderRepository* _repository;
+    NSString* _sortBy;
     NSArray* _data;
 }
 
@@ -29,8 +30,21 @@
     _data = [[NSArray alloc] init];
 }
 
+- (void) setSortBy:(NSString *)sortBy {
+    _sortBy = sortBy;
+    
+    if( [_sortBy isEqualToString:@"popular"] )
+        self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemMostViewed tag:1];
+    
+    if( [_sortBy isEqualToString:@"newest"] )
+        self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemMostRecent tag:1];
+    
+    if( [_sortBy isEqualToString:@"love"] )
+        self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFavorites tag:1];
+}
+
 - (void) viewWillAppear:(BOOL)animated {
-    [_client getShaderKeys:@"newest" success:^(NSArray *results) {
+    [_client getShaderKeys:_sortBy success:^(NSArray *results) {
         _data = results;
         [self.tableView reloadData];
     }];
@@ -91,14 +105,16 @@
     
     NSString* shaderId = [_data objectAtIndex:indexPath.row];
     
-    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main"
-                                                             bundle: nil];
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
 
-    [((ShaderViewController *)viewController) setShaderObject:[_repository getShader:shaderId success:^(ShaderObject *shader) {}]];
+    ShaderObject* shader = [_repository getShader:shaderId success:^(ShaderObject *shader) {}];
+    [shader cancelShaderRequestOperation];
     
-    [self.navigationController pushViewController:viewController animated:YES];
-    
+    if( shader.imagePass != NULL ) {
+        [((ShaderViewController *)viewController) setShaderObject:shader];
+        [self.navigationController pushViewController:viewController animated:YES];
+    }
 }
 
 

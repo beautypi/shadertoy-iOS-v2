@@ -1,5 +1,5 @@
 //
-//  QueryTableViewController.h
+//  MainTabBarController.h
 //  shadertoy
 //
 //  Created by Reinder Nijhoff on 19/08/15.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface QueryTableViewController : UITableViewController
-
-- (void) setSortBy:(NSString *)sortBy;
+@interface MainTabBarController : UITabBarController
 
 @end

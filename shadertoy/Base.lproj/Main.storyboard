@@ -6,25 +6,22 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--Tab Bar Controller-->
+        <!--Main Tab Bar Controller-->
         <scene sceneID="yl2-sM-qoP">
             <objects>
-                <tabBarController id="49e-Tb-3d3" sceneMemberID="viewController">
+                <tabBarController id="49e-Tb-3d3" customClass="MainTabBarController" sceneMemberID="viewController">
                     <nil key="simulatedBottomBarMetrics"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" id="W28-zg-YXA">
                         <rect key="frame" x="0.0" y="975" width="768" height="49"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
-                    <connections>
-                        <segue destination="KjV-K4-2F6" kind="relationship" relationship="viewControllers" id="GSe-ry-MWI"/>
-                    </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HuB-VB-40B" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="0.0" y="0.0"/>
         </scene>
-        <!--Item-->
+        <!--Query Table View Controller-->
         <scene sceneID="GfK-5G-tI9">
             <objects>
                 <tableViewController id="ETs-m1-k9d" customClass="QueryTableViewController" sceneMemberID="viewController">
@@ -37,7 +34,6 @@
                             <outlet property="delegate" destination="ETs-m1-k9d" id="zlw-GI-nCP"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" title="Item" id="CCZ-uM-dvG"/>
                     <navigationItem key="navigationItem" id="SUa-U3-AVG"/>
                     <connections>
                         <segue destination="1Yc-aP-wtt" kind="show" id="yxR-52-W98"/>
@@ -73,7 +69,7 @@
                             </glkView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jCD-UI-gmR">
                                 <rect key="frame" x="0.0" y="401" width="600" height="34"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="34" id="Tsi-Lh-voH"/>
                                 </constraints>
@@ -87,8 +83,8 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ey0-HH-by2">
-                                <rect key="frame" x="16" y="514" width="568" height="17"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ey0-HH-by2">
+                                <rect key="frame" x="16" y="514" width="568" height="15"/>
                                 <constraints>
                                     <constraint firstAttribute="height" priority="1" constant="17" id="eLT-x7-JfU"/>
                                 </constraints>
@@ -151,15 +147,12 @@
         <!--Navigation Controller-->
         <scene sceneID="fve-q5-uvX">
             <objects>
-                <navigationController id="KjV-K4-2F6" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" systemItem="recents" id="Gs4-tM-5pE"/>
+                <navigationController storyboardIdentifier="NavigationController" id="KjV-K4-2F6" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" systemItem="favorites" id="Gs4-tM-5pE"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Rwn-X5-CQX">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
-                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="TzR-2q-4Ov">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </toolbar>
                     <connections>
                         <segue destination="ETs-m1-k9d" kind="relationship" relationship="rootViewController" id="Ox8-kh-xF9"/>
                     </connections>

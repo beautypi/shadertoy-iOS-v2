@@ -22,6 +22,7 @@
 		4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749111B84CE3000E2F772 /* ShaderViewController.m */; };
 		4BF749171B84D35A00E2F772 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749151B84D35A00E2F772 /* GLKit.framework */; };
 		4BF749181B84D35A00E2F772 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749161B84D35A00E2F772 /* OpenGLES.framework */; };
+		4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749201B84E17B00E2F772 /* MainTabBarController.m */; };
 		DE805019269C7314626ED46E /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994FA7077406D0EEFC5B09A7 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,8 @@
 		4BF749111B84CE3000E2F772 /* ShaderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderViewController.m; sourceTree = "<group>"; };
 		4BF749151B84D35A00E2F772 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		4BF749161B84D35A00E2F772 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		4BF7491F1B84E17B00E2F772 /* MainTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainTabBarController.h; sourceTree = "<group>"; };
+		4BF749201B84E17B00E2F772 /* MainTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainTabBarController.m; sourceTree = "<group>"; };
 		994FA7077406D0EEFC5B09A7 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD72C56EEC40BF479E69F6A3 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -112,6 +115,8 @@
 				4BF749101B84CE3000E2F772 /* ShaderViewController.h */,
 				4BF749111B84CE3000E2F772 /* ShaderViewController.m */,
 				4BF748C71B84852A00E2F772 /* Supporting Files */,
+				4BF7491F1B84E17B00E2F772 /* MainTabBarController.h */,
+				4BF749201B84E17B00E2F772 /* MainTabBarController.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -256,6 +261,7 @@
 				4BF748F51B8491A100E2F772 /* QueryTableViewController.m in Sources */,
 				4BF749091B84B1B500E2F772 /* ShaderObject.m in Sources */,
 				4BF748FE1B8498E100E2F772 /* QueryTableViewCell.m in Sources */,
+				4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */,
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
