@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 #import "ShaderObject.h"
 
 @interface ShaderViewController : UIViewController

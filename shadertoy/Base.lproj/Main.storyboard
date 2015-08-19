@@ -61,12 +61,6 @@
                                     <constraint firstAttribute="width" secondItem="2hd-ey-DP7" secondAttribute="height" multiplier="16:9" id="kUh-d3-U8l"/>
                                 </constraints>
                             </imageView>
-                            <glkView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Hy-Ei-9zw">
-                                <rect key="frame" x="0.0" y="64" width="600" height="338"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="5Hy-Ei-9zw" secondAttribute="height" multiplier="16:9" id="X2B-Jb-tH3"/>
-                                </constraints>
-                            </glkView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jCD-UI-gmR">
                                 <rect key="frame" x="0.0" y="401" width="600" height="34"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
@@ -115,7 +109,6 @@
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="leading" secondItem="Pp4-bt-Tzx" secondAttribute="trailing" id="7e8-ng-nua"/>
                             <constraint firstItem="2hd-ey-DP7" firstAttribute="top" secondItem="U1G-LE-aro" secondAttribute="bottom" id="9R7-Mb-nal"/>
                             <constraint firstItem="Ey0-HH-by2" firstAttribute="trailing" secondItem="B5R-jj-wIy" secondAttribute="trailingMargin" id="Jvd-b3-clR"/>
-                            <constraint firstItem="5Hy-Ei-9zw" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="-16" id="JzC-TB-nW0"/>
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="76" id="Lht-Qj-ly6"/>
                             <constraint firstItem="Ey0-HH-by2" firstAttribute="top" secondItem="Sju-9u-L0D" secondAttribute="bottom" constant="19" id="QT9-QR-CAM"/>
                             <constraint firstItem="fjf-AZ-5Mu" firstAttribute="trailing" secondItem="B5R-jj-wIy" secondAttribute="trailingMargin" id="QUu-JU-oV4"/>
@@ -123,13 +116,11 @@
                             <constraint firstAttribute="trailingMargin" secondItem="jCD-UI-gmR" secondAttribute="trailing" constant="-16" id="ZeB-Lr-4QF"/>
                             <constraint firstItem="Ey0-HH-by2" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" id="d6m-ev-Yh7"/>
                             <constraint firstItem="fjf-AZ-5Mu" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" id="fwz-fb-GSo"/>
-                            <constraint firstItem="5Hy-Ei-9zw" firstAttribute="top" secondItem="U1G-LE-aro" secondAttribute="bottom" id="gQh-o6-iHc"/>
                             <constraint firstItem="jCD-UI-gmR" firstAttribute="top" secondItem="2hd-ey-DP7" secondAttribute="bottom" constant="-1" id="gyx-zz-Z5e"/>
                             <constraint firstItem="fjf-AZ-5Mu" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="bottom" constant="8" id="imN-SL-laq"/>
                             <constraint firstItem="jCD-UI-gmR" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="-16" id="j7f-0H-jzn"/>
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="trailing" secondItem="B5R-jj-wIy" secondAttribute="trailingMargin" id="kix-T8-gtq"/>
                             <constraint firstItem="2hd-ey-DP7" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="-16" id="kmf-Ig-m5X"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="5Hy-Ei-9zw" secondAttribute="trailing" constant="-16" id="m2c-gT-bci"/>
                             <constraint firstAttribute="trailingMargin" secondItem="2hd-ey-DP7" secondAttribute="trailing" constant="-16" id="vpT-jh-koH"/>
                         </constraints>
                     </view>
@@ -146,6 +137,26 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0od-ly-kga" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2197" y="6"/>
+        </scene>
+        <!--GLKit View Controller-->
+        <scene sceneID="h09-vX-kF0">
+            <objects>
+                <glkViewController storyboardIdentifier="ShaderCanvasViewController" preferredFramesPerSecond="30" id="NeG-ha-oHe" customClass="ShaderCanvasViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Fik-ZD-zen"/>
+                        <viewControllerLayoutGuide type="bottom" id="UbF-0T-z4w"/>
+                    </layoutGuides>
+                    <glkView key="view" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" id="G6h-kz-oQR">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <connections>
+                            <outlet property="delegate" destination="NeG-ha-oHe" id="h5e-z4-ZCY"/>
+                        </connections>
+                    </glkView>
+                </glkViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="f5A-KL-ZIi" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2196" y="677"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="fve-q5-uvX">

@@ -9,9 +9,11 @@
 #import "ShaderViewController.h"
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
+#import "ShaderCanvasViewController.h"
 
 @interface ShaderViewController () {
     ShaderObject* _shader;
+    UIView* _shaderView;
 }
 
 @end
@@ -42,14 +44,22 @@
     [_shaderDescription setText:_shader.shaderDescription];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void) viewDidAppear:(BOOL)animated {
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+    ShaderCanvasViewController* viewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
+    
+    viewController.view.layer.frame = _shaderImageView.layer.frame;
+    [self addChildViewController:viewController];
+    _shaderView = viewController.view;
+    [self.view addSubview:viewController.view];
+  //  [self.navigationController pushViewController:viewController animated:YES];
 }
-*/
+
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+        
+    _shaderView.layer.frame = _shaderImageView.layer.frame;
+}
+
 
 @end
