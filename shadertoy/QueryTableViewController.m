@@ -29,6 +29,10 @@
     _client = [[APIShadertoy alloc] init];
     _repository = [[ShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
+    
+    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:30.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithImage:logo style:UIBarButtonItemStylePlain target:self action:nil];
+    self.navigationItem.leftBarButtonItem = item;
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -45,12 +49,6 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
-    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:30.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-  
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithImage:logo style:UIBarButtonItemStylePlain target:self action:nil];
-    
-    self.navigationItem.leftBarButtonItem = item;
-    
     [_client getShaderKeys:_sortBy success:^(NSArray *results) {
         _data = results;
         [self.tableView reloadData];

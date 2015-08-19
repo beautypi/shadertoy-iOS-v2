@@ -43,6 +43,9 @@ const GLubyte Indices[] = {
     GLuint _sampleRateUniform;
     GLuint _channelResolutionUniform;
     GLuint _channelTimeUniform;
+    
+    GLKVector4 _mouse;
+    BOOL _mouseDown;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -207,6 +210,8 @@ const GLubyte Indices[] = {
 - (void)bindUniforms {
     GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor, self.view.frame.size.height * self.view.contentScaleFactor, 1. );
     glUniform3fv(_resolutionUniform, 1, &resolution.x );
+    glUniform4f(_mouseUniform, _mouse.x * self.view.contentScaleFactor, _mouse.y * self.view.contentScaleFactor, _mouse.z * self.view.contentScaleFactor, _mouse.w * self.view.contentScaleFactor );
+    
     _time += self.timeSinceLastUpdate;
     glUniform1f(_globalTimeUniform, _time );
 }
@@ -240,6 +245,33 @@ const GLubyte Indices[] = {
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch1 = [touches anyObject];
+    CGPoint touchLocation = [touch1 locationInView:self.view];
+    _mouse.x = _mouse.z = touchLocation.x;
+    _mouse.y = _mouse.w = self.view.layer.frame.size.height-touchLocation.y;
+    
+    _mouseDown = YES;
+}
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    _mouseDown = YES;
+    
+    UITouch *touch1 = [touches anyObject];
+    CGPoint touchLocation = [touch1 locationInView:self.view];
+    _mouse.x = touchLocation.x;
+    _mouse.y = self.view.layer.frame.size.height-touchLocation.y;
+}
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    _mouseDown = YES;
+    _mouse.z = -fabsf(_mouse.z);
+    _mouse.w = -fabsf(_mouse.w);
+}
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    _mouseDown = YES;
+    _mouse.z = -fabsf(_mouse.z);
+    _mouse.w = -fabsf(_mouse.w);
 }
 
 @end
