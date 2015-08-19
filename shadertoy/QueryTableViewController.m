@@ -11,6 +11,7 @@
 #import "QueryTableViewCell.h"
 #import "ShaderRepository.h"
 #import "ShaderViewController.h"
+#import "UIImage+FZUtil.h"
 
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
@@ -44,6 +45,12 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
+    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:30.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+  
+    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithImage:logo style:UIBarButtonItemStylePlain target:self action:nil];
+    
+    self.navigationItem.leftBarButtonItem = item;
+    
     [_client getShaderKeys:_sortBy success:^(NSArray *results) {
         _data = results;
         [self.tableView reloadData];
