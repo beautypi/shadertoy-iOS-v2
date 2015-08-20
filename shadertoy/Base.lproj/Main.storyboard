@@ -57,6 +57,7 @@
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2hd-ey-DP7">
                                 <rect key="frame" x="0.0" y="64" width="600" height="338"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="2hd-ey-DP7" secondAttribute="height" multiplier="16:9" id="kUh-d3-U8l"/>
                                 </constraints>

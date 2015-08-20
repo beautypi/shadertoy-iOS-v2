@@ -51,6 +51,9 @@ const GLubyte Indices[] = {
     float *_channelResolution;
     GLKTextureInfo *_channelTextureInfo[4];
     BOOL _channelTextureUseNearest[4];
+    
+    float _curFps;
+    int _displayedFramesSinceResChange;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -207,7 +210,8 @@ const GLubyte Indices[] = {
         
         self.preferredFramesPerSecond = 20.;
         _startTime = [[NSDate alloc] init];
-        
+        _curFps = 20.f;
+        _displayedFramesSinceResChange = 0;
         
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -347,6 +351,25 @@ const GLubyte Indices[] = {
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {
+    /*
+    if( self.timeSinceLastUpdate > 0.f && self.timeSinceLastUpdate < .5f ) {
+        _curFps = (4.f * _curFps + 1.f/self.timeSinceLastUpdate ) / 5.f;
+    }
+    
+    if( _curFps < 15.f && _displayedFramesSinceResChange > 10 ) {
+        self.view.contentScaleFactor = self.view.contentScaleFactor * 0.5f;
+        _displayedFramesSinceResChange = 0;
+        printf("scale down\n" );
+
+    }
+    if( _curFps > 19.5f && _displayedFramesSinceResChange > 100 ) {
+        self.view.contentScaleFactor = MIN( self.view.contentScaleFactor * (1.f/0.9f), 3.f/4.f);
+        _displayedFramesSinceResChange = 0;
+        printf("scale up\n" );
+    }
+    
+    _displayedFramesSinceResChange++;
+     */
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
