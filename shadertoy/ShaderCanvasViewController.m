@@ -28,7 +28,6 @@ const GLubyte Indices[] = {
 
 @interface ShaderCanvasViewController () {
     ShaderObject* _shader;
-    float _time;
     
     GLuint _programId;
     GLuint _vertexBuffer;
@@ -43,9 +42,14 @@ const GLubyte Indices[] = {
     GLuint _sampleRateUniform;
     GLuint _channelResolutionUniform;
     GLuint _channelTimeUniform;
+    GLuint _channelUniform[4];
     
     GLKVector4 _mouse;
     BOOL _mouseDown;
+    NSDate *_startTime;
+    float *_channelTime;
+    float *_channelResolution;
+    GLuint _channelTarget[4];
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -60,7 +64,7 @@ const GLubyte Indices[] = {
 
 #pragma mark - View lifecycle
 
-- (void) createShaderProgram:(NSString *)code {
+- (void) createShaderProgram:(ShaderPass *)shaderPass {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
     
@@ -80,26 +84,30 @@ const GLubyte Indices[] = {
     NSString *FragmentShaderCode = @"\n \
     precision highp float;\n \
     precision highp int;\n \
+    precision mediump sampler2D;\n \
     uniform vec3      iResolution;           // viewport resolution (in pixels) \n \
-    uniform float     iGlobalTime;           // shader playback time (in seconds) \n \
+    uniform highp float     iGlobalTime;           // shader playback time (in seconds) \n \
     uniform vec4      iMouse;                // mouse pixel coords \n \
     uniform vec4      iDate;                 // (year, month, day, time in seconds) \n \
     uniform float     iSampleRate;           // sound sample rate (i.e., 44100) \n \
-    uniform sampler2D iChannel0;             // input channel. XX = 2D/Cube \n \
-    uniform sampler2D iChannel1;             // input channel. XX = 2D/Cube \n \
-    uniform sampler2D iChannel2;             // input channel. XX = 2D/Cube \n \
-    uniform sampler2D iChannel3;             // input channel. XX = 2D/Cube \n \
     uniform vec3      iChannelResolution[4]; // channel resolution (in pixels) \n \
     uniform float     iChannelTime[4];       // channel playback time (in sec) \n   \n \
     ";
     
-    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:code];
+    for( ShaderPassInput* input in shaderPass.inputs )  {
+        if( [input.ctype isEqualToString:@"cubemap"] ) {
+            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump samplerCube iChannel%@;\n", input.channel];
+        } else {
+            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump sampler2D iChannel%@;\n", input.channel];
+        }
+    }
+    
+    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:shaderPass.code];
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
     @"void main()  { \n \
         mainImage(gl_FragColor, gl_FragCoord.xy); \n \
     } \n \
     " ];
-
     
     char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
     glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
@@ -107,11 +115,10 @@ const GLubyte Indices[] = {
     
     GLint logLength;
     glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
+    if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetShaderInfoLog(FragmentShaderID, logLength, &logLength, log);
-        NSLog(@"[ShaderManager] Shader (%u) compile log:\n%s", FragmentShaderID, log);
+        NSLog(@"Shader (%@) info log:\n%s", _shader.shaderId, log);
         free(log);
     }
     
@@ -120,6 +127,14 @@ const GLubyte Indices[] = {
     glAttachShader(_programId, VertexShaderID);
     glAttachShader(_programId, FragmentShaderID);
     glLinkProgram(_programId);
+    
+    glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength);
+        glGetProgramInfoLog(_programId, logLength, &logLength, log);
+        NSLog(@"Shader (%@) info log:\n%s", _shader.shaderId, log);
+        free(log);
+    }
     
     glDeleteShader(VertexShaderID);
     glDeleteShader(FragmentShaderID);
@@ -148,7 +163,7 @@ const GLubyte Indices[] = {
     
     glDeleteBuffers(1, &_vertexBuffer);
     glDeleteBuffers(1, &_indexBuffer);
-    //glDeleteVertexArraysOES(1, &_vertexArray);
+    glDeleteVertexArraysOES(1, &_vertexArray);
     glDeleteProgram(_programId);
 }
 
@@ -173,11 +188,15 @@ const GLubyte Indices[] = {
     [EAGLContext setCurrentContext:self.context];
     
     [self genBuffers];
-    [self createShaderProgram:_shader.imagePass.code];
+    [self createShaderProgram:_shader.imagePass];
     [self findUniforms];
     
     self.preferredFramesPerSecond = 20.;
-    _time = 0.f;
+    _startTime = [[NSDate alloc] init];
+    
+    
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
     
     __weak typeof (self) weakSelf = self;
     [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
@@ -185,6 +204,13 @@ const GLubyte Indices[] = {
     } completion:nil];
     
     return self;
+}
+
+- (void)allocChannels {
+    _channelTime = malloc(sizeof(float) * 4);
+    _channelResolution = malloc(sizeof(float) * 12);
+    memset (_channelTime,0,sizeof(float) * 4);
+    memset (_channelResolution,0,sizeof(float) * 12);
 }
 
 - (void)findUniforms {
@@ -202,18 +228,46 @@ const GLubyte Indices[] = {
     
     for (ShaderPassInput* input in _shader.imagePass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
-        NSLog(@"%@\n", channel );
-//        _channelUniform[input.channel] = glGetUniformLocation(_program, channel.UTF8String);
+        NSLog(@"%@ %@ %@\n", channel, input.ctype, input.src );
+        if( [input.ctype isEqualToString:@"texture"] ) {
+            // load texture to channel
+            NSError *theError;
+            NSString* url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
+            //GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithContentsOfURL:[NSURL URLWithString:url] options:nil error:&theError];
+            
+            NSString* file = [[@"." stringByAppendingString:input.src] stringByReplacingOccurrencesOfString:@".jpg" withString:@".png"];
+            NSLog(@"load %@\n", file);
+            
+            NSLog(@"GL Error = %u", glGetError());
+            
+            GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithCGImage:[[UIImage imageNamed:file] CGImage] options:nil error:&theError];
+            
+            NSLog( @"%@\n%@\n\n\n", theError.description, theError.debugDescription );
+            
+            
+            NSLog(@"GL Error = %u", glGetError());
+            _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
+            _channelTarget[  [input.channel integerValue] ] = spriteTexture.name;
+        }
     }
 }
 
 - (void)bindUniforms {
     GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor, self.view.frame.size.height * self.view.contentScaleFactor, 1. );
     glUniform3fv(_resolutionUniform, 1, &resolution.x );
+    
+    NSDate* now = [[NSDate alloc] init];
+    float currenttime = [now timeIntervalSinceDate:_startTime];
+    glUniform1f(_globalTimeUniform, currenttime );
+    
     glUniform4f(_mouseUniform, _mouse.x * self.view.contentScaleFactor, _mouse.y * self.view.contentScaleFactor, _mouse.z * self.view.contentScaleFactor, _mouse.w * self.view.contentScaleFactor );
     
-    _time += self.timeSinceLastUpdate;
-    glUniform1f(_globalTimeUniform, _time );
+    NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:now];
+    glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second);
+    
+    for( int i=0; i<4; i++ )  {
+        glUniform1i(_channelUniform[i], i);
+    }
 }
 
 - (void)dealloc {
@@ -232,10 +286,14 @@ const GLubyte Indices[] = {
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
     [self bindUniforms];
     
-    glClearColor(1., 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
     glUseProgram(_programId);
+    
+    for( int i=0; i<4; i++ )  {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, _channelTarget[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
     
     glBindVertexArrayOES(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);

@@ -11,5 +11,6 @@
 @interface QueryTableViewController : UITableViewController
 
 - (void) setSortBy:(NSString *)sortBy;
+- (void) reloadData;
 
 @end

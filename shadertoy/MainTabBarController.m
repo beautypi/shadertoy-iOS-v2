@@ -27,8 +27,7 @@
     [((QueryTableViewController *)[[viewController1 childViewControllers] objectAtIndex:0]) setSortBy:@"popular"];
     [((QueryTableViewController *)[[viewController2 childViewControllers] objectAtIndex:0]) setSortBy:@"newest"];
     [((QueryTableViewController *)[[viewController3 childViewControllers] objectAtIndex:0]) setSortBy:@"love"];
-    
-    
+        
     [self setViewControllers:[[NSArray alloc] initWithObjects:viewController1, viewController2, viewController3, nil]];
 }
 

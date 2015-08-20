@@ -33,6 +33,8 @@
     UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:30.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithImage:logo style:UIBarButtonItemStylePlain target:self action:nil];
     self.navigationItem.leftBarButtonItem = item;
+    
+    [self reloadData];
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -49,13 +51,15 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+}
+
+- (void) reloadData {
     [_client getShaderKeys:_sortBy success:^(NSArray *results) {
         _data = results;
         [self.tableView reloadData];
     }];
-    [super viewWillAppear:animated];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
