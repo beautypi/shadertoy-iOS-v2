@@ -50,6 +50,7 @@ const GLubyte Indices[] = {
     float *_channelTime;
     float *_channelResolution;
     GLKTextureInfo *_channelTextureInfo[4];
+    BOOL _channelTextureUseNearest[4];
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -228,6 +229,7 @@ const GLubyte Indices[] = {
     memset (_channelResolution,0,sizeof(float) * 12);
     
     memset (_channelResolution,0,sizeof(GLKTextureInfo *) * 4);
+    memset (_channelTextureUseNearest,0,sizeof(BOOL) * 4);
 }
 
 - (void)findUniforms {
@@ -260,6 +262,10 @@ const GLubyte Indices[] = {
             
             _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
             _channelTextureInfo[  [input.channel integerValue] ] = spriteTexture;
+            
+            if( [input.src containsString:@"tex14.png"] || [input.src containsString:@"tex15.png"] ) {
+                _channelTextureUseNearest[ [input.channel integerValue] ] = YES;
+            }
         }
         if( [input.ctype isEqualToString:@"cubemap"] ) {
             // load texture to channel
@@ -268,8 +274,6 @@ const GLubyte Indices[] = {
             NSString* file = [@"." stringByAppendingString:input.src];
             file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
             glGetError();
-            
-   //         file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"./presets/cube00_0.jpg"];
             
             GLKTextureInfo *spriteTexture = [GLKTextureLoader cubeMapWithContentsOfFile:file options:nil error:&theError];
             if (spriteTexture == nil)
@@ -326,6 +330,11 @@ const GLubyte Indices[] = {
                 // texture 14 and 15 GL_NEAREST
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                
+                if( _channelTextureUseNearest[i] ) {
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                }
             }
         }
     }
