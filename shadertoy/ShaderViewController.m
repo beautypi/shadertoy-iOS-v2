@@ -10,6 +10,7 @@
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
 #import "ShaderCanvasViewController.h"
+#import "NSString_stripHtml.h"
 
 @interface ShaderViewController () {
     ShaderObject* _shader;
@@ -43,7 +44,7 @@
     
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];
-    [_shaderDescription setText:_shader.shaderDescription];
+    [_shaderDescription setText:[[_shader.shaderDescription stringByReplacingOccurrencesOfString:@"<br/>" withString:@"\n"] stripHtml]];
 }
 
 - (void) viewDidAppear:(BOOL)animated {

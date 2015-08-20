@@ -49,7 +49,7 @@ const GLubyte Indices[] = {
     NSDate *_startTime;
     float *_channelTime;
     float *_channelResolution;
-    GLuint _channelTarget[4];
+    GLKTextureInfo *_channelTextureInfo[4];
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -64,7 +64,7 @@ const GLubyte Indices[] = {
 
 #pragma mark - View lifecycle
 
-- (void) createShaderProgram:(ShaderPass *)shaderPass {
+- (BOOL) createShaderProgram:(ShaderPass *)shaderPass {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
     
@@ -128,16 +128,20 @@ const GLubyte Indices[] = {
     glAttachShader(_programId, FragmentShaderID);
     glLinkProgram(_programId);
     
+    glDeleteShader(VertexShaderID);
+    glDeleteShader(FragmentShaderID);
+    
     glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(_programId, logLength, &logLength, log);
         NSLog(@"Shader (%@) info log:\n%s", _shader.shaderId, log);
         free(log);
+        
+        return NO;
     }
     
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
+    return YES;
 }
 
 - (void)genBuffers {
@@ -165,6 +169,15 @@ const GLubyte Indices[] = {
     glDeleteBuffers(1, &_indexBuffer);
     glDeleteVertexArraysOES(1, &_vertexArray);
     glDeleteProgram(_programId);
+    
+    
+    for( int i=0; i<4; i++ )  {
+        if( _channelTextureInfo[i] ) {
+            GLuint name = _channelTextureInfo[i].name;
+            glDeleteTextures(1, &name);
+        }
+    }
+    
 }
 
 - (void)viewDidLoad {
@@ -183,26 +196,28 @@ const GLubyte Indices[] = {
     
     GLKView *view = (GLKView *)self.view;
     view.context = self.context;
-    view.contentScaleFactor = .75f;
+    view.contentScaleFactor = 3.f/4.f;
     
     [EAGLContext setCurrentContext:self.context];
     
     [self genBuffers];
-    [self createShaderProgram:_shader.imagePass];
-    [self findUniforms];
-    
-    self.preferredFramesPerSecond = 20.;
-    _startTime = [[NSDate alloc] init];
-    
-    
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    __weak typeof (self) weakSelf = self;
-    [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-        [weakSelf.view setAlpha:1.f];
-    } completion:nil];
-    
+    if( [self createShaderProgram:_shader.imagePass] ) {
+        [self findUniforms];
+        
+        self.preferredFramesPerSecond = 20.;
+        _startTime = [[NSDate alloc] init];
+        
+        
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        __weak typeof (self) weakSelf = self;
+        [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [weakSelf.view setAlpha:1.f];
+        } completion:nil];
+    } else {
+        [self tearDownGL];
+    }
     return self;
 }
 
@@ -211,6 +226,8 @@ const GLubyte Indices[] = {
     _channelResolution = malloc(sizeof(float) * 12);
     memset (_channelTime,0,sizeof(float) * 4);
     memset (_channelResolution,0,sizeof(float) * 12);
+    
+    memset (_channelResolution,0,sizeof(GLKTextureInfo *) * 4);
 }
 
 - (void)findUniforms {
@@ -228,26 +245,38 @@ const GLubyte Indices[] = {
     
     for (ShaderPassInput* input in _shader.imagePass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
-        NSLog(@"%@ %@ %@\n", channel, input.ctype, input.src );
+
         if( [input.ctype isEqualToString:@"texture"] ) {
             // load texture to channel
             NSError *theError;
-            NSString* url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
-            //GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithContentsOfURL:[NSURL URLWithString:url] options:nil error:&theError];
             
             NSString* file = [[@"." stringByAppendingString:input.src] stringByReplacingOccurrencesOfString:@".jpg" withString:@".png"];
-            NSLog(@"load %@\n", file);
+            file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
+            glGetError();
             
-            NSLog(@"GL Error = %u", glGetError());
+            GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithContentsOfFile:file options:nil error:&theError];
+            if (spriteTexture == nil)
+                NSLog(@"Error loading texture: %@", [theError localizedDescription]);
             
-            GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithCGImage:[[UIImage imageNamed:file] CGImage] options:nil error:&theError];
-            
-            NSLog( @"%@\n%@\n\n\n", theError.description, theError.debugDescription );
-            
-            
-            NSLog(@"GL Error = %u", glGetError());
             _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
-            _channelTarget[  [input.channel integerValue] ] = spriteTexture.name;
+            _channelTextureInfo[  [input.channel integerValue] ] = spriteTexture;
+        }
+        if( [input.ctype isEqualToString:@"cubemap"] ) {
+            // load texture to channel
+            NSError *theError;
+            
+            NSString* file = [@"." stringByAppendingString:input.src];
+            file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
+            glGetError();
+            
+   //         file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"./presets/cube00_0.jpg"];
+            
+            GLKTextureInfo *spriteTexture = [GLKTextureLoader cubeMapWithContentsOfFile:file options:nil error:&theError];
+            if (spriteTexture == nil)
+                NSLog(@"Error loading texture: %@", [theError localizedDescription]);
+                      
+            _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
+            _channelTextureInfo[  [input.channel integerValue] ] = spriteTexture;
         }
     }
 }
@@ -289,10 +318,16 @@ const GLubyte Indices[] = {
     glUseProgram(_programId);
     
     for( int i=0; i<4; i++ )  {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, _channelTarget[i]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        if( _channelTextureInfo[i] ) {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(_channelTextureInfo[i].target, _channelTextureInfo[i].name );
+
+            if( _channelTextureInfo[i].target == GL_TEXTURE_2D ) {
+                // texture 14 and 15 GL_NEAREST
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            }
+        }
     }
     
     glBindVertexArrayOES(_vertexArray);
