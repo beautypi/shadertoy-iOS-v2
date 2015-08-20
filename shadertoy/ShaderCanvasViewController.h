@@ -12,5 +12,7 @@
 @interface ShaderCanvasViewController : GLKViewController
 
 - (ShaderCanvasViewController *)updateWithShaderObject:(ShaderObject *)shader;
+- (void)pause;
+- (void)resume;
 
 @end

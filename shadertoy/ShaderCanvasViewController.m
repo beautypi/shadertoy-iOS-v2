@@ -348,6 +348,14 @@ const GLubyte Indices[] = {
     
 }
 
+- (void)pause {
+    self.paused = YES;
+}
+
+- (void)resume {
+    self.paused = NO;    
+}
+
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {

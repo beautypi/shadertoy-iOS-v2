@@ -15,6 +15,7 @@
 @interface ShaderViewController () {
     ShaderObject* _shader;
     UIView* _shaderView;
+    ShaderCanvasViewController* _shaderCanvasViewController;
     BOOL _firstView;
 }
 
@@ -91,7 +92,7 @@
         //Landscape mode
         CGSize size = [self get_visible_size];
         frame.size.height = MIN( frame.size.height, size.height );
-        
+        _shaderImageView.layer.frame = frame;
         [[self navigationController] setNavigationBarHidden:YES animated:YES];
      } else {
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
@@ -108,18 +109,19 @@
     
     _firstView = NO;
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    ShaderCanvasViewController* viewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
+    _shaderCanvasViewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
     
-    [self addChildViewController:viewController];
-    _shaderView = viewController.view;
-    [self.view addSubview:viewController.view];
+    [self addChildViewController:_shaderCanvasViewController];
+    _shaderView = _shaderCanvasViewController.view;
+    [self.view addSubview:_shaderCanvasViewController.view];
     
     [self layoutCanvasView];
     
-    [viewController updateWithShaderObject:_shader];
-  //  [self.navigationController pushViewController:viewController animated:YES];
+    [_shaderCanvasViewController updateWithShaderObject:_shader];
     
-    [_shaderImageView setImage:nil];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [_shaderImageView setImage:nil];
+    });
 }
 
 - (void) viewWillLayoutSubviews {
