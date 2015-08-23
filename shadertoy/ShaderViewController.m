@@ -8,11 +8,11 @@
 
 #import "ShaderViewController.h"
 #import "AFNetworking.h"
-#import "UIImageView+WebCache.h"
 #import "ShaderCanvasViewController.h"
 #import "NSString_stripHtml.h"
 #import "ShaderRepository.h"
 #import "BlocksKit+UIKit.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface ShaderViewController () {
     ShaderObject* _shader;
@@ -47,7 +47,7 @@
 
 - (void) viewWillAppear:(BOOL)animated {
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
-    [_shaderImageView sd_setImageWithURL:[_shader getPreviewImageUrl]];
+    [_shaderImageView setImageWithURL:[_shader getPreviewImageUrl]];
     
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];

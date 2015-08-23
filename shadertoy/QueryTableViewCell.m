@@ -8,8 +8,29 @@
 
 #import "QueryTableViewCell.h"
 #import "AFNetworking.h"
-#import "UIImageView+WebCache.h"
 #import "APIShadertoy.h"
+#import "UIImageView+AFNetworking.h"
+
+@implementation UIImageView (AFNetworkingFadeInAdditions)
+
+- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage fadeInWithDuration:(CGFloat)duration {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPShouldHandleCookies:NO];
+    [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
+    
+    __weak typeof (self) weakSelf = self;
+    
+    [self setImageWithURLRequest:request placeholderImage:placeholderImage success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+        if (!request) // image was cached
+            [weakSelf setImage:image];
+        else
+            [UIView transitionWithView:weakSelf duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+                [weakSelf setImage:image];
+            } completion:nil];
+    } failure:nil];
+}
+
+@end
 
 @interface QueryTableViewCell ()  {
     ShaderObject* _shader;
@@ -38,16 +59,8 @@
     
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
     
-    __weak typeof (self) weakSelf = self;
-    [_shaderImageView sd_setImageWithURL:[shader getPreviewImageUrl] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        if( cacheType != SDImageCacheTypeDisk ) {
-            [weakSelf.imageView setAlpha:0.f];
-            [UIView transitionWithView:weakSelf duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-                [weakSelf.imageView setAlpha:1.f];
-            } completion:nil];
-        }
-    }];
-    
+    [_shaderImageView setImageWithURL:[shader getPreviewImageUrl] placeholderImage:nil fadeInWithDuration:0.5f];
+
     if( _firstUpdate ) {
         [_shaderTitle setText:shader.shaderName];
         if(shader.likes) [_shaderInfo setText:[@"♡" stringByAppendingString:[shader.likes stringValue]]];
@@ -66,7 +79,7 @@
     [super willMoveToSuperview:newSuperview];
     if(!newSuperview) {
         // cancel timers
-        [_shaderImageView sd_cancelCurrentImageLoad];
+        [_shaderImageView cancelImageRequestOperation];
         [_shader cancelShaderRequestOperation];
     }
 }
