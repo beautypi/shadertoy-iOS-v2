@@ -249,6 +249,14 @@ const GLubyte Indices[] = {
     _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
     
     for (ShaderPassInput* input in _shader.imagePass.inputs)  {
+        if( [input.ctype isEqualToString:@"video"] ) {
+            input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
+            input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
+            input.ctype = @"texture";
+        }
+    }
+    
+    for (ShaderPassInput* input in _shader.imagePass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
 
         if( [input.ctype isEqualToString:@"texture"] ) {
