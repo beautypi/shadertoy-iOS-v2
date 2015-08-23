@@ -26,21 +26,39 @@
 }
 
 - (ShaderObject *) getShader:(NSString *)shaderId success:(void (^)(ShaderObject *shader))success {
+    ShaderObject* shader;
+    BOOL needsUpdate = NO;
+    
     ShaderObject* cachedShader = [[LocalCache sharedLocalCache] getShaderObject:shaderId];
     if( cachedShader ) {
-        return cachedShader;
+        shader = cachedShader;
+        
+        if( [shader needsUpdateFromAPI] ) {
+            needsUpdate = YES;            
+        }
+    } else {
+        shader = [[ShaderObject alloc] init];
+        shader.shaderId = shaderId;
+        needsUpdate = YES;
     }
     
-    ShaderObject* shader = [[ShaderObject alloc] init];
-    shader.shaderId = shaderId;
-    
-    shader.requestOperation = [_client getShader:shaderId success:^(NSDictionary *shaderDict) {
-        [shader updateWithDict:shaderDict];
-        [[LocalCache sharedLocalCache] storeShaderObject:shader forKey:shaderId];
-        success(shader);
-    }];
+    if( needsUpdate ) {
+        shader.requestOperation = [_client getShader:shaderId success:^(NSDictionary *shaderDict) {
+            [shader updateWithDict:shaderDict];
+            [[LocalCache sharedLocalCache] storeShaderObject:shader forKey:shaderId];
+            success(shader);
+        }];
+    }
     
     return shader;
+}
+
+- (void) invalidateShader:(NSString *)shaderId {
+    ShaderObject* cachedShader = [[LocalCache sharedLocalCache] getShaderObject:shaderId];
+    if( cachedShader ) {
+        [cachedShader invalidateLastUpdatedDate];
+        [[LocalCache sharedLocalCache] storeShaderObject:cachedShader forKey:shaderId];
+    }
 }
 
 @end

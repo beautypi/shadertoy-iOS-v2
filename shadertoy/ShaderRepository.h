@@ -12,5 +12,6 @@
 @interface ShaderRepository : NSObject
 
 - (ShaderObject *) getShader:(NSString *)shaderId success:(void (^)(ShaderObject *shader))success;
+- (void) invalidateShader:(NSString *)shaderId;
 
 @end

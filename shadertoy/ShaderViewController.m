@@ -11,6 +11,7 @@
 #import "UIImageView+AFNetworking.h"
 #import "ShaderCanvasViewController.h"
 #import "NSString_stripHtml.h"
+#import "ShaderRepository.h"
 
 @interface ShaderViewController () {
     ShaderObject* _shader;
@@ -25,8 +26,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     _firstView = YES;
-    // Do any additional setup after loading the view.
 }
 
 - (void)didReceiveMemoryWarning {
@@ -37,6 +38,10 @@
 
 - (void) setShaderObject:(ShaderObject *)shader {
     _shader = shader;
+    
+    // invalidate, will refresh next view
+    ShaderRepository* _repository = [[ShaderRepository alloc] init];
+    [_repository invalidateShader:_shader.shaderId];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -70,10 +75,11 @@
     size = [[UIApplication sharedApplication] statusBarFrame].size;
     result.height -= MIN(size.width, size.height);
     
-    if (self.navigationController != nil && false) {
-        size = self.navigationController.navigationBar.frame.size;
-        result.height -= MIN(size.width, size.height);
-    }
+    // hide navigationbar in landscape 
+//    if (self.navigationController != nil ) {
+//        size = self.navigationController.navigationBar.frame.size;
+//        result.height -= MIN(size.width, size.height);
+//    }
     
     if (self.tabBarController != nil) {
         size = self.tabBarController.tabBar.frame.size;
@@ -119,7 +125,7 @@
     
     [_shaderCanvasViewController updateWithShaderObject:_shader];
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [_shaderImageView setImage:nil];
     });
 }

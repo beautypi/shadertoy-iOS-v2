@@ -73,7 +73,9 @@
     
     self.viewed = [info objectForKey:@"viewed"];
     self.likes = [info objectForKey:@"likes"];
-    self.date = [info objectForKey:@"date"];
+    self.date = [[NSDate alloc] initWithTimeIntervalSince1970:[[info objectForKey:@"date"] floatValue]];
+    
+    self.dateLastUpdated = [[NSDate alloc] init];
     
     NSArray* renderpasses = [dict objectForKey:@"renderpass"];
     
@@ -97,6 +99,7 @@
     [coder encodeObject:self.date forKey:@"date"];
     [coder encodeObject:self.imagePass forKey:@"imagePass"];
     [coder encodeObject:self.soundPass forKey:@"soundPass"];
+    [coder encodeObject:self.dateLastUpdated forKey:@"dateLastUpdated"];
 }
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
@@ -110,6 +113,7 @@
         self.date = [coder decodeObjectForKey:@"date"];
         self.imagePass = [coder decodeObjectForKey:@"imagePass"];
         self.soundPass = [coder decodeObjectForKey:@"soundPass"];
+        self.dateLastUpdated = [coder decodeObjectForKey:@"dateLastUpdated"];
     }
     return self;
 }
@@ -122,6 +126,24 @@
 - (void) cancelShaderRequestOperation {
     [self.requestOperation cancel];
 }
+
+- (BOOL) needsUpdateFromAPI {
+    if( !self.dateLastUpdated ) {
+        return YES;
+    }
+    
+    NSDate* now = [NSDate date];
+    if( [now timeIntervalSinceDate:self.date] > [self.dateLastUpdated timeIntervalSinceDate:self.date] * 2.f ) {
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void) invalidateLastUpdatedDate {
+    self.dateLastUpdated = self.date;
+}
+
 
 @end
 

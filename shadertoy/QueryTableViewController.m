@@ -12,6 +12,10 @@
 #import "ShaderRepository.h"
 #import "ShaderViewController.h"
 #import "UIImage+FZUtil.h"
+#import "SVPullToRefresh.h"
+#import "LocalCache.h"
+#import "MBProgressHUD.h"
+#import "UIBarButtonItem+BlocksKit.h"
 
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
@@ -30,11 +34,13 @@
     _repository = [[ShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
     
-    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:30.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithImage:logo style:UIBarButtonItemStylePlain target:self action:nil];
+    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:24.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    __weak QueryTableViewController *weakSelf = self;
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
+        [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+    }];
+
     self.navigationItem.leftBarButtonItem = item;
-    
-    [self reloadData];
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -51,13 +57,63 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
+    // get data from cache
+    _data = [self getDataFromCache];
+    if( ![_data count] ) {
+        [self reloadData];
+    }
+    
     [super viewWillAppear:animated];
 }
 
+- (void) viewDidAppear:(BOOL)animated {
+    __weak QueryTableViewController *weakSelf = self;
+    
+    [self.tableView addPullToRefreshWithActionHandler:^{
+        [weakSelf reloadData];
+    }];
+    
+    [super viewDidAppear:animated];
+}
+
+- (NSArray *) getDataFromCache {
+    NSString* dataKey = [@"queryResults" stringByAppendingString:_sortBy];
+    NSArray *data = [[LocalCache sharedLocalCache] getObject:dataKey];
+    if( !data ) return [[NSArray alloc] init];
+    
+    
+    dataKey = [@"queryResultsDateCached" stringByAppendingString:_sortBy];
+    NSDate *date = [[LocalCache sharedLocalCache] getObject:dataKey];
+    
+    // reload every day
+    if( !date || [date timeIntervalSinceNow] < -(24*60*60) ) {
+        [self reloadData];
+    }
+    
+    return data;
+}
+
+- (void) storeDataToCache:(NSArray *) data {
+    NSString* dataKey = [@"queryResults" stringByAppendingString:_sortBy];
+    [[LocalCache sharedLocalCache] storeObject:data forKey:dataKey];
+    
+    dataKey = [@"queryResultsDateCached" stringByAppendingString:_sortBy];
+    [[LocalCache sharedLocalCache] storeObject:[NSDate date] forKey:dataKey];
+}
+
+
 - (void) reloadData {
+    if( ![_data count] ) {
+        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    }
+    
+    __weak QueryTableViewController *weakSelf = self;
     [_client getShaderKeys:_sortBy success:^(NSArray *results) {
         _data = results;
-        [self.tableView reloadData];
+        [self storeDataToCache:_data];
+        [weakSelf.tableView reloadData];
+        [[weakSelf.tableView pullToRefreshView] stopAnimating];
+        [MBProgressHUD hideAllHUDsForView:weakSelf.view animated:YES];
     }];
 }
 

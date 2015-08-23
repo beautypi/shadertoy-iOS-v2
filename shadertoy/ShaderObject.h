@@ -57,7 +57,11 @@
 
 @property (nonatomic, weak)   AFHTTPRequestOperation *requestOperation;
 
+@property (nonatomic, strong) NSDate *dateLastUpdated;
+
 - (NSURL *) getPreviewImageUrl;
 - (void) cancelShaderRequestOperation;
+- (BOOL) needsUpdateFromAPI;
+- (void) invalidateLastUpdatedDate;
 
 @end
