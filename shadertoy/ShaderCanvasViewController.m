@@ -51,6 +51,7 @@ const GLubyte Indices[] = {
     float *_channelResolution;
     GLKTextureInfo *_channelTextureInfo[4];
     BOOL _channelTextureUseNearest[4];
+    BOOL _forceDisplay;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -102,10 +103,18 @@ const GLubyte Indices[] = {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump sampler2D iChannel%@;\n", input.channel];
         }
     }
+
+    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
+    @" \n \
+    float fwidth(float p){return 0.;}  vec2 fwidth(vec2 p){return vec2(0.);}  vec3 fwidth(vec3 p){return vec3(0.);} \n \
+    float dFdx(float p){return 0.;}  vec2 dFdx(vec2 p){return vec2(0.);}  vec3 dFdx(vec3 p){return vec3(0.);} \n \
+    float dFdy(float p){return 0.;}  vec2 dFdy(vec2 p){return vec2(0.);}  vec3 dFdy(vec3 p){return vec3(0.);} \n \
+    " ];
     
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:shaderPass.code];
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-    @"void main()  { \n \
+    @" \n \
+    void main()  { \n \
         mainImage(gl_FragColor, gl_FragCoord.xy); \n \
     } \n \
     " ];
@@ -206,10 +215,9 @@ const GLubyte Indices[] = {
         [self findUniforms];
         
         self.preferredFramesPerSecond = 20.;
-        _startTime = [[NSDate alloc] init];
+        _startTime = [NSDate date];
         
-        glClearColor(0.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        _forceDisplay = YES;
     } else {
         [self tearDownGL];
         return NO;
@@ -312,7 +320,13 @@ const GLubyte Indices[] = {
 #pragma mark - GLKViewDelegate
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
+//    if( !_forceDisplay ) return;
+    _forceDisplay = NO;
+    
     [self bindUniforms];
+    
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(_programId);
     
@@ -346,7 +360,9 @@ const GLubyte Indices[] = {
 - (void)resume {
     self.paused = NO;    
 }
-
+- (void)renderOneFrame {
+    _forceDisplay = YES;
+}
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {

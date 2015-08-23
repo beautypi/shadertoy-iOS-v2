@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface AppDelegate ()
 
@@ -16,13 +17,6 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
-    
-    NSURLCache *sharedCache = [[NSURLCache alloc] initWithMemoryCapacity:2 * 1024 * 1024
-                                                            diskCapacity:100 * 1024 * 1024
-                                                                diskPath:nil];
-    [NSURLCache setSharedURLCache:sharedCache];
-    
 // ff8020
     self.window.tintColor = [UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f];
     [[UITabBar appearance] setBarTintColor:[UIColor darkGrayColor]];

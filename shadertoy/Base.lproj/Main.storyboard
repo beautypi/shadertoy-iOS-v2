@@ -112,8 +112,8 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="Sju-9u-L0D">
-                                <rect key="frame" x="92" y="474" width="492" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Label" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sju-9u-L0D">
+                                <rect key="frame" x="91" y="474" width="493" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="9fI-ti-CBc"/>
                                 </constraints>
@@ -131,9 +131,18 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Uploaded by " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pp4-bt-Tzx">
-                                <rect key="frame" x="16" y="479" width="76" height="15"/>
+                                <rect key="frame" x="16" y="479" width="75" height="15"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Touch the screen to interact with the shader." lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QQG-bw-uVX">
+                                <rect key="frame" x="16" y="537" width="568" height="15"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" priority="10" constant="15" id="Ztm-B5-i3s"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -141,8 +150,11 @@
                         <constraints>
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="top" secondItem="fjf-AZ-5Mu" secondAttribute="bottom" constant="4" id="1PJ-y1-vlw"/>
                             <constraint firstItem="Pp4-bt-Tzx" firstAttribute="top" secondItem="fjf-AZ-5Mu" secondAttribute="bottom" constant="9" id="1U3-eB-wBk"/>
+                            <constraint firstItem="QQG-bw-uVX" firstAttribute="top" secondItem="Ey0-HH-by2" secondAttribute="bottom" constant="8" id="2qx-tR-cng"/>
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="leading" secondItem="Pp4-bt-Tzx" secondAttribute="trailing" id="7e8-ng-nua"/>
+                            <constraint firstItem="QQG-bw-uVX" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" id="7iu-lw-zJ6"/>
                             <constraint firstItem="2hd-ey-DP7" firstAttribute="top" secondItem="U1G-LE-aro" secondAttribute="bottom" id="9R7-Mb-nal"/>
+                            <constraint firstItem="QQG-bw-uVX" firstAttribute="trailing" secondItem="B5R-jj-wIy" secondAttribute="trailingMargin" id="FWJ-QZ-th9"/>
                             <constraint firstItem="Ey0-HH-by2" firstAttribute="trailing" secondItem="B5R-jj-wIy" secondAttribute="trailingMargin" id="Jvd-b3-clR"/>
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="76" id="Lht-Qj-ly6"/>
                             <constraint firstItem="Ey0-HH-by2" firstAttribute="top" secondItem="Sju-9u-L0D" secondAttribute="bottom" constant="19" id="QT9-QR-CAM"/>
@@ -156,8 +168,15 @@
                             <constraint firstItem="jCD-UI-gmR" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="-16" id="j7f-0H-jzn"/>
                             <constraint firstItem="Sju-9u-L0D" firstAttribute="trailing" secondItem="B5R-jj-wIy" secondAttribute="trailingMargin" id="kix-T8-gtq"/>
                             <constraint firstItem="2hd-ey-DP7" firstAttribute="leading" secondItem="B5R-jj-wIy" secondAttribute="leadingMargin" constant="-16" id="kmf-Ig-m5X"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Sju-9u-L0D" secondAttribute="trailing" id="p8h-6g-CwO"/>
                             <constraint firstAttribute="trailingMargin" secondItem="2hd-ey-DP7" secondAttribute="trailing" constant="-16" id="vpT-jh-koH"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Lht-Qj-ly6"/>
+                                <exclude reference="kix-T8-gtq"/>
+                            </mask>
+                        </variation>
                     </view>
                     <navigationItem key="navigationItem" id="7ZH-qT-hUZ">
                         <barButtonItem key="rightBarButtonItem" systemItem="action" id="O3q-Xo-oIH"/>
@@ -169,6 +188,7 @@
                         <outlet property="shaderImageView" destination="2hd-ey-DP7" id="tpd-eb-MbB"/>
                         <outlet property="shaderLikesInfo" destination="v05-F5-MU7" id="2ro-XS-De1"/>
                         <outlet property="shaderName" destination="fjf-AZ-5Mu" id="APH-Sj-yaz"/>
+                        <outlet property="shaderTouchPossible" destination="QQG-bw-uVX" id="cWH-PZ-NMA"/>
                         <outlet property="shaderUserName" destination="Sju-9u-L0D" id="2B9-UO-7pf"/>
                     </connections>
                 </viewController>

@@ -20,8 +20,8 @@
                     <view alpha="0.64999999999999969" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nbe-We-jxY">
                         <rect key="frame" x="0.0" y="197" width="768" height="34"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L7z-l9-gU1">
-                                <rect key="frame" x="692" y="12" width="60" height="15"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L7z-l9-gU1">
+                                <rect key="frame" x="692" y="27" width="60" height="0.0"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="60" id="ZBC-6b-IcP"/>
                                 </constraints>

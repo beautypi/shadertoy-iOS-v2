@@ -16,6 +16,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderName;
 @property (strong, nonatomic) IBOutlet UILabel *shaderUserName;
 @property (strong, nonatomic) IBOutlet UILabel *shaderDescription;
+@property (strong, nonatomic) IBOutlet UILabel *shaderTouchPossible;
 
 @property (strong, nonatomic) IBOutlet UILabel *shaderCompiling;
 @property (strong, nonatomic) IBOutlet UILabel *shaderLikesInfo;

@@ -8,7 +8,7 @@
 
 #import "ShaderViewController.h"
 #import "AFNetworking.h"
-#import "UIImageView+AFNetworking.h"
+#import "UIImageView+WebCache.h"
 #import "ShaderCanvasViewController.h"
 #import "NSString_stripHtml.h"
 #import "ShaderRepository.h"
@@ -47,14 +47,15 @@
 
 - (void) viewWillAppear:(BOOL)animated {
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
-    [_shaderImageView setImageWithURL:[_shader getPreviewImageUrl]];
+    [_shaderImageView sd_setImageWithURL:[_shader getPreviewImageUrl]];
     
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];
     [_shaderDescription setText:[[_shader.shaderDescription stringByReplacingOccurrencesOfString:@"<br/>" withString:@"\n"] stripHtml]];
     [_shaderLikesInfo setText:[@"♡" stringByAppendingString:[_shader.likes stringValue]]];
-    
     [_shaderCompileInfoButton setHidden:YES];
+    [_shaderTouchPossible setHidden:![_shader.imagePass.code containsString:@"iMouse"]];
+    [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
     [self layoutCanvasView];
 }
@@ -123,9 +124,9 @@
     
     [self addChildViewController:_shaderCanvasViewController];
     _shaderView = _shaderCanvasViewController.view;
-    [_shaderView setAlpha:0.f];
+    [_shaderView setHidden:YES];
     [self.view addSubview:_shaderCanvasViewController.view];
-    
+
     [self layoutCanvasView];
     
     NSString *error;
@@ -133,12 +134,10 @@
         __weak typeof (self) weakSelf = self;
         [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             [weakSelf.shaderCompiling setHidden:YES];
-            [_shaderView setAlpha:1.f];
-        } completion:nil];
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        } completion:^(BOOL finished) {
             [_shaderImageView setImage:nil];
-        });
+            [_shaderView setHidden:NO];
+        }];
     } else {
         [_shaderCompiling setText:@"Shader error"];
         [_shaderCompiling setTextColor:[UIColor redColor]];

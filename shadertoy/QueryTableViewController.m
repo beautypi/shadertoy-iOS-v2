@@ -69,10 +69,11 @@
 - (void) viewDidAppear:(BOOL)animated {
     __weak QueryTableViewController *weakSelf = self;
     
-    [self.tableView addPullToRefreshWithActionHandler:^{
-        [weakSelf reloadData];
-    }];
-    
+    if( ![self.tableView pullToRefreshView] ) {
+        [self.tableView addPullToRefreshWithActionHandler:^{
+            [weakSelf reloadData];
+        }];
+    }
     [super viewDidAppear:animated];
 }
 

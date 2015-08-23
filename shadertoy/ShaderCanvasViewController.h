@@ -14,5 +14,6 @@
 - (BOOL)compileShaderObject:(ShaderObject *)shader theError:(NSString **)error;
 - (void)pause;
 - (void)resume;
+- (void)renderOneFrame;
 
 @end
