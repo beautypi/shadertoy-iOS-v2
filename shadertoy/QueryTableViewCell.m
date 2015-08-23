@@ -64,10 +64,12 @@
     
     if( _firstUpdate ) {
         [_shaderTitle setText:shader.shaderName];
+        if(shader.likes) [_shaderInfo setText:[@"♡" stringByAppendingString:[shader.likes stringValue]]];
     } else {
         __weak typeof (self) weakSelf = self;
         [UIView transitionWithView:weakSelf duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             [weakSelf.shaderTitle setText:shader.shaderName];
+            if(shader.likes) [weakSelf.shaderInfo setText:[@"♡" stringByAppendingString:[shader.likes stringValue]]];
         } completion:nil];
     }
     

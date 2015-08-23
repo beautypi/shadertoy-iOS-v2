@@ -65,7 +65,7 @@ const GLubyte Indices[] = {
 
 #pragma mark - View lifecycle
 
-- (BOOL) createShaderProgram:(ShaderPass *)shaderPass {
+- (BOOL) createShaderProgram:(ShaderPass *)shaderPass theError:(NSString **)error {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
     
@@ -119,8 +119,10 @@ const GLubyte Indices[] = {
     if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetShaderInfoLog(FragmentShaderID, logLength, &logLength, log);
-        NSLog(@"Shader (%@) info log:\n%s", _shader.shaderId, log);
+        *error = [NSString stringWithFormat:@"%s", log];
         free(log);
+        
+        return NO;
     }
     
     // Link the program
@@ -136,7 +138,7 @@ const GLubyte Indices[] = {
     if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(_programId, logLength, &logLength, log);
-        NSLog(@"Shader (%@) info log:\n%s", _shader.shaderId, log);
+        *error = [NSString stringWithFormat:@"%s", log];
         free(log);
         
         return NO;
@@ -183,11 +185,9 @@ const GLubyte Indices[] = {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [self.view setAlpha:0.f];
 }
 
-- (id)updateWithShaderObject:(ShaderObject *)shader {
+- (BOOL)compileShaderObject:(ShaderObject *)shader theError:(NSString **)error {
     _shader = shader;
     
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
@@ -202,7 +202,7 @@ const GLubyte Indices[] = {
     [EAGLContext setCurrentContext:self.context];
     
     [self genBuffers];
-    if( [self createShaderProgram:_shader.imagePass] ) {
+    if( [self createShaderProgram:_shader.imagePass theError:error] ) {
         [self findUniforms];
         
         self.preferredFramesPerSecond = 20.;
@@ -210,15 +210,11 @@ const GLubyte Indices[] = {
         
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
-        
-        __weak typeof (self) weakSelf = self;
-        [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-            [weakSelf.view setAlpha:1.f];
-        } completion:nil];
     } else {
         [self tearDownGL];
+        return NO;
     }
-    return self;
+    return YES;
 }
 
 - (void)allocChannels {

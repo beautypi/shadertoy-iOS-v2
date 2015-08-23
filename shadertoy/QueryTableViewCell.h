@@ -13,6 +13,7 @@
 
 @property (strong, nonatomic) IBOutlet UIImageView *shaderImageView;
 @property (strong, nonatomic) IBOutlet UILabel *shaderTitle;
+@property (strong, nonatomic) IBOutlet UILabel *shaderInfo;
 
 - (void) layoutForShader:(ShaderObject *)shader;
 

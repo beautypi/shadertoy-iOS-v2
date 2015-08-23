@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="49e-Tb-3d3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="49e-Tb-3d3">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
@@ -64,9 +64,43 @@
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jCD-UI-gmR">
                                 <rect key="frame" x="0.0" y="401" width="600" height="34"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Compiling shader..." lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z3Z-zp-Yvy">
+                                        <rect key="frame" x="16" y="8" width="507" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v05-F5-MU7">
+                                        <rect key="frame" x="531" y="8" width="53" height="21"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="53" id="Fjs-hE-qnb"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CFC-rn-Geo">
+                                        <rect key="frame" x="562" y="6" width="22" height="22"/>
+                                        <state key="normal">
+                                            <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                    </button>
+                                </subviews>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstItem="CFC-rn-Geo" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="6" id="DRa-FU-8hB"/>
+                                    <constraint firstAttribute="trailing" secondItem="CFC-rn-Geo" secondAttribute="trailing" constant="16" id="FOH-yD-mS7"/>
+                                    <constraint firstItem="z3Z-zp-Yvy" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="8" id="G44-Gx-aBm"/>
+                                    <constraint firstItem="v05-F5-MU7" firstAttribute="leading" secondItem="z3Z-zp-Yvy" secondAttribute="trailing" constant="8" id="PAE-ea-NWu"/>
+                                    <constraint firstItem="z3Z-zp-Yvy" firstAttribute="leading" secondItem="jCD-UI-gmR" secondAttribute="leading" constant="16" id="TfJ-qQ-kqw"/>
                                     <constraint firstAttribute="height" constant="34" id="Tsi-Lh-voH"/>
+                                    <constraint firstAttribute="bottom" secondItem="v05-F5-MU7" secondAttribute="bottom" constant="5" id="aHb-nc-qmB"/>
+                                    <constraint firstAttribute="bottom" secondItem="CFC-rn-Geo" secondAttribute="bottom" constant="6" id="j0S-oG-tBN"/>
+                                    <constraint firstAttribute="bottom" secondItem="z3Z-zp-Yvy" secondAttribute="bottom" constant="5" id="kMg-JF-e8W"/>
+                                    <constraint firstItem="v05-F5-MU7" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="8" id="kyL-XU-PWt"/>
+                                    <constraint firstAttribute="trailing" secondItem="v05-F5-MU7" secondAttribute="trailing" constant="16" id="p2R-ZZ-4Ge"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="fjf-AZ-5Mu">
@@ -129,8 +163,11 @@
                         <barButtonItem key="rightBarButtonItem" systemItem="action" id="O3q-Xo-oIH"/>
                     </navigationItem>
                     <connections>
+                        <outlet property="shaderCompileInfoButton" destination="CFC-rn-Geo" id="4hI-NS-Vkt"/>
+                        <outlet property="shaderCompiling" destination="z3Z-zp-Yvy" id="KdN-Fo-i9v"/>
                         <outlet property="shaderDescription" destination="Ey0-HH-by2" id="kfv-cH-oKq"/>
                         <outlet property="shaderImageView" destination="2hd-ey-DP7" id="tpd-eb-MbB"/>
+                        <outlet property="shaderLikesInfo" destination="v05-F5-MU7" id="2ro-XS-De1"/>
                         <outlet property="shaderName" destination="fjf-AZ-5Mu" id="APH-Sj-yaz"/>
                         <outlet property="shaderUserName" destination="Sju-9u-L0D" id="2B9-UO-7pf"/>
                     </connections>

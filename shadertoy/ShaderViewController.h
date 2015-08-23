@@ -17,6 +17,11 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderUserName;
 @property (strong, nonatomic) IBOutlet UILabel *shaderDescription;
 
+@property (strong, nonatomic) IBOutlet UILabel *shaderCompiling;
+@property (strong, nonatomic) IBOutlet UILabel *shaderLikesInfo;
+@property (strong, nonatomic) IBOutlet UIButton *shaderCompileInfoButton;
+
+
 - (void) setShaderObject:(ShaderObject *)shader;
 
 @end

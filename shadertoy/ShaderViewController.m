@@ -12,6 +12,7 @@
 #import "ShaderCanvasViewController.h"
 #import "NSString_stripHtml.h"
 #import "ShaderRepository.h"
+#import "BlocksKit+UIKit.h"
 
 @interface ShaderViewController () {
     ShaderObject* _shader;
@@ -51,6 +52,9 @@
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];
     [_shaderDescription setText:[[_shader.shaderDescription stringByReplacingOccurrencesOfString:@"<br/>" withString:@"\n"] stripHtml]];
+    [_shaderLikesInfo setText:[@"♡" stringByAppendingString:[_shader.likes stringValue]]];
+    
+    [_shaderCompileInfoButton setHidden:YES];
     
     [self layoutCanvasView];
 }
@@ -119,15 +123,34 @@
     
     [self addChildViewController:_shaderCanvasViewController];
     _shaderView = _shaderCanvasViewController.view;
+    [_shaderView setAlpha:0.f];
     [self.view addSubview:_shaderCanvasViewController.view];
     
     [self layoutCanvasView];
     
-    [_shaderCanvasViewController updateWithShaderObject:_shader];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [_shaderImageView setImage:nil];
-    });
+    NSString *error;
+    if( [_shaderCanvasViewController compileShaderObject:_shader theError:&error] ) {
+        __weak typeof (self) weakSelf = self;
+        [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [weakSelf.shaderCompiling setHidden:YES];
+            [_shaderView setAlpha:1.f];
+        } completion:nil];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [_shaderImageView setImage:nil];
+        });
+    } else {
+        [_shaderCompiling setText:@"Shader error"];
+        [_shaderCompiling setTextColor:[UIColor redColor]];
+        [_shaderLikesInfo setHidden:YES];
+        
+        [_shaderCompileInfoButton setTintColor:[UIColor redColor]];
+        [_shaderCompileInfoButton setHidden:NO];
+        [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
+            UIAlertView* alert = [[UIAlertView alloc]  initWithTitle:@"Shader error" message:error delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil];
+            [alert show];
+        } forControlEvents:UIControlEventTouchDown];
+    }
 }
 
 - (void) viewWillLayoutSubviews {
