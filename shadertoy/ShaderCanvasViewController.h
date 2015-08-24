@@ -19,6 +19,7 @@
 - (void) rewind;
 - (BOOL) isRunning;
 - (void) setTimeLabel:(UILabel *)label;
+- (void) forceDraw;
 
 - (float) getIGlobalTime;
 

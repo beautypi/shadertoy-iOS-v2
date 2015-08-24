@@ -14,6 +14,7 @@
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+AFNetworking.h"
 #import "UIImage+ResizeMagick.h"
+#import "BlocksKit.h"
 
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -22,7 +23,10 @@
     APIShaderObject* _shader;
     UIView* _shaderView;
     ShaderCanvasViewController* _shaderCanvasViewController;
+    
     BOOL _firstView;
+    BOOL _exporting;
+    BOOL _compiled;
     
     NSMutableArray *_gifImageArray;
 }
@@ -34,6 +38,9 @@
     [super viewDidLoad];
     
     _firstView = YES;
+    
+    _exporting = NO;
+    _compiled = NO;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -63,7 +70,7 @@
     [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
-    
+
     [self layoutCanvasView];
 }
 
@@ -116,6 +123,7 @@
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
     }
     _shaderView.frame = frame;
+    [_shaderCanvasViewController forceDraw];
 }
 
 - (void) viewDidAppear:(BOOL)animated {
@@ -149,6 +157,7 @@
             [_shaderView setHidden:NO];
             [_shaderImageView setImage:nil];
             [_shaderPlayerContainer setHidden:NO];
+            _compiled = YES;
         }];
     } else {
         [_shaderCompiling setText:@"Shader error"];
@@ -235,10 +244,25 @@ static float const kFrameDelay = 0.08f;
 }
 
 - (IBAction)shaderShareClick:(id)sender {
+    if( _exporting || !_compiled ) return;
+    
     [_shaderPlayerPlay setSelected:YES];
     [_shaderCanvasViewController pause];
     
-    [self exportImage:YES];
+    _exporting = YES;
+    
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"Do you want to include an animated GIF in your post? This may take some time."];
+    [alert bk_addButtonWithTitle:@"Yes" handler:^{
+        [self exportImage:YES];
+    }];
+    [alert bk_addButtonWithTitle:@"No" handler:^{
+        [self exportImage:NO];
+    }];
+    [alert bk_addButtonWithTitle:@"Cancel" handler:^{
+        _exporting = NO;
+    }];
+    
+    [alert show];
 }
 
 - (void)exportImage:(BOOL) asGif {
@@ -253,19 +277,27 @@ static float const kFrameDelay = 0.08f;
     
     if( asGif ) {
         // gif export
-        [_shaderCanvasViewController setCanvasScaleFactor: 640.f / self.view.frame.size.width ];
+        UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting GIF"];
+        [alert show];
+        
+        [_shaderCanvasViewController setCanvasScaleFactor: 2.f*480.f / self.view.frame.size.width ];
         
         [self addAnimationFrameToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(NSURL *fileURL) {
+            [alert dismissWithClickedButtonIndex:0 animated:YES];
             
             [weakSelf shareText:text andImage:[NSData dataWithContentsOfURL:fileURL] andUrl:url];
             [shaderCanvasViewController setDefaultCanvasScaleFactor];
         }];
     } else {
         // normal export
-        [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 960.f / self.view.frame.size.width ];
+        UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting HQ image"];
+        [alert show];
+        
+        [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 1440.f / self.view.frame.size.width ];
         
         [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
-            UIImage *scaledImage = [image resizedImageByMagick:@"960x960"]; //   ][image resizedImageToFitInSize:CGSizeMake(320.f, 320.f) scaleIfSmaller:NO];
+            UIImage *scaledImage = [image resizedImageByMagick:@"1440x1440"];
+            [alert dismissWithClickedButtonIndex:0 animated:YES];
             
             [weakSelf shareText:text andImage:(NSData *)scaledImage andUrl:url];
             [shaderCanvasViewController setDefaultCanvasScaleFactor];
@@ -288,7 +320,9 @@ static float const kFrameDelay = 0.08f;
     
     UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:sharingItems applicationActivities:nil];
     
-    [self presentViewController:activityController animated:YES completion:nil];
+    [self presentViewController:activityController animated:YES completion:^{}];
+    
+    _exporting = NO;
 }
 
 @end

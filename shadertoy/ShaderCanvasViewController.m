@@ -390,19 +390,20 @@ const GLubyte Indices[] = {
 
 - (void)setCanvasScaleFactor:(float)scaleFactor {
     self.view.contentScaleFactor = scaleFactor;
-    _forceDrawInRect = YES;
-    [(GLKView *)self.view display];
 }
 
 - (void) setDefaultCanvasScaleFactor {
     [self setCanvasScaleFactor:3.f/4.f];
-    _forceDrawInRect = YES;
+    [self forceDraw];
     [(GLKView *)self.view display];
 }
 
 - (void)viewWillLayoutSubviews {
-    _forceDrawInRect = YES;
     [super viewWillLayoutSubviews];
+}
+
+- (void) forceDraw {
+    _forceDrawInRect = YES;    
 }
 
 #pragma mark - GLKViewDelegate
