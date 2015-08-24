@@ -1,5 +1,6 @@
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '7.1'
+use_frameworks!
+platform :ios, '8.0'
 
 pod 'AFNetworking', '~> 2.0'
 pod 'GoogleAnalytics', '~> 3.0'

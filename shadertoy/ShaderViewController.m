@@ -26,7 +26,6 @@
     
     NSMutableArray *_gifImageArray;
 }
-
 @end
 
 @implementation ShaderViewController
@@ -185,11 +184,11 @@
     }
 }
 
-static NSUInteger const kFrameCount = 26;
-static float const kFrameDelay = 0.09f;
+static NSUInteger const kFrameCount = 30;
+static float const kFrameDelay = 0.08f;
 
-- (NSData *) makeAnimatedGif {
-        
+- (NSURL *) makeAnimatedGif {
+    
     NSDictionary *fileProperties = @{
                                      (__bridge id)kCGImagePropertyGIFDictionary: @{
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
@@ -217,15 +216,14 @@ static float const kFrameDelay = 0.09f;
         NSLog(@"failed to finalize image destination");
     }
     CFRelease(destination);
-    NSLog(@"%@\n", [fileURL absoluteString]);
-    return [NSData dataWithContentsOfURL:fileURL];
+    return fileURL;
 }
 
-- (void) addAnimationFrameToArray:(int)frameNumber time:(float)time complete:(void (^)(NSData *image))complete {
+- (void) addAnimationFrameToArray:(int)frameNumber time:(float)time complete:(void (^)(NSURL *fileURL))complete {
     __weak typeof (self) weakSelf = self;
     
     [_shaderCanvasViewController renderOneFrame:time success:^(UIImage *image) {
-        UIImage *scaledImage = [image resizedImageByMagick:@"450x450"]; // [image resizedImageToFitInSize:CGSizeMake(230.f, 230.f) scaleIfSmaller:NO];
+        UIImage *scaledImage = [image resizedImageByMagick:@"480x480"]; // [image resizedImageToFitInSize:CGSizeMake(230.f, 230.f) scaleIfSmaller:NO];
         [_gifImageArray insertObject:scaledImage atIndex:frameNumber];
         
         if( frameNumber < kFrameCount-1 ) {
@@ -244,7 +242,7 @@ static float const kFrameDelay = 0.09f;
 }
 
 - (void)exportImage:(BOOL) asGif {
-
+    
     NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
     NSURL *url = [_shader getShaderUrl];
     ShaderCanvasViewController *shaderCanvasViewController = _shaderCanvasViewController;
@@ -257,9 +255,10 @@ static float const kFrameDelay = 0.09f;
         // gif export
         [_shaderCanvasViewController setCanvasScaleFactor: 640.f / self.view.frame.size.width ];
         
-        [self addAnimationFrameToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(NSData *image) {
-              [weakSelf shareText:text andImage:(UIImage *)image andUrl:url];
-              [shaderCanvasViewController setDefaultCanvasScaleFactor];
+        [self addAnimationFrameToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(NSURL *fileURL) {
+            
+            [weakSelf shareText:text andImage:[NSData dataWithContentsOfURL:fileURL] andUrl:url];
+            [shaderCanvasViewController setDefaultCanvasScaleFactor];
         }];
     } else {
         // normal export
@@ -267,14 +266,14 @@ static float const kFrameDelay = 0.09f;
         
         [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
             UIImage *scaledImage = [image resizedImageByMagick:@"960x960"]; //   ][image resizedImageToFitInSize:CGSizeMake(320.f, 320.f) scaleIfSmaller:NO];
-
-            [weakSelf shareText:text andImage:(UIImage *)scaledImage andUrl:url];
+            
+            [weakSelf shareText:text andImage:(NSData *)scaledImage andUrl:url];
             [shaderCanvasViewController setDefaultCanvasScaleFactor];
         }];
     }
 }
 
-- (void)shareText:(NSString *)text andImage:(UIImage *)image andUrl:(NSURL *)url {
+- (void)shareText:(NSString *)text andImage:(NSData *)image andUrl:(NSURL *)url {
     NSMutableArray *sharingItems = [NSMutableArray new];
     
     if (text) {
@@ -288,6 +287,7 @@ static float const kFrameDelay = 0.09f;
     }
     
     UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:sharingItems applicationActivities:nil];
+    
     [self presentViewController:activityController animated:YES completion:nil];
 }
 
