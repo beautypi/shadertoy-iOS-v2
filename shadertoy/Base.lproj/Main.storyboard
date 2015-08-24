@@ -90,20 +90,21 @@
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Dm-wj-zRQ">
                                         <rect key="frame" x="0.0" y="0.0" width="147" height="34"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0yf-bF-Xjh">
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0yf-bF-Xjh">
                                                 <rect key="frame" x="16" y="6" width="22" height="22"/>
-                                                <state key="normal">
+                                                <state key="normal" image="rewind">
                                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                                 <connections>
                                                     <action selector="shaderPlayerRewindClick:" destination="1Yc-aP-wtt" eventType="touchUpInside" id="2xd-p5-vsa"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoDark" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wub-xz-EYa">
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wub-xz-EYa">
                                                 <rect key="frame" x="54" y="6" width="22" height="22"/>
-                                                <state key="normal">
+                                                <state key="normal" image="pause">
                                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
+                                                <state key="selected" image="play"/>
                                                 <connections>
                                                     <action selector="shaderPlayerPlayClick:" destination="1Yc-aP-wtt" eventType="touchUpInside" id="mzf-1L-CtH"/>
                                                 </connections>
@@ -272,4 +273,9 @@
             <point key="canvasLocation" x="703" y="0.0"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="pause" width="22" height="22"/>
+        <image name="play" width="22" height="22"/>
+        <image name="rewind" width="22" height="22"/>
+    </resources>
 </document>

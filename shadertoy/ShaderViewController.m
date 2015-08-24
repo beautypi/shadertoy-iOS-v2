@@ -57,6 +57,8 @@
     [_shaderTouchPossible setHidden:![_shader.imagePass.code containsString:@"iMouse"]];
     [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
+    [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
+    
     [self layoutCanvasView];
 }
 
@@ -169,8 +171,10 @@
 
 - (IBAction)shaderPlayerPlayClick:(id)sender {
     if( [_shaderCanvasViewController isRunning] ) {
+        [_shaderPlayerPlay setSelected:YES];
         [_shaderCanvasViewController pause];
     } else {
+        [_shaderPlayerPlay setSelected:NO];
         [_shaderCanvasViewController play];
     }
 }

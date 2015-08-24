@@ -60,6 +60,7 @@
     // get data from cache
     _data = [self getDataFromCache];
     if( ![_data count] ) {
+        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
         [self reloadData];
     }
     
@@ -105,10 +106,6 @@
 }
 
 - (void) reloadData {
-    if( ![_data count] ) {
-        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    }
-    
     __weak QueryTableViewController *weakSelf = self;
     [_client getShaderKeys:_sortBy success:^(NSArray *results) {
         _data = results;
