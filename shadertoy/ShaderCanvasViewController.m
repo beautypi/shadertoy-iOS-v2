@@ -56,6 +56,8 @@ const GLubyte Indices[] = {
     BOOL _forceDrawInRect;
     float _totalTime;
     UILabel *_globalTimeLabel;
+    
+    void (^_grabImageCallBack)(UIImage *image);
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -120,6 +122,7 @@ const GLubyte Indices[] = {
                           @" \n \
                           void main()  { \n \
                           mainImage(gl_FragColor, gl_FragCoord.xy); \n \
+                          gl_FragColor.w = 1.; \n \
                           } \n \
                           " ];
     
@@ -322,7 +325,8 @@ const GLubyte Indices[] = {
     
     GLKView *view = (GLKView *)self.view;
     view.context = self.context;
-    view.contentScaleFactor = [self getDefaultCanvasScaleFactor];
+    
+    [self setDefaultCanvasScaleFactor];
     
     [EAGLContext setCurrentContext:self.context];
     
@@ -376,16 +380,24 @@ const GLubyte Indices[] = {
     _globalTimeLabel = label;
 }
 
-- (UIImage *)renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor {
-    return nil;
+- (void) renderOneFrame:(float)globalTime success:(void (^)(UIImage *image))success {
+    [self pause];
+    _totalTime = globalTime;
+    
+    _grabImageCallBack = success;
+    _forceDrawInRect = YES;
 }
 
 - (void)setCanvasScaleFactor:(float)scaleFactor {
-    
+    self.view.contentScaleFactor = scaleFactor;
+    _forceDrawInRect = YES;
+    [(GLKView *)self.view display];
 }
 
-- (float)getDefaultCanvasScaleFactor {
-    return 3.f/4.f;
+- (void) setDefaultCanvasScaleFactor {
+    [self setCanvasScaleFactor:3.f/4.f];
+    _forceDrawInRect = YES;
+    [(GLKView *)self.view display];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -426,7 +438,6 @@ const GLubyte Indices[] = {
     
     glBindVertexArrayOES(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
-    
 }
 
 #pragma mark - GLKViewControllerDelegate
@@ -434,6 +445,14 @@ const GLubyte Indices[] = {
 - (void)update {
     if( _globalTimeLabel ) {
         [_globalTimeLabel setText:[NSString stringWithFormat:@"%.2f", [self getIGlobalTime]]];
+    }
+    
+    if(_grabImageCallBack) {
+        void (^tmpCallback)(UIImage *image) = _grabImageCallBack;
+        _grabImageCallBack = nil;
+        _forceDrawInRect = YES;
+        UIImage *snapShotImage = [(GLKView *)self.view snapshot];
+        tmpCallback(snapShotImage);
     }
 }
 

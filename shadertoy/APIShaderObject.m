@@ -119,7 +119,12 @@
 }
 
 - (NSURL *) getPreviewImageUrl {
-    NSString* url = [[@"https://www.shadertoy.com//media/shaders/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
+    NSString* url = [[@"https://www.shadertoy.com/media/shaders/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
+    return [NSURL URLWithString:url];
+}
+
+- (NSURL *) getShaderUrl {
+    NSString* url = [@"https://www.shadertoy.com/view/" stringByAppendingString:_shaderId];
     return [NSURL URLWithString:url];
 }
 

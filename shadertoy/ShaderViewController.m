@@ -13,12 +13,18 @@
 #import "APIShaderRepository.h"
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+AFNetworking.h"
+#import "UIImage+ResizeMagick.h"
+
+#import <ImageIO/ImageIO.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface ShaderViewController () {
     APIShaderObject* _shader;
     UIView* _shaderView;
     ShaderCanvasViewController* _shaderCanvasViewController;
     BOOL _firstView;
+    
+    NSMutableArray *_gifImageArray;
 }
 
 @end
@@ -179,7 +185,110 @@
     }
 }
 
+static NSUInteger const kFrameCount = 26;
+static float const kFrameDelay = 0.09f;
+
+- (NSData *) makeAnimatedGif {
+        
+    NSDictionary *fileProperties = @{
+                                     (__bridge id)kCGImagePropertyGIFDictionary: @{
+                                             (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
+                                             }
+                                     };
+    
+    NSDictionary *frameProperties = @{
+                                      (__bridge id)kCGImagePropertyGIFDictionary: @{
+                                              (__bridge id)kCGImagePropertyGIFDelayTime: [NSNumber numberWithFloat:kFrameDelay], // a float (not double!) in seconds, rounded to centiseconds in the GIF data
+                                              }
+                                      };
+    
+    NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    NSURL *fileURL = [documentsDirectoryURL URLByAppendingPathComponent:@"animated.gif"];
+    
+    CGImageDestinationRef destination = CGImageDestinationCreateWithURL((__bridge CFURLRef)fileURL, kUTTypeGIF, kFrameCount, NULL);
+    CGImageDestinationSetProperties(destination, (__bridge CFDictionaryRef)fileProperties);
+    
+    for ( int i=0; i<kFrameCount; i++ ) {
+        UIImage* image = [_gifImageArray objectAtIndex:i];
+        CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef)frameProperties);
+    }
+    
+    if (!CGImageDestinationFinalize(destination)) {
+        NSLog(@"failed to finalize image destination");
+    }
+    CFRelease(destination);
+    NSLog(@"%@\n", [fileURL absoluteString]);
+    return [NSData dataWithContentsOfURL:fileURL];
+}
+
+- (void) addAnimationFrameToArray:(int)frameNumber time:(float)time complete:(void (^)(NSData *image))complete {
+    __weak typeof (self) weakSelf = self;
+    
+    [_shaderCanvasViewController renderOneFrame:time success:^(UIImage *image) {
+        UIImage *scaledImage = [image resizedImageByMagick:@"450x450"]; // [image resizedImageToFitInSize:CGSizeMake(230.f, 230.f) scaleIfSmaller:NO];
+        [_gifImageArray insertObject:scaledImage atIndex:frameNumber];
+        
+        if( frameNumber < kFrameCount-1 ) {
+            [weakSelf addAnimationFrameToArray:(frameNumber+1) time:(time + kFrameDelay) complete:complete];
+        } else {
+            complete([self makeAnimatedGif]);
+        }
+    }];
+}
+
 - (IBAction)shaderShareClick:(id)sender {
+    [_shaderPlayerPlay setSelected:YES];
+    [_shaderCanvasViewController pause];
+    
+    [self exportImage:YES];
+}
+
+- (void)exportImage:(BOOL) asGif {
+
+    NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
+    NSURL *url = [_shader getShaderUrl];
+    ShaderCanvasViewController *shaderCanvasViewController = _shaderCanvasViewController;
+    
+    __weak typeof (self) weakSelf = self;
+    
+    _gifImageArray = [[NSMutableArray alloc] initWithCapacity:kFrameCount];
+    
+    if( asGif ) {
+        // gif export
+        [_shaderCanvasViewController setCanvasScaleFactor: 640.f / self.view.frame.size.width ];
+        
+        [self addAnimationFrameToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(NSData *image) {
+              [weakSelf shareText:text andImage:(UIImage *)image andUrl:url];
+              [shaderCanvasViewController setDefaultCanvasScaleFactor];
+        }];
+    } else {
+        // normal export
+        [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 960.f / self.view.frame.size.width ];
+        
+        [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
+            UIImage *scaledImage = [image resizedImageByMagick:@"960x960"]; //   ][image resizedImageToFitInSize:CGSizeMake(320.f, 320.f) scaleIfSmaller:NO];
+
+            [weakSelf shareText:text andImage:(UIImage *)scaledImage andUrl:url];
+            [shaderCanvasViewController setDefaultCanvasScaleFactor];
+        }];
+    }
+}
+
+- (void)shareText:(NSString *)text andImage:(UIImage *)image andUrl:(NSURL *)url {
+    NSMutableArray *sharingItems = [NSMutableArray new];
+    
+    if (text) {
+        [sharingItems addObject:text];
+    }
+    if (image) {
+        [sharingItems addObject:image];
+    }
+    if (url) {
+        [sharingItems addObject:url];
+    }
+    
+    UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:sharingItems applicationActivities:nil];
+    [self presentViewController:activityController animated:YES completion:nil];
 }
 
 @end

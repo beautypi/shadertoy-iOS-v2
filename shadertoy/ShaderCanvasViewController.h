@@ -22,8 +22,8 @@
 
 - (float) getIGlobalTime;
 
-- (UIImage *) renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor;
+- (void) renderOneFrame:(float)globalTime success:(void (^)(UIImage *image))success;
 - (void) setCanvasScaleFactor:(float)scaleFactor;
-- (float) getDefaultCanvasScaleFactor;
+- (void) setDefaultCanvasScaleFactor;
 
 @end

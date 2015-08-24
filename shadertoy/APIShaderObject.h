@@ -60,6 +60,7 @@
 @property (nonatomic, strong) NSDate *dateLastUpdated;
 
 - (NSURL *) getPreviewImageUrl;
+- (NSURL *) getShaderUrl;
 - (void) cancelShaderRequestOperation;
 - (BOOL) needsUpdateFromAPI;
 - (void) invalidateLastUpdatedDate;
