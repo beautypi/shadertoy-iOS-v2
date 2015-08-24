@@ -87,6 +87,35 @@
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                     </button>
+                                    <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Dm-wj-zRQ">
+                                        <rect key="frame" x="0.0" y="0.0" width="147" height="34"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0yf-bF-Xjh">
+                                                <rect key="frame" x="16" y="6" width="22" height="22"/>
+                                                <state key="normal">
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="shaderPlayerRewindClick:" destination="1Yc-aP-wtt" eventType="touchUpInside" id="2xd-p5-vsa"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoDark" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wub-xz-EYa">
+                                                <rect key="frame" x="54" y="6" width="22" height="22"/>
+                                                <state key="normal">
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="shaderPlayerPlayClick:" destination="1Yc-aP-wtt" eventType="touchUpInside" id="mzf-1L-CtH"/>
+                                                </connections>
+                                            </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h6h-rA-ufl">
+                                                <rect key="frame" x="84" y="8" width="40" height="21"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -179,7 +208,11 @@
                         </variation>
                     </view>
                     <navigationItem key="navigationItem" id="7ZH-qT-hUZ">
-                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="O3q-Xo-oIH"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="action" id="O3q-Xo-oIH">
+                            <connections>
+                                <action selector="shaderShareClick:" destination="1Yc-aP-wtt" id="c7r-Qf-Nsd"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="shaderCompileInfoButton" destination="CFC-rn-Geo" id="4hI-NS-Vkt"/>
@@ -188,6 +221,11 @@
                         <outlet property="shaderImageView" destination="2hd-ey-DP7" id="tpd-eb-MbB"/>
                         <outlet property="shaderLikesInfo" destination="v05-F5-MU7" id="2ro-XS-De1"/>
                         <outlet property="shaderName" destination="fjf-AZ-5Mu" id="APH-Sj-yaz"/>
+                        <outlet property="shaderPlayerContainer" destination="4Dm-wj-zRQ" id="3JK-2X-5i6"/>
+                        <outlet property="shaderPlayerPlay" destination="wub-xz-EYa" id="RHZ-Dt-w8q"/>
+                        <outlet property="shaderPlayerRewind" destination="0yf-bF-Xjh" id="Z7b-yP-Xt0"/>
+                        <outlet property="shaderPlayerTime" destination="h6h-rA-ufl" id="N3U-ez-hiM"/>
+                        <outlet property="shaderShareButton" destination="O3q-Xo-oIH" id="2nk-U8-9IK"/>
                         <outlet property="shaderTouchPossible" destination="QQG-bw-uVX" id="cWH-PZ-NMA"/>
                         <outlet property="shaderUserName" destination="Sju-9u-L0D" id="2B9-UO-7pf"/>
                     </connections>

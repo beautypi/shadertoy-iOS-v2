@@ -53,6 +53,9 @@ const GLubyte Indices[] = {
     BOOL _channelTextureUseNearest[4];
     
     BOOL _running;
+    BOOL _forceDrawInRect;
+    float _totalTime;
+    UILabel *_globalTimeLabel;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -192,15 +195,17 @@ const GLubyte Indices[] = {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self allocChannels];
 }
 
 - (void)allocChannels {
     _channelTime = malloc(sizeof(float) * 4);
     _channelResolution = malloc(sizeof(float) * 12);
+    
     memset (_channelTime,0,sizeof(float) * 4);
     memset (_channelResolution,0,sizeof(float) * 12);
     
-    memset (_channelResolution,0,sizeof(GLKTextureInfo *) * 4);
+    memset (_channelTextureInfo,0,sizeof(GLKTextureInfo *) * 4);
     memset (_channelTextureUseNearest,0,sizeof(BOOL) * 4);
 }
 
@@ -217,10 +222,15 @@ const GLubyte Indices[] = {
     _channelTimeUniform = glGetUniformLocation(_programId, "iChannelTime");
     _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
     
+    // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
     for (APIShaderPassInput* input in _shader.imagePass.inputs)  {
         if( [input.ctype isEqualToString:@"video"] ) {
             input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
             input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
+            input.ctype = @"texture";
+        }
+        if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"webcam"] || [input.ctype isEqualToString:@"keyboard"] ) {
+            input.src = [[@"/presets/" stringByAppendingString:input.ctype] stringByAppendingString:@".png"];
             input.ctype = @"texture";
         }
     }
@@ -240,8 +250,12 @@ const GLubyte Indices[] = {
             if (spriteTexture == nil)
                 NSLog(@"Error loading texture: %@", [theError localizedDescription]);
             
-            _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
-            _channelTextureInfo[  [input.channel integerValue] ] = spriteTexture;
+            int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
+            
+            _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
+            _channelTextureInfo[  c ] = spriteTexture;
+            _channelResolution[  c*3 ] = [spriteTexture width];
+            _channelResolution[  c*3+1 ] = [spriteTexture height];
             
             if( [input.src containsString:@"tex14.png"] || [input.src containsString:@"tex15.png"] ) {
                 _channelTextureUseNearest[ [input.channel integerValue] ] = YES;
@@ -269,13 +283,13 @@ const GLubyte Indices[] = {
     GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor, self.view.frame.size.height * self.view.contentScaleFactor, 1. );
     glUniform3fv(_resolutionUniform, 1, &resolution.x );
     
-    NSDate* now = [[NSDate alloc] init];
-    float currenttime = [now timeIntervalSinceDate:_startTime];
-    glUniform1f(_globalTimeUniform, currenttime );
+    glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
     
     glUniform4f(_mouseUniform, _mouse.x * self.view.contentScaleFactor, _mouse.y * self.view.contentScaleFactor, _mouse.z * self.view.contentScaleFactor, _mouse.w * self.view.contentScaleFactor );
     
-    NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:now];
+    glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
+    
+    NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:[NSDate date]];
     glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second);
     
     for( int i=0; i<4; i++ )  {
@@ -284,13 +298,15 @@ const GLubyte Indices[] = {
 }
 
 - (void)dealloc {
-    
     [self tearDownGL];
     
     if ([EAGLContext currentContext] == self.context) {
         [EAGLContext setCurrentContext:nil];
     }
     self.context = nil;
+    
+    free(_channelTime);
+    free(_channelResolution);
 }
 
 
@@ -325,19 +341,39 @@ const GLubyte Indices[] = {
 
 - (void)start {
     _running = YES;
-    _startTime = [NSDate date];
+    [self rewind];
 }
 
 - (void)pause {
-    
+    _totalTime = [self getIGlobalTime];
+    _running = NO;
 }
 
-- (void)resume {
-    
+- (void)play {
+    _running = YES;
+    _startTime = [NSDate date];
+}
+
+- (void)rewind {
+    _startTime = [NSDate date];
+    _totalTime = 0.f;
+    _forceDrawInRect = YES;
 }
 
 - (float)getIGlobalTime {
-    return  0.f;
+    if( _running ) {
+        return _totalTime + [[NSDate date] timeIntervalSinceDate:_startTime];
+    } else {
+        return _totalTime;
+    }
+}
+
+- (BOOL)isRunning {
+    return _running;
+}
+
+- (void) setTimeLabel:(UILabel *)label {
+    _globalTimeLabel = label;
 }
 
 - (UIImage *)renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor {
@@ -352,10 +388,16 @@ const GLubyte Indices[] = {
     return 3.f/4.f;
 }
 
+- (void)viewWillLayoutSubviews {
+    _forceDrawInRect = YES;
+    [super viewWillLayoutSubviews];
+}
+
 #pragma mark - GLKViewDelegate
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
-    if( !_running ) return;
+    if( !_running && !_forceDrawInRect) return;
+    _forceDrawInRect = NO;
     
     [self bindUniforms];
     
@@ -390,19 +432,23 @@ const GLubyte Indices[] = {
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {
-    
+    if( _globalTimeLabel ) {
+        [_globalTimeLabel setText:[NSString stringWithFormat:@"%.2f", [self getIGlobalTime]]];
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    _mouseDown = YES;
+    _forceDrawInRect = YES;
+
     UITouch *touch1 = [touches anyObject];
     CGPoint touchLocation = [touch1 locationInView:self.view];
     _mouse.x = _mouse.z = touchLocation.x;
     _mouse.y = _mouse.w = self.view.layer.frame.size.height-touchLocation.y;
-    
-    _mouseDown = YES;
 }
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
+    _forceDrawInRect = YES;
     
     UITouch *touch1 = [touches anyObject];
     CGPoint touchLocation = [touch1 locationInView:self.view];
@@ -411,11 +457,15 @@ const GLubyte Indices[] = {
 }
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
+    _forceDrawInRect = YES;
+    
     _mouse.z = -fabsf(_mouse.z);
     _mouse.w = -fabsf(_mouse.w);
 }
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
+    _forceDrawInRect = YES;
+    
     _mouse.z = -fabsf(_mouse.z);
     _mouse.w = -fabsf(_mouse.w);
 }

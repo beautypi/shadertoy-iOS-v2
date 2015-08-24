@@ -11,16 +11,19 @@
 
 @interface ShaderCanvasViewController : GLKViewController
 
-- (BOOL)compileShaderObject:(APIShaderObject *)shader theError:(NSString **)error;
+- (BOOL) compileShaderObject:(APIShaderObject *)shader theError:(NSString **)error;
 
-- (void)start;
-- (void)pause;
-- (void)resume;
+- (void) start;
+- (void) pause;
+- (void) play;
+- (void) rewind;
+- (BOOL) isRunning;
+- (void) setTimeLabel:(UILabel *)label;
 
-- (float)getIGlobalTime;
+- (float) getIGlobalTime;
 
-- (UIImage *)renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor;
-- (void)setCanvasScaleFactor:(float)scaleFactor;
-- (float)getDefaultCanvasScaleFactor;
+- (UIImage *) renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor;
+- (void) setCanvasScaleFactor:(float)scaleFactor;
+- (float) getDefaultCanvasScaleFactor;
 
 @end

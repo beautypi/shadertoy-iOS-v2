@@ -123,6 +123,8 @@
     _shaderCanvasViewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
     
     [self addChildViewController:_shaderCanvasViewController];
+    [_shaderCanvasViewController setTimeLabel:_shaderPlayerTime];
+    
     _shaderView = _shaderCanvasViewController.view;
     [_shaderView setHidden:YES];
     [self.view addSubview:_shaderCanvasViewController.view];
@@ -139,6 +141,7 @@
         } completion:^(BOOL finished) {
             [_shaderView setHidden:NO];
             [_shaderImageView setImage:nil];
+            [_shaderPlayerContainer setHidden:NO];
         }];
     } else {
         [_shaderCompiling setText:@"Shader error"];
@@ -160,5 +163,19 @@
     [self layoutCanvasView];
 }
 
+- (IBAction)shaderPlayerRewindClick:(id)sender {
+    [_shaderCanvasViewController rewind];
+}
+
+- (IBAction)shaderPlayerPlayClick:(id)sender {
+    if( [_shaderCanvasViewController isRunning] ) {
+        [_shaderCanvasViewController pause];
+    } else {
+        [_shaderCanvasViewController play];
+    }
+}
+
+- (IBAction)shaderShareClick:(id)sender {
+}
 
 @end

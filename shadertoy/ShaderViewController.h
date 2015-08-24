@@ -22,6 +22,13 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderLikesInfo;
 @property (strong, nonatomic) IBOutlet UIButton *shaderCompileInfoButton;
 
+@property (strong, nonatomic) IBOutlet UIButton *shaderPlayerRewind;
+@property (strong, nonatomic) IBOutlet UIButton *shaderPlayerPlay;
+@property (strong, nonatomic) IBOutlet UILabel *shaderPlayerTime;
+@property (strong, nonatomic) IBOutlet UIView *shaderPlayerContainer;
+
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *shaderShareButton;
+
 - (void) setShaderObject:(APIShaderObject *)shader;
 
 @end
