@@ -10,12 +10,12 @@
 #import "AFNetworking.h"
 #import "ShaderCanvasViewController.h"
 #import "NSString_stripHtml.h"
-#import "ShaderRepository.h"
+#import "APIShaderRepository.h"
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+AFNetworking.h"
 
 @interface ShaderViewController () {
-    ShaderObject* _shader;
+    APIShaderObject* _shader;
     UIView* _shaderView;
     ShaderCanvasViewController* _shaderCanvasViewController;
     BOOL _firstView;
@@ -37,11 +37,11 @@
 }
 
 
-- (void) setShaderObject:(ShaderObject *)shader {
+- (void) setShaderObject:(APIShaderObject *)shader {
     _shader = shader;
     
     // invalidate, will refresh next view
-    ShaderRepository* _repository = [[ShaderRepository alloc] init];
+    APIShaderRepository* _repository = [[APIShaderRepository alloc] init];
     [_repository invalidateShader:_shader.shaderId];
 }
 
@@ -131,12 +131,14 @@
     
     NSString *error;
     if( [_shaderCanvasViewController compileShaderObject:_shader theError:&error] ) {
+        [_shaderCanvasViewController start];
+        
         __weak typeof (self) weakSelf = self;
         [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
             [weakSelf.shaderCompiling setHidden:YES];
         } completion:^(BOOL finished) {
-            [_shaderImageView setImage:nil];
             [_shaderView setHidden:NO];
+            [_shaderImageView setImage:nil];
         }];
     } else {
         [_shaderCompiling setText:@"Shader error"];

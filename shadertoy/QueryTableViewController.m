@@ -9,7 +9,7 @@
 #import "QueryTableViewController.h"
 #import "APIShadertoy.h"
 #import "QueryTableViewCell.h"
-#import "ShaderRepository.h"
+#import "APIShaderRepository.h"
 #import "ShaderViewController.h"
 #import "UIImage+FZUtil.h"
 #import "SVPullToRefresh.h"
@@ -19,7 +19,7 @@
 
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
-    ShaderRepository* _repository;
+    APIShaderRepository* _repository;
     NSString* _sortBy;
     NSArray* _data;
 }
@@ -31,7 +31,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     _client = [[APIShadertoy alloc] init];
-    _repository = [[ShaderRepository alloc] init];
+    _repository = [[APIShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
     
     UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] imageByScaleToHeight:24.f] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
@@ -65,13 +65,17 @@
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
     
+    [super viewWillAppear:animated];
+}
+
+- (void) viewDidAppear:(BOOL)animated {
     __weak QueryTableViewController *weakSelf = self;
     
     [self.tableView addPullToRefreshWithActionHandler:^{
         [weakSelf reloadData];
     }];
     
-    [super viewWillAppear:animated];
+    [super viewDidAppear:animated];
 }
 
 - (NSArray *) getDataFromCache {
@@ -145,7 +149,7 @@
     
     NSString* shaderId = [_data objectAtIndex:indexPath.row];
     
-    [((QueryTableViewCell *)cell) layoutForShader:[_repository getShader:shaderId success:^(ShaderObject *shader) {
+    [((QueryTableViewCell *)cell) layoutForShader:[_repository getShader:shaderId success:^(APIShaderObject *shader) {
         [((QueryTableViewCell *)cell) layoutForShader:shader];
     }]];
     
@@ -172,7 +176,7 @@
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
     
-    ShaderObject* shader = [_repository getShader:shaderId success:^(ShaderObject *shader) {}];
+    APIShaderObject* shader = [_repository getShader:shaderId success:^(APIShaderObject *shader) {}];
     [shader cancelShaderRequestOperation];
     
     if( shader.imagePass != NULL ) {

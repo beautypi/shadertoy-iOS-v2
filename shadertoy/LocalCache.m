@@ -47,7 +47,7 @@ static LocalCache *__sharedInstance;
     return [userDefaults objectForKey:key];
 }
 
-- (void) storeShaderObject:(ShaderObject *)object forKey:(NSString *)key {
+- (void) storeShaderObject:(APIShaderObject *)object forKey:(NSString *)key {
     NSData *encodedObject = [NSKeyedArchiver archivedDataWithRootObject:object];
 
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -55,7 +55,7 @@ static LocalCache *__sharedInstance;
     [userDefaults synchronize];
 }
 
-- (ShaderObject *) getShaderObject:(NSString *)key {
+- (APIShaderObject *) getShaderObject:(NSString *)key {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSData* object = [userDefaults objectForKey:key];
     if( !object ) return NULL;

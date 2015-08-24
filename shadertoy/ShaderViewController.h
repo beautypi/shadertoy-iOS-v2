@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
 @interface ShaderViewController : UIViewController
 
@@ -22,7 +22,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderLikesInfo;
 @property (strong, nonatomic) IBOutlet UIButton *shaderCompileInfoButton;
 
-
-- (void) setShaderObject:(ShaderObject *)shader;
+- (void) setShaderObject:(APIShaderObject *)shader;
 
 @end

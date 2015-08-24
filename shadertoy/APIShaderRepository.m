@@ -6,17 +6,17 @@
 //  Copyright (c) 2015 Reinder Nijhoff. All rights reserved.
 //
 
-#import "ShaderRepository.h"
+#import "APIShaderRepository.h"
 #import "APIShadertoy.h"
 #import "LocalCache.h"
 
-@interface ShaderRepository ()  {
+@interface APIShaderRepository ()  {
     APIShadertoy* _client;
 }
 
 @end
 
-@implementation ShaderRepository
+@implementation APIShaderRepository
 
 - (id) init {
     self = [super init];
@@ -25,11 +25,11 @@
     return self;
 }
 
-- (ShaderObject *) getShader:(NSString *)shaderId success:(void (^)(ShaderObject *shader))success {
-    ShaderObject* shader;
+- (APIShaderObject *) getShader:(NSString *)shaderId success:(void (^)(APIShaderObject *shader))success {
+    APIShaderObject* shader;
     BOOL needsUpdate = NO;
     
-    ShaderObject* cachedShader = [[LocalCache sharedLocalCache] getShaderObject:shaderId];
+    APIShaderObject* cachedShader = [[LocalCache sharedLocalCache] getShaderObject:shaderId];
     if( cachedShader ) {
         shader = cachedShader;
         
@@ -37,7 +37,7 @@
             needsUpdate = YES;
         }
     } else {
-        shader = [[ShaderObject alloc] init];
+        shader = [[APIShaderObject alloc] init];
         shader.shaderId = shaderId;
         needsUpdate = YES;
     }
@@ -54,7 +54,7 @@
 }
 
 - (void) invalidateShader:(NSString *)shaderId {
-    ShaderObject* cachedShader = [[LocalCache sharedLocalCache] getShaderObject:shaderId];
+    APIShaderObject* cachedShader = [[LocalCache sharedLocalCache] getShaderObject:shaderId];
     if( cachedShader ) {
         [cachedShader invalidateLastUpdatedDate];
         [[LocalCache sharedLocalCache] storeShaderObject:cachedShader forKey:shaderId];

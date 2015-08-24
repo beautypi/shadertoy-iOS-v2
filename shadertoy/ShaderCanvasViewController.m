@@ -27,7 +27,7 @@ const GLubyte Indices[] = {
 };
 
 @interface ShaderCanvasViewController () {
-    ShaderObject* _shader;
+    APIShaderObject* _shader;
     
     GLuint _programId;
     GLuint _vertexBuffer;
@@ -51,7 +51,8 @@ const GLubyte Indices[] = {
     float *_channelResolution;
     GLKTextureInfo *_channelTextureInfo[4];
     BOOL _channelTextureUseNearest[4];
-    BOOL _forceDisplay;
+    
+    BOOL _running;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -66,7 +67,7 @@ const GLubyte Indices[] = {
 
 #pragma mark - View lifecycle
 
-- (BOOL) createShaderProgram:(ShaderPass *)shaderPass theError:(NSString **)error {
+- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
     
@@ -96,7 +97,7 @@ const GLubyte Indices[] = {
     uniform float     iChannelTime[4];       // channel playback time (in sec) \n   \n \
     ";
     
-    for( ShaderPassInput* input in shaderPass.inputs )  {
+    for( APIShaderPassInput* input in shaderPass.inputs )  {
         if( [input.ctype isEqualToString:@"cubemap"] ) {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump samplerCube iChannel%@;\n", input.channel];
         } else {
@@ -193,35 +194,6 @@ const GLubyte Indices[] = {
     [super viewDidLoad];
 }
 
-- (BOOL)compileShaderObject:(ShaderObject *)shader theError:(NSString **)error {
-    _shader = shader;
-    
-    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    if (!self.context) {
-        NSLog(@"Failed to create ES context");
-    }
-    
-    GLKView *view = (GLKView *)self.view;
-    view.context = self.context;
-    view.contentScaleFactor = 3.f/4.f;
-    
-    [EAGLContext setCurrentContext:self.context];
-    
-    [self genBuffers];
-    if( [self createShaderProgram:_shader.imagePass theError:error] ) {
-        [self findUniforms];
-        
-        self.preferredFramesPerSecond = 20.;
-        _startTime = [NSDate date];
-        
-        _forceDisplay = YES;
-    } else {
-        [self tearDownGL];
-        return NO;
-    }
-    return YES;
-}
-
 - (void)allocChannels {
     _channelTime = malloc(sizeof(float) * 4);
     _channelResolution = malloc(sizeof(float) * 12);
@@ -245,7 +217,7 @@ const GLubyte Indices[] = {
     _channelTimeUniform = glGetUniformLocation(_programId, "iChannelTime");
     _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
     
-    for (ShaderPassInput* input in _shader.imagePass.inputs)  {
+    for (APIShaderPassInput* input in _shader.imagePass.inputs)  {
         if( [input.ctype isEqualToString:@"video"] ) {
             input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
             input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
@@ -253,7 +225,7 @@ const GLubyte Indices[] = {
         }
     }
     
-    for (ShaderPassInput* input in _shader.imagePass.inputs)  {
+    for (APIShaderPassInput* input in _shader.imagePass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
         
         if( [input.ctype isEqualToString:@"texture"] ) {
@@ -321,11 +293,69 @@ const GLubyte Indices[] = {
     self.context = nil;
 }
 
+
+#pragma mark - ShaderCanvasViewController
+
+- (BOOL)compileShaderObject:(APIShaderObject *)shader theError:(NSString **)error {
+    _shader = shader;
+    
+    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    if (!self.context) {
+        NSLog(@"Failed to create ES context");
+    }
+    
+    GLKView *view = (GLKView *)self.view;
+    view.context = self.context;
+    view.contentScaleFactor = [self getDefaultCanvasScaleFactor];
+    
+    [EAGLContext setCurrentContext:self.context];
+    
+    [self genBuffers];
+    if( [self createShaderProgram:_shader.imagePass theError:error] ) {
+        [self findUniforms];
+        
+        self.preferredFramesPerSecond = 20.;
+        _running = NO;
+    } else {
+        [self tearDownGL];
+        return NO;
+    }
+    return YES;
+}
+
+- (void)start {
+    _running = YES;
+    _startTime = [NSDate date];
+}
+
+- (void)pause {
+    
+}
+
+- (void)resume {
+    
+}
+
+- (float)getIGlobalTime {
+    return  0.f;
+}
+
+- (UIImage *)renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor {
+    return nil;
+}
+
+- (void)setCanvasScaleFactor:(float)scaleFactor {
+    
+}
+
+- (float)getDefaultCanvasScaleFactor {
+    return 3.f/4.f;
+}
+
 #pragma mark - GLKViewDelegate
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
-    //    if( !_forceDisplay ) return;
-    _forceDisplay = NO;
+    if( !_running ) return;
     
     [self bindUniforms];
     
@@ -355,18 +385,6 @@ const GLubyte Indices[] = {
     glBindVertexArrayOES(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
-}
-
-- (void)pause {
-    self.paused = YES;
-}
-
-- (void)resume {
-    self.paused = NO;
-}
-
-- (void)renderOneFrame {
-    _forceDisplay = YES;
 }
 
 #pragma mark - GLKViewControllerDelegate

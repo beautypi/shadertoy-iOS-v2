@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "AFNetworking.h"
 
-@interface ShaderPassInput : NSObject
+@interface APIShaderPassInput : NSObject
 
-- (ShaderPassInput *) updateWithDict:(NSDictionary *) dict;
+- (APIShaderPassInput *) updateWithDict:(NSDictionary *) dict;
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
@@ -24,9 +24,9 @@
 
 
 
-@interface ShaderPass : NSObject
+@interface APIShaderPass : NSObject
 
-- (ShaderPass *) updateWithDict:(NSDictionary *) dict;
+- (APIShaderPass *) updateWithDict:(NSDictionary *) dict;
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
@@ -37,9 +37,9 @@
 @end
 
 
-@interface ShaderObject : NSObject
+@interface APIShaderObject : NSObject
 
-- (ShaderObject *) updateWithDict:(NSDictionary *) dict;
+- (APIShaderObject *) updateWithDict:(NSDictionary *) dict;
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
@@ -52,8 +52,8 @@
 @property (nonatomic, strong) NSNumber *likes;
 @property (nonatomic, strong) NSDate *date;
 
-@property (nonatomic, strong) ShaderPass *imagePass;
-@property (nonatomic, strong) ShaderPass *soundPass;
+@property (nonatomic, strong) APIShaderPass *imagePass;
+@property (nonatomic, strong) APIShaderPass *soundPass;
 
 @property (nonatomic, weak)   AFHTTPRequestOperation *requestOperation;
 

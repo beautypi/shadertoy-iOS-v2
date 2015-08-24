@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
-@interface ShaderRepository : NSObject
+@interface APIShaderRepository : NSObject
 
-- (ShaderObject *) getShader:(NSString *)shaderId success:(void (^)(ShaderObject *shader))success;
+- (APIShaderObject *) getShader:(NSString *)shaderId success:(void (^)(APIShaderObject *shader))success;
 - (void) invalidateShader:(NSString *)shaderId;
 
 @end

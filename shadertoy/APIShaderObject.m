@@ -6,10 +6,10 @@
 //  Copyright (c) 2015 Reinder Nijhoff. All rights reserved.
 //
 
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
-@implementation ShaderPassInput : NSObject
-- (ShaderPassInput *) updateWithDict:(NSDictionary *) dict {
+@implementation APIShaderPassInput : NSObject
+- (APIShaderPassInput *) updateWithDict:(NSDictionary *) dict {
     self.inputId = [dict objectForKey:@"id"];
     self.src = [dict objectForKey:@"src"];
     self.ctype = [dict objectForKey:@"ctype"];
@@ -35,14 +35,14 @@
 }
 @end
 
-@implementation ShaderPass : NSObject
-- (ShaderPass *) updateWithDict:(NSDictionary *) dict {
+@implementation APIShaderPass : NSObject
+- (APIShaderPass *) updateWithDict:(NSDictionary *) dict {
     self.code = [dict objectForKey:@"code"];
     self.type = [dict objectForKey:@"type"];
     self.inputs = [[NSMutableArray alloc] init];
     NSArray* inputs = [dict objectForKey:@"inputs"];
     for( NSDictionary* d in inputs) {
-        [self.inputs addObject:[[[ShaderPassInput alloc] init] updateWithDict:d]];
+        [self.inputs addObject:[[[APIShaderPassInput alloc] init] updateWithDict:d]];
     }
     return self;
 }
@@ -62,8 +62,8 @@
 }
 @end
 
-@implementation ShaderObject : NSObject
-- (ShaderObject *) updateWithDict:(NSDictionary *) dict {
+@implementation APIShaderObject : NSObject
+- (APIShaderObject *) updateWithDict:(NSDictionary *) dict {
     NSDictionary* info = [dict objectForKey:@"info"];
                           
     self.shaderId = [info objectForKey:@"id"];
@@ -81,9 +81,9 @@
     
     for( NSDictionary* d in renderpasses ) {
         if( [[d objectForKey:@"type"] isEqualToString:@"image"] ) {
-            self.imagePass = [[[ShaderPass alloc] init] updateWithDict:d];
+            self.imagePass = [[[APIShaderPass alloc] init] updateWithDict:d];
         } else {
-            self.soundPass = [[[ShaderPass alloc] init]  updateWithDict:d];
+            self.soundPass = [[[APIShaderPass alloc] init]  updateWithDict:d];
         }
     }
     

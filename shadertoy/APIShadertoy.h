@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AFNetworking.h"
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
 #define APIShadertoyBaseUrl @"https://www.shadertoy.com/api/v1/shaders/"
 #define APIShadertoyKey @"NtHKWH"

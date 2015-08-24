@@ -33,7 +33,7 @@
 @end
 
 @interface QueryTableViewCell ()  {
-    ShaderObject* _shader;
+    APIShaderObject* _shader;
     NSString* _shaderId;
     BOOL _firstUpdate;
 }
@@ -54,7 +54,7 @@
     // Configure the view for the selected state
 }
 
-- (void) layoutForShader:(ShaderObject *)shader {
+- (void) layoutForShader:(APIShaderObject *)shader {
     _shader = shader;
     
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;

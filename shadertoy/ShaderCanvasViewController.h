@@ -7,13 +7,20 @@
 //
 
 #import <GLKit/GLKit.h>
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
 @interface ShaderCanvasViewController : GLKViewController
 
-- (BOOL)compileShaderObject:(ShaderObject *)shader theError:(NSString **)error;
+- (BOOL)compileShaderObject:(APIShaderObject *)shader theError:(NSString **)error;
+
+- (void)start;
 - (void)pause;
 - (void)resume;
-- (void)renderOneFrame;
+
+- (float)getIGlobalTime;
+
+- (UIImage *)renderOneFrame:(float)globalTime withScaleFactor:(float)scaleFactor;
+- (void)setCanvasScaleFactor:(float)scaleFactor;
+- (float)getDefaultCanvasScaleFactor;
 
 @end

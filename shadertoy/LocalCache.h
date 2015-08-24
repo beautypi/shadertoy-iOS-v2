@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
 @interface LocalCache : NSObject
 
@@ -17,8 +17,8 @@
 - (void) storeObject:(id)object forKey:(NSString *)key;
 - (id) getObject:(NSString *)key;
 
-- (void) storeShaderObject:(ShaderObject *)object forKey:(NSString *)key;
-- (ShaderObject *) getShaderObject:(NSString *)key;
+- (void) storeShaderObject:(APIShaderObject *)object forKey:(NSString *)key;
+- (APIShaderObject *) getShaderObject:(NSString *)key;
 
 - (void) removeObject:(NSString *)key;
 

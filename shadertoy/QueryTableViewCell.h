@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ShaderObject.h"
+#import "APIShaderObject.h"
 
 @interface QueryTableViewCell : UITableViewCell
 
@@ -15,6 +15,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderTitle;
 @property (strong, nonatomic) IBOutlet UILabel *shaderInfo;
 
-- (void) layoutForShader:(ShaderObject *)shader;
+- (void) layoutForShader:(APIShaderObject *)shader;
 
 @end

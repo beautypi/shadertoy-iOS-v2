@@ -51,7 +51,6 @@
     }];
 }
 
-
 - (AFHTTPRequestOperation *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success {
     NSDictionary *params = @{
                              @"key": APIShadertoyKey
@@ -69,6 +68,5 @@
         
     }];
 }
-
 
 @end
