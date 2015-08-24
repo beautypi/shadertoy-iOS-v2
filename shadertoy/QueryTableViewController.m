@@ -39,7 +39,7 @@
     UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
         [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
     }];
-
+    
     self.navigationItem.leftBarButtonItem = item;
 }
 
@@ -63,18 +63,15 @@
         [self reloadData];
     }
     
-    [super viewWillAppear:animated];
-}
-
-- (void) viewDidAppear:(BOOL)animated {
+    [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    
     __weak QueryTableViewController *weakSelf = self;
     
-    if( ![self.tableView pullToRefreshView] ) {
-        [self.tableView addPullToRefreshWithActionHandler:^{
-            [weakSelf reloadData];
-        }];
-    }
-    [super viewDidAppear:animated];
+    [self.tableView addPullToRefreshWithActionHandler:^{
+        [weakSelf reloadData];
+    }];
+    
+    [super viewWillAppear:animated];
 }
 
 - (NSArray *) getDataFromCache {
@@ -86,8 +83,9 @@
     dataKey = [@"queryResultsDateCached" stringByAppendingString:_sortBy];
     NSDate *date = [[LocalCache sharedLocalCache] getObject:dataKey];
     
-    // reload every day
-    if( !date || [date timeIntervalSinceNow] < -(24*60*60) ) {
+    // reload every x days
+    int refreshInterval = [_sortBy isEqualToString:@"newest"]?(1*30*60):(24*60*60);
+    if( !date || [date timeIntervalSinceNow] < -refreshInterval ) {
         [self reloadData];
     }
     
@@ -101,7 +99,6 @@
     dataKey = [@"queryResultsDateCached" stringByAppendingString:_sortBy];
     [[LocalCache sharedLocalCache] storeObject:[NSDate date] forKey:dataKey];
 }
-
 
 - (void) reloadData {
     if( ![_data count] ) {
@@ -151,7 +148,7 @@
     [((QueryTableViewCell *)cell) layoutForShader:[_repository getShader:shaderId success:^(ShaderObject *shader) {
         [((QueryTableViewCell *)cell) layoutForShader:shader];
     }]];
-
+    
     if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
         [cell setSeparatorInset:UIEdgeInsetsZero];
     }
@@ -174,7 +171,7 @@
     
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
-
+    
     ShaderObject* shader = [_repository getShader:shaderId success:^(ShaderObject *shader) {}];
     [shader cancelShaderRequestOperation];
     
@@ -183,7 +180,5 @@
         [self.navigationController pushViewController:viewController animated:YES];
     }
 }
-
-
 
 @end

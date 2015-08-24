@@ -21,7 +21,7 @@
 - (id) init {
     self = [super init];
     _client = [[APIShadertoy alloc] init];
-
+    
     return self;
 }
 
@@ -34,7 +34,7 @@
         shader = cachedShader;
         
         if( [shader needsUpdateFromAPI] ) {
-            needsUpdate = YES;            
+            needsUpdate = YES;
         }
     } else {
         shader = [[ShaderObject alloc] init];

@@ -103,21 +103,21 @@ const GLubyte Indices[] = {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump sampler2D iChannel%@;\n", input.channel];
         }
     }
-
+    
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-    @" \n \
-    float fwidth(float p){return 0.;}  vec2 fwidth(vec2 p){return vec2(0.);}  vec3 fwidth(vec3 p){return vec3(0.);} \n \
-    float dFdx(float p){return 0.;}  vec2 dFdx(vec2 p){return vec2(0.);}  vec3 dFdx(vec3 p){return vec3(0.);} \n \
-    float dFdy(float p){return 0.;}  vec2 dFdy(vec2 p){return vec2(0.);}  vec3 dFdy(vec3 p){return vec3(0.);} \n \
-    " ];
+                          @" \n \
+                          float fwidth(float p){return 0.;}  vec2 fwidth(vec2 p){return vec2(0.);}  vec3 fwidth(vec3 p){return vec3(0.);} \n \
+                          float dFdx(float p){return 0.;}  vec2 dFdx(vec2 p){return vec2(0.);}  vec3 dFdx(vec3 p){return vec3(0.);} \n \
+                          float dFdy(float p){return 0.;}  vec2 dFdy(vec2 p){return vec2(0.);}  vec3 dFdy(vec3 p){return vec3(0.);} \n \
+                          " ];
     
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:shaderPass.code];
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-    @" \n \
-    void main()  { \n \
-        mainImage(gl_FragColor, gl_FragCoord.xy); \n \
-    } \n \
-    " ];
+                          @" \n \
+                          void main()  { \n \
+                          mainImage(gl_FragColor, gl_FragCoord.xy); \n \
+                          } \n \
+                          " ];
     
     char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
     glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
@@ -134,7 +134,6 @@ const GLubyte Indices[] = {
         return NO;
     }
     
-    // Link the program
     _programId = glCreateProgram();
     glAttachShader(_programId, VertexShaderID);
     glAttachShader(_programId, FragmentShaderID);
@@ -182,14 +181,12 @@ const GLubyte Indices[] = {
     glDeleteVertexArraysOES(1, &_vertexArray);
     glDeleteProgram(_programId);
     
-    
     for( int i=0; i<4; i++ )  {
         if( _channelTextureInfo[i] ) {
             GLuint name = _channelTextureInfo[i].name;
             glDeleteTextures(1, &name);
         }
     }
-    
 }
 
 - (void)viewDidLoad {
@@ -258,7 +255,7 @@ const GLubyte Indices[] = {
     
     for (ShaderPassInput* input in _shader.imagePass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
-
+        
         if( [input.ctype isEqualToString:@"texture"] ) {
             // load texture to channel
             NSError *theError;
@@ -289,7 +286,7 @@ const GLubyte Indices[] = {
             GLKTextureInfo *spriteTexture = [GLKTextureLoader cubeMapWithContentsOfFile:file options:nil error:&theError];
             if (spriteTexture == nil)
                 NSLog(@"Error loading texture: %@", [theError localizedDescription]);
-                      
+            
             _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
             _channelTextureInfo[  [input.channel integerValue] ] = spriteTexture;
         }
@@ -324,11 +321,10 @@ const GLubyte Indices[] = {
     self.context = nil;
 }
 
-
 #pragma mark - GLKViewDelegate
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
-//    if( !_forceDisplay ) return;
+    //    if( !_forceDisplay ) return;
     _forceDisplay = NO;
     
     [self bindUniforms];
@@ -342,7 +338,7 @@ const GLubyte Indices[] = {
         if( _channelTextureInfo[i] ) {
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(_channelTextureInfo[i].target, _channelTextureInfo[i].name );
-
+            
             if( _channelTextureInfo[i].target == GL_TEXTURE_2D ) {
                 // texture 14 and 15 GL_NEAREST
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -366,15 +362,17 @@ const GLubyte Indices[] = {
 }
 
 - (void)resume {
-    self.paused = NO;    
+    self.paused = NO;
 }
+
 - (void)renderOneFrame {
     _forceDisplay = YES;
 }
+
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {
-
+    
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {

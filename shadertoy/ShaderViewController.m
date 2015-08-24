@@ -80,11 +80,11 @@
     size = [[UIApplication sharedApplication] statusBarFrame].size;
     result.height -= MIN(size.width, size.height);
     
-    // hide navigationbar in landscape 
-//    if (self.navigationController != nil ) {
-//        size = self.navigationController.navigationBar.frame.size;
-//        result.height -= MIN(size.width, size.height);
-//    }
+    // hide navigationbar in landscape
+    //    if (self.navigationController != nil ) {
+    //        size = self.navigationController.navigationBar.frame.size;
+    //        result.height -= MIN(size.width, size.height);
+    //    }
     
     if (self.tabBarController != nil) {
         size = self.tabBarController.tabBar.frame.size;
@@ -105,7 +105,7 @@
         frame.size.height = MIN( frame.size.height, size.height );
         _shaderImageView.layer.frame = frame;
         [[self navigationController] setNavigationBarHidden:YES animated:YES];
-     } else {
+    } else {
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
     }
     _shaderView.frame = frame;
@@ -126,7 +126,7 @@
     _shaderView = _shaderCanvasViewController.view;
     [_shaderView setHidden:YES];
     [self.view addSubview:_shaderCanvasViewController.view];
-
+    
     [self layoutCanvasView];
     
     NSString *error;
