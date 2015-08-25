@@ -382,10 +382,8 @@ const GLubyte Indices[] = {
 
 - (void) renderOneFrame:(float)globalTime success:(void (^)(UIImage *image))success {
     [self pause];
-    _totalTime = globalTime;
-    
+    _totalTime = globalTime;    
     _grabImageCallBack = success;
-    _forceDrawInRect = YES;
 }
 
 - (void)setCanvasScaleFactor:(float)scaleFactor {

@@ -18,6 +18,7 @@
 
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "MBProgressHUD.h"
 
 @interface ShaderViewController () {
     APIShaderObject* _shader;
@@ -29,6 +30,7 @@
     BOOL _compiled;
     
     NSMutableArray *_gifImageArray;
+    UIProgressView *_gifImageProgressView;
 }
 @end
 
@@ -41,6 +43,8 @@
     
     _exporting = NO;
     _compiled = NO;
+    
+    self.navigationItem.rightBarButtonItem = nil;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -146,6 +150,7 @@
     
     [self layoutCanvasView];
     
+    
     NSString *error;
     if( [_shaderCanvasViewController compileShaderObject:_shader theError:&error] ) {
         [_shaderCanvasViewController start];
@@ -157,6 +162,7 @@
             [_shaderView setHidden:NO];
             [_shaderImageView setImage:nil];
             [_shaderPlayerContainer setHidden:NO];
+            [self.navigationItem setRightBarButtonItem:_shaderShareButton animated:YES];
             _compiled = YES;
         }];
     } else {
@@ -193,22 +199,17 @@
     }
 }
 
-static NSUInteger const kFrameCount = 30;
-static float const kFrameDelay = 0.08f;
+static NSUInteger const kFrameCount = 32;
+static float const kFrameDelay = 0.085f;
 
 - (NSURL *) makeAnimatedGif {
-    
-    NSDictionary *fileProperties = @{
-                                     (__bridge id)kCGImagePropertyGIFDictionary: @{
+    NSDictionary *fileProperties = @{(__bridge id)kCGImagePropertyGIFDictionary: @{
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
-                                             }
-                                     };
+                                             } };
     
-    NSDictionary *frameProperties = @{
-                                      (__bridge id)kCGImagePropertyGIFDictionary: @{
-                                              (__bridge id)kCGImagePropertyGIFDelayTime: [NSNumber numberWithFloat:kFrameDelay], // a float (not double!) in seconds, rounded to centiseconds in the GIF data
-                                              }
-                                      };
+    NSDictionary *frameProperties = @{(__bridge id)kCGImagePropertyGIFDictionary: @{
+                                              (__bridge id)kCGImagePropertyGIFDelayTime: [NSNumber numberWithFloat:kFrameDelay],
+                                              }};
     
     NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     NSURL *fileURL = [documentsDirectoryURL URLByAppendingPathComponent:@"animated.gif"];
@@ -235,6 +236,8 @@ static float const kFrameDelay = 0.08f;
         UIImage *scaledImage = [image resizedImageByMagick:@"480x480"]; // [image resizedImageToFitInSize:CGSizeMake(230.f, 230.f) scaleIfSmaller:NO];
         [_gifImageArray insertObject:scaledImage atIndex:frameNumber];
         
+        [_gifImageProgressView setProgress:(float)frameNumber/(float)kFrameCount animated:NO];
+        
         if( frameNumber < kFrameCount-1 ) {
             [weakSelf addAnimationFrameToArray:(frameNumber+1) time:(time + kFrameDelay) complete:complete];
         } else {
@@ -251,11 +254,11 @@ static float const kFrameDelay = 0.08f;
     
     _exporting = YES;
     
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"Do you want to include an animated GIF in your post? This may take some time."];
-    [alert bk_addButtonWithTitle:@"Yes" handler:^{
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook :("];
+    [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
         [self exportImage:YES];
     }];
-    [alert bk_addButtonWithTitle:@"No" handler:^{
+    [alert bk_addButtonWithTitle:@"Export HQ image (twitter/facebook)" handler:^{
         [self exportImage:NO];
     }];
     [alert bk_addButtonWithTitle:@"Cancel" handler:^{
@@ -278,6 +281,17 @@ static float const kFrameDelay = 0.08f;
     if( asGif ) {
         // gif export
         UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting GIF"];
+        _gifImageProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+        _gifImageProgressView.frame = CGRectMake(0, 0, 200, 15);
+        _gifImageProgressView.bounds = CGRectMake(0, 0, 200, 15);
+        _gifImageProgressView.backgroundColor = [UIColor darkGrayColor];
+        
+        [_gifImageProgressView setUserInteractionEnabled:NO];
+        [_gifImageProgressView setTrackTintColor:[UIColor darkGrayColor]];
+        [_gifImageProgressView setProgressTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
+        [_gifImageProgressView setProgress:0.f animated:NO];
+        
+        [alert setValue:_gifImageProgressView forKey:@"accessoryView"];
         [alert show];
         
         [_shaderCanvasViewController setCanvasScaleFactor: 2.f*480.f / self.view.frame.size.width ];
@@ -293,10 +307,10 @@ static float const kFrameDelay = 0.08f;
         UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting HQ image"];
         [alert show];
         
-        [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 1440.f / self.view.frame.size.width ];
+        [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 1280.f / self.view.frame.size.width ];
         
         [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
-            UIImage *scaledImage = [image resizedImageByMagick:@"1440x1440"];
+            UIImage *scaledImage = [image resizedImageByMagick:@"1280x1280"];
             [alert dismissWithClickedButtonIndex:0 animated:YES];
             
             [weakSelf shareText:text andImage:(NSData *)scaledImage andUrl:url];
