@@ -76,6 +76,7 @@
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
 
     [self layoutCanvasView];
+    [super viewWillAppear:animated];
 }
 
 
@@ -160,7 +161,7 @@
             [weakSelf.shaderCompiling setHidden:YES];
         } completion:^(BOOL finished) {
             [_shaderView setHidden:NO];
-            [_shaderImageView setImage:nil];
+            [_shaderImageView setHidden:YES];
             [_shaderPlayerContainer setHidden:NO];
             [self.navigationItem setRightBarButtonItem:_shaderShareButton animated:YES];
             _compiled = YES;

@@ -199,6 +199,8 @@ const GLubyte Indices[] = {
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self allocChannels];
+    
+    _programId = 0;
 }
 
 - (void)allocChannels {
@@ -210,6 +212,8 @@ const GLubyte Indices[] = {
     
     memset (_channelTextureInfo,0,sizeof(GLKTextureInfo *) * 4);
     memset (_channelTextureUseNearest,0,sizeof(BOOL) * 4);
+    
+    memset (&_channelUniform[0],99,sizeof(GLuint) * 4);
 }
 
 - (void)findUniforms {
@@ -240,6 +244,7 @@ const GLubyte Indices[] = {
     
     for (APIShaderPassInput* input in _shader.imagePass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
+        int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
         
         if( [input.ctype isEqualToString:@"texture"] ) {
             // load texture to channel
@@ -249,19 +254,15 @@ const GLubyte Indices[] = {
             file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
             glGetError();
             
-            GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithContentsOfFile:file options:nil error:&theError];
-            if (spriteTexture == nil)
-                NSLog(@"Error loading texture: %@", [theError localizedDescription]);
-            
-            int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
+            GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithContentsOfFile:file options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:YES]} error:&theError];
             
             _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
-            _channelTextureInfo[  c ] = spriteTexture;
-            _channelResolution[  c*3 ] = [spriteTexture width];
-            _channelResolution[  c*3+1 ] = [spriteTexture height];
+            _channelTextureInfo[ c ] = spriteTexture;
+            _channelResolution[ c*3 ] = [spriteTexture width];
+            _channelResolution[ c*3+1 ] = [spriteTexture height];
             
             if( [input.src containsString:@"tex14.png"] || [input.src containsString:@"tex15.png"] ) {
-                _channelTextureUseNearest[ [input.channel integerValue] ] = YES;
+                _channelTextureUseNearest[ c ] = YES;
             }
         }
         if( [input.ctype isEqualToString:@"cubemap"] ) {
@@ -272,12 +273,10 @@ const GLubyte Indices[] = {
             file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
             glGetError();
             
-            GLKTextureInfo *spriteTexture = [GLKTextureLoader cubeMapWithContentsOfFile:file options:nil error:&theError];
-            if (spriteTexture == nil)
-                NSLog(@"Error loading texture: %@", [theError localizedDescription]);
+            GLKTextureInfo *spriteTexture = [GLKTextureLoader cubeMapWithContentsOfFile:file options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:YES]} error:&theError];
             
-            _channelUniform[ [input.channel integerValue] ] = glGetUniformLocation(_programId, channel.UTF8String );
-            _channelTextureInfo[  [input.channel integerValue] ] = spriteTexture;
+            _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
+            _channelTextureInfo[  c ] = spriteTexture;
         }
     }
 }
@@ -296,7 +295,9 @@ const GLubyte Indices[] = {
     glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second);
     
     for( int i=0; i<4; i++ )  {
-        glUniform1i(_channelUniform[i], i);
+        if( _channelUniform[i] < 99 ) {
+            glUniform1i(_channelUniform[i], i);
+        }
     }
 }
 
@@ -382,7 +383,7 @@ const GLubyte Indices[] = {
 
 - (void) renderOneFrame:(float)globalTime success:(void (^)(UIImage *image))success {
     [self pause];
-    _totalTime = globalTime;    
+    _totalTime = globalTime;
     _grabImageCallBack = success;
 }
 
@@ -401,21 +402,22 @@ const GLubyte Indices[] = {
 }
 
 - (void) forceDraw {
-    _forceDrawInRect = YES;    
+    _forceDrawInRect = YES;
 }
 
 #pragma mark - GLKViewDelegate
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
+    if( !_programId ) return;
     if( !_running && !_forceDrawInRect) return;
     _forceDrawInRect = NO;
-    
-    [self bindUniforms];
     
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(_programId);
+    
+    [self bindUniforms];
     
     for( int i=0; i<4; i++ )  {
         if( _channelTextureInfo[i] ) {
@@ -430,6 +432,9 @@ const GLubyte Indices[] = {
                 if( _channelTextureUseNearest[i] ) {
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                } else {
+                    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 }
             }
         }
@@ -458,7 +463,7 @@ const GLubyte Indices[] = {
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
     _forceDrawInRect = YES;
-
+    
     UITouch *touch1 = [touches anyObject];
     CGPoint touchLocation = [touch1 locationInView:self.view];
     _mouse.x = _mouse.z = touchLocation.x;

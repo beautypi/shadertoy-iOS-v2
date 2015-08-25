@@ -21,6 +21,84 @@
             </objects>
             <point key="canvasLocation" x="0.0" y="0.0"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="zUB-AT-AyB">
+            <objects>
+                <navigationController storyboardIdentifier="AboutNavigationController" id="bJU-qc-WbR" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Lxf-yy-ftZ">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="hPD-An-2qY" kind="relationship" relationship="rootViewController" id="tGZ-Q8-ZbH"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="chW-ea-E7Y" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="0.0" y="762"/>
+        </scene>
+        <!--About View Controller-->
+        <scene sceneID="vwx-lg-A7q">
+            <objects>
+                <viewController storyboardIdentifier="AboutController" id="hPD-An-2qY" customClass="AboutViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="aYS-Wh-Dnb"/>
+                        <viewControllerLayoutGuide type="bottom" id="glA-M2-0pY"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="GjZ-O5-hMq">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Shadertoy APP is a fast and lightweight app, which can be used to (pre) view the shaders of http://www.shadertoy.com." lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5PG-bC-3qM">
+                                <rect key="frame" x="16" y="80" width="568" height="36"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" priority="100" constant="10" id="ppl-na-QD4"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="baU-ma-crg">
+                                <rect key="frame" x="16" y="124" width="568" height="18"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" priority="100" constant="21" id="uy5-GB-jma"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="q2m-je-Kv8">
+                                <rect key="frame" x="16" y="150" width="568" height="30"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="Contact the developer"/>
+                                <connections>
+                                    <action selector="contactClick:" destination="hPD-An-2qY" eventType="touchUpInside" id="g9L-3Q-cyD"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="5PG-bC-3qM" firstAttribute="leading" secondItem="GjZ-O5-hMq" secondAttribute="leadingMargin" id="4bF-13-an6"/>
+                            <constraint firstItem="baU-ma-crg" firstAttribute="leading" secondItem="GjZ-O5-hMq" secondAttribute="leadingMargin" id="8l5-29-Xov"/>
+                            <constraint firstItem="q2m-je-Kv8" firstAttribute="leading" secondItem="GjZ-O5-hMq" secondAttribute="leadingMargin" id="CVf-yo-Cb8"/>
+                            <constraint firstItem="q2m-je-Kv8" firstAttribute="top" secondItem="baU-ma-crg" secondAttribute="bottom" constant="8" id="Yrq-Lx-5Yn"/>
+                            <constraint firstItem="baU-ma-crg" firstAttribute="trailing" secondItem="GjZ-O5-hMq" secondAttribute="trailingMargin" id="j6M-R3-eYm"/>
+                            <constraint firstItem="5PG-bC-3qM" firstAttribute="top" secondItem="aYS-Wh-Dnb" secondAttribute="bottom" constant="16" id="j8Q-NU-vCO"/>
+                            <constraint firstItem="baU-ma-crg" firstAttribute="top" secondItem="5PG-bC-3qM" secondAttribute="bottom" constant="8" id="sM0-Gt-RAq"/>
+                            <constraint firstItem="5PG-bC-3qM" firstAttribute="trailing" secondItem="GjZ-O5-hMq" secondAttribute="trailingMargin" id="scd-98-pCE"/>
+                            <constraint firstItem="q2m-je-Kv8" firstAttribute="trailing" secondItem="GjZ-O5-hMq" secondAttribute="trailingMargin" id="wPu-XI-Ohd"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="MDI-7E-feD"/>
+                    <connections>
+                        <outlet property="aboutText" destination="5PG-bC-3qM" id="Kjm-oN-gLD"/>
+                        <outlet property="aboutText2" destination="baU-ma-crg" id="XVE-z9-Wxd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uVQ-uM-z8l" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="703" y="762"/>
+        </scene>
         <!--Query Table View Controller-->
         <scene sceneID="GfK-5G-tI9">
             <objects>

@@ -8,6 +8,7 @@
 
 #import "MainTabBarController.h"
 #import "QueryTableViewController.h"
+#import "AboutViewController.h"
 
 @interface MainTabBarController ()
 
@@ -22,12 +23,14 @@
     UIViewController* viewController1 = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"NavigationController"];
     UIViewController* viewController2 = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"NavigationController"];
     UIViewController* viewController3 = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"NavigationController"];
+    UIViewController* viewController4 = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"AboutNavigationController"];
     
     [((QueryTableViewController *)[[viewController1 childViewControllers] objectAtIndex:0]) setSortBy:@"popular"];
     [((QueryTableViewController *)[[viewController2 childViewControllers] objectAtIndex:0]) setSortBy:@"newest"];
     [((QueryTableViewController *)[[viewController3 childViewControllers] objectAtIndex:0]) setSortBy:@"love"];
+    [((AboutViewController *)[[viewController4 childViewControllers] objectAtIndex:0]) initTabBarItem];
     
-    [self setViewControllers:[[NSArray alloc] initWithObjects:viewController1, viewController2, viewController3, nil]];
+    [self setViewControllers:[[NSArray alloc] initWithObjects:viewController1, viewController2, viewController3, viewController4, nil]];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
+		4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B51B8C7B6900928AD5 /* AboutViewController.m */; };
 		4BF748CA1B84852A00E2F772 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748C91B84852A00E2F772 /* main.m */; };
 		4BF748CD1B84852A00E2F772 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748CC1B84852A00E2F772 /* AppDelegate.m */; };
 		4BF748D61B84852A00E2F772 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4BF748D41B84852A00E2F772 /* Main.storyboard */; };
@@ -34,6 +35,8 @@
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
+		4B8610B41B8C7B6900928AD5 /* AboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
+		4B8610B51B8C7B6900928AD5 /* AboutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutViewController.m; sourceTree = "<group>"; };
 		4BF748C41B84852A00E2F772 /* shadertoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shadertoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BF748C81B84852A00E2F772 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4BF748C91B84852A00E2F772 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -99,6 +102,8 @@
 		4BF748C61B84852A00E2F772 /* shadertoy */ = {
 			isa = PBXGroup;
 			children = (
+				4B8610B41B8C7B6900928AD5 /* AboutViewController.h */,
+				4B8610B51B8C7B6900928AD5 /* AboutViewController.m */,
 				4BF749071B84B1B500E2F772 /* APIShaderObject.h */,
 				4BF749081B84B1B500E2F772 /* APIShaderObject.m */,
 				4BF7490A1B84BD8900E2F772 /* APIShaderRepository.h */,
@@ -286,6 +291,7 @@
 				4BF748F51B8491A100E2F772 /* QueryTableViewController.m in Sources */,
 				4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */,
 				4BF749091B84B1B500E2F772 /* APIShaderObject.m in Sources */,
+				4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */,
 				4BF748FE1B8498E100E2F772 /* QueryTableViewCell.m in Sources */,
 				4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */,
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
