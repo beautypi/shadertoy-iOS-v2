@@ -74,7 +74,7 @@
     [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
-
+    
     [self layoutCanvasView];
     [super viewWillAppear:animated];
 }
@@ -128,7 +128,10 @@
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
     }
     _shaderView.frame = frame;
-    [_shaderCanvasViewController forceDraw];
+    
+    if( !_exporting ) {
+        [_shaderCanvasViewController forceDraw];
+    }
 }
 
 - (void) viewDidAppear:(BOOL)animated {
@@ -297,12 +300,14 @@ static float const kFrameDelay = 0.085f;
         
         [_shaderCanvasViewController setCanvasScaleFactor: 2.f*480.f / self.view.frame.size.width ];
         
-        [self addAnimationFrameToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(NSURL *fileURL) {
-            [alert dismissWithClickedButtonIndex:0 animated:YES];
-            
-            [weakSelf shareText:text andImage:[NSData dataWithContentsOfURL:fileURL] andUrl:url];
-            [shaderCanvasViewController setDefaultCanvasScaleFactor];
-        }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self addAnimationFrameToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(NSURL *fileURL) {
+                [alert dismissWithClickedButtonIndex:0 animated:YES];
+                
+                [weakSelf shareText:text andImage:[NSData dataWithContentsOfURL:fileURL] andUrl:url];
+                [shaderCanvasViewController setDefaultCanvasScaleFactor];
+            }];
+        });
     } else {
         // normal export
         UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting HQ image"];
@@ -310,13 +315,15 @@ static float const kFrameDelay = 0.085f;
         
         [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 1280.f / self.view.frame.size.width ];
         
-        [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
-            UIImage *scaledImage = [image resizedImageByMagick:@"1280x1280"];
-            [alert dismissWithClickedButtonIndex:0 animated:YES];
-            
-            [weakSelf shareText:text andImage:(NSData *)scaledImage andUrl:url];
-            [shaderCanvasViewController setDefaultCanvasScaleFactor];
-        }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
+                UIImage *scaledImage = [image resizedImageByMagick:@"1280x1280"];
+                [alert dismissWithClickedButtonIndex:0 animated:YES];
+                
+                [weakSelf shareText:text andImage:(NSData *)scaledImage andUrl:url];
+                [shaderCanvasViewController setDefaultCanvasScaleFactor];
+            }];
+        });
     }
 }
 

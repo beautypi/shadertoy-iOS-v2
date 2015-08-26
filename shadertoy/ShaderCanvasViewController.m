@@ -388,6 +388,7 @@ const GLubyte Indices[] = {
 }
 
 - (void)setCanvasScaleFactor:(float)scaleFactor {
+    _forceDrawInRect = NO;
     self.view.contentScaleFactor = scaleFactor;
 }
 
