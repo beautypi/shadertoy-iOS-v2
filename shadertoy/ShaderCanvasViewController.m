@@ -27,7 +27,7 @@ const GLubyte Indices[] = {
 };
 
 @interface ShaderCanvasViewController () {
-    APIShaderObject* _shader;
+    APIShaderPass* _shaderPass;
     
     GLuint _programId;
     GLuint _vertexBuffer;
@@ -65,6 +65,13 @@ const GLubyte Indices[] = {
 @end
 
 @implementation ShaderCanvasViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self allocChannels];
+    
+    _programId = 0;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -196,13 +203,6 @@ const GLubyte Indices[] = {
     }
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    [self allocChannels];
-    
-    _programId = 0;
-}
-
 - (void)allocChannels {
     _channelTime = malloc(sizeof(float) * 4);
     _channelResolution = malloc(sizeof(float) * 12);
@@ -230,7 +230,7 @@ const GLubyte Indices[] = {
     _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
     
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
-    for (APIShaderPassInput* input in _shader.imagePass.inputs)  {
+    for (APIShaderPassInput* input in _shaderPass.inputs)  {
         if( [input.ctype isEqualToString:@"video"] ) {
             input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
             input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
@@ -242,7 +242,7 @@ const GLubyte Indices[] = {
         }
     }
     
-    for (APIShaderPassInput* input in _shader.imagePass.inputs)  {
+    for (APIShaderPassInput* input in _shaderPass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
         int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
         
@@ -313,15 +313,15 @@ const GLubyte Indices[] = {
     free(_channelResolution);
 }
 
-
 #pragma mark - ShaderCanvasViewController
 
-- (BOOL)compileShaderObject:(APIShaderObject *)shader theError:(NSString **)error {
-    _shader = shader;
+- (BOOL)compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error {
+    _shaderPass = shader;
     
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
-        NSLog(@"Failed to create ES context");
+        *error = @"Failed to create ES context";
+        return NO;
     }
     
     GLKView *view = (GLKView *)self.view;
@@ -332,7 +332,7 @@ const GLubyte Indices[] = {
     [EAGLContext setCurrentContext:self.context];
     
     [self genBuffers];
-    if( [self createShaderProgram:_shader.imagePass theError:error] ) {
+    if( [self createShaderProgram:_shaderPass theError:error] ) {
         [self findUniforms];
         
         self.preferredFramesPerSecond = 20.;
@@ -343,6 +343,8 @@ const GLubyte Indices[] = {
     }
     return YES;
 }
+
+#pragma mark - User Interface delegate
 
 - (void)start {
     _running = YES;
@@ -433,9 +435,6 @@ const GLubyte Indices[] = {
                 if( _channelTextureUseNearest[i] ) {
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                } else {
-                    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 }
             }
         }

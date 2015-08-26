@@ -52,15 +52,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-
-- (void) setShaderObject:(APIShaderObject *)shader {
-    _shader = shader;
-    
-    // invalidate, will refresh next view
-    APIShaderRepository* _repository = [[APIShaderRepository alloc] init];
-    [_repository invalidateShader:_shader.shaderId];
-}
-
 - (void) viewWillAppear:(BOOL)animated {
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
     [_shaderImageView sd_setImageWithURL:[_shader getPreviewImageUrl]];
@@ -82,16 +73,14 @@
 
 - (CGSize)get_visible_size {
     CGSize result;
-    
     CGSize size = [[UIScreen mainScreen] bounds].size;
     
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
     
-    if ((orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight)) {
+    if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
         result.width = size.width;
         result.height = size.height;
-    }
-    else {
+    } else {
         result.width = size.height;
         result.height = size.width;
     }
@@ -99,13 +88,7 @@
     size = [[UIApplication sharedApplication] statusBarFrame].size;
     result.height -= MIN(size.width, size.height);
     
-    // hide navigationbar in landscape
-    //    if (self.navigationController != nil ) {
-    //        size = self.navigationController.navigationBar.frame.size;
-    //        result.height -= MIN(size.width, size.height);
-    //    }
-    
-    if (self.tabBarController != nil) {
+    if( self.tabBarController != nil ) {
         size = self.tabBarController.tabBar.frame.size;
         result.height -= MIN(size.width, size.height);
     }
@@ -118,7 +101,7 @@
     
     CGRect frame = _shaderImageView.layer.frame;
     
-    if ((orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight)) {
+    if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
         //Landscape mode
         CGSize size = [self get_visible_size];
         frame.size.height = MIN( frame.size.height, size.height );
@@ -136,27 +119,41 @@
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if( !_firstView ) {
-        [self layoutCanvasView];
-        return;
-    }
+    [self layoutCanvasView];
+}
+
+- (void) viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    
+    [self layoutCanvasView];
+}
+
+#pragma mark - Compile shader, setup canvas
+
+- (void) setShaderObject:(APIShaderObject *)shader {
+    _shader = shader;
+    
+    // invalidate, will refresh next view
+    APIShaderRepository* _repository = [[APIShaderRepository alloc] init];
+    [_repository invalidateShader:_shader.shaderId];
     
     _firstView = NO;
+    
+    // add shader canvas
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     _shaderCanvasViewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
-    
-    [self addChildViewController:_shaderCanvasViewController];
     [_shaderCanvasViewController setTimeLabel:_shaderPlayerTime];
     
     _shaderView = _shaderCanvasViewController.view;
     [_shaderView setHidden:YES];
-    [self.view addSubview:_shaderCanvasViewController.view];
     
+    [self addChildViewController:_shaderCanvasViewController];
+    [self.view addSubview:_shaderCanvasViewController.view];
     [self layoutCanvasView];
     
-    
+    // compile image shader
     NSString *error;
-    if( [_shaderCanvasViewController compileShaderObject:_shader theError:&error] ) {
+    if( [_shaderCanvasViewController compileShaderPass:_shader.imagePass theError:&error] ) {
         [_shaderCanvasViewController start];
         
         __weak typeof (self) weakSelf = self;
@@ -181,13 +178,11 @@
             [alert show];
         } forControlEvents:UIControlEventTouchDown];
     }
+//    NSString *trimmedText = [@" dit is     een      test                a   " stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+//    NSLog(@"->%@<-\n", trimmedText);
 }
 
-- (void) viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
-    
-    [self layoutCanvasView];
-}
+#pragma mark - UI
 
 - (IBAction)shaderPlayerRewindClick:(id)sender {
     [_shaderCanvasViewController rewind];
@@ -202,6 +197,30 @@
         [_shaderCanvasViewController play];
     }
 }
+
+- (IBAction)shaderShareClick:(id)sender {
+    if( _exporting || !_compiled ) return;
+    
+    [_shaderPlayerPlay setSelected:YES];
+    [_shaderCanvasViewController pause];
+    
+    _exporting = YES;
+    
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook :("];
+    [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
+        [self exportImage:YES];
+    }];
+    [alert bk_addButtonWithTitle:@"Export HQ image (twitter/facebook)" handler:^{
+        [self exportImage:NO];
+    }];
+    [alert bk_addButtonWithTitle:@"Cancel" handler:^{
+        _exporting = NO;
+    }];
+    
+    [alert show];
+}
+
+#pragma mark - Export image
 
 static NSUInteger const kFrameCount = 32;
 static float const kFrameDelay = 0.085f;
@@ -250,30 +269,7 @@ static float const kFrameDelay = 0.085f;
     }];
 }
 
-- (IBAction)shaderShareClick:(id)sender {
-    if( _exporting || !_compiled ) return;
-    
-    [_shaderPlayerPlay setSelected:YES];
-    [_shaderCanvasViewController pause];
-    
-    _exporting = YES;
-    
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook :("];
-    [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
-        [self exportImage:YES];
-    }];
-    [alert bk_addButtonWithTitle:@"Export HQ image (twitter/facebook)" handler:^{
-        [self exportImage:NO];
-    }];
-    [alert bk_addButtonWithTitle:@"Cancel" handler:^{
-        _exporting = NO;
-    }];
-    
-    [alert show];
-}
-
 - (void)exportImage:(BOOL) asGif {
-    
     NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
     NSURL *url = [_shader getShaderUrl];
     ShaderCanvasViewController *shaderCanvasViewController = _shaderCanvasViewController;

@@ -11,7 +11,7 @@
 
 @interface ShaderCanvasViewController : GLKViewController
 
-- (BOOL) compileShaderObject:(APIShaderObject *)shader theError:(NSString **)error;
+- (BOOL) compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error;
 
 - (void) start;
 - (void) pause;
