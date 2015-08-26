@@ -12,7 +12,7 @@
 #import "NSString_stripHtml.h"
 #import "APIShaderRepository.h"
 #import "BlocksKit+UIKit.h"
-#import "UIImageView+AFNetworking.h"
+#import "UIImageView+WebCache.h"
 #import "UIImage+ResizeMagick.h"
 #import "BlocksKit.h"
 
@@ -63,7 +63,7 @@
 
 - (void) viewWillAppear:(BOOL)animated {
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
-    [_shaderImageView setImageWithURL:[_shader getPreviewImageUrl]];
+    [_shaderImageView sd_setImageWithURL:[_shader getPreviewImageUrl]];
     
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];

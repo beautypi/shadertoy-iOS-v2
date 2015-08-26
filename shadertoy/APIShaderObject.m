@@ -120,8 +120,7 @@
 
 - (NSURL *) getPreviewImageUrl {
 //    NSString* url = [[@"https://www.shadertoy.com/media/shaders/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
-    NSString* url = [[@"http://reindernijhoff.net/shadertoythumbs/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
-//    NSString* url = [[@"http://reinder.net/shadertoythumbs/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
+    NSString* url = [[@"http://reinder.net/shadertoythumbs/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
 
     return [NSURL URLWithString:url];
 }
