@@ -49,11 +49,12 @@
     [_shaderCompileInfoButton setTintColor:[UIColor blackColor]];
     [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
+- (void)appDidBecomeActive:(NSNotification *)notification {
+    [_shaderCanvasViewController forceDraw];
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -131,6 +132,10 @@
 - (void) viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     [self layoutCanvasView];
+}
+
+- (void) dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Compile shader, setup canvas
