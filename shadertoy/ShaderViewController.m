@@ -316,7 +316,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     float scale = 1.f/(float)exportHQTiles;
     float x = (float)((int)(frameNumber/exportHQTiles)) * exportTileWidth;
     float y = (float)((int)(frameNumber%exportHQTiles)) * exportTileHeight;
-    NSLog(@"%f %f\n",x,y);
+    
     [_shaderCanvasViewController setFragCoordScale:scale andXOffset:x andYOffset:y];
     
     [_shaderCanvasViewController renderOneFrame:time success:^(UIImage *image) {
