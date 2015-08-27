@@ -40,7 +40,6 @@
     [super viewDidLoad];
     
     _firstView = YES;
-    
     _exporting = NO;
     _compiled = NO;
     
@@ -59,9 +58,10 @@
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];
     [_shaderDescription setText:[[_shader.shaderDescription stringByReplacingOccurrencesOfString:@"<br/>" withString:@"\n"] stripHtml]];
-    [_shaderLikesInfo setText:[@"♡" stringByAppendingString:[_shader.likes stringValue]]];
     [_shaderCompileInfoButton setHidden:YES];
-    [_shaderTouchPossible setHidden:![_shader.imagePass.code containsString:@"iMouse"]];
+    [_shaderCompileInfoButton setTintColor:[UIColor blackColor]];
+    
+    [_shaderTouchPossible setHidden:![_shader useMouse]];
     [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
@@ -119,7 +119,12 @@
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self layoutCanvasView];
+//    [self layoutCanvasView];
+    
+    if( _firstView ) {
+        _firstView = NO;
+        [self compileShader];
+    }
 }
 
 - (void) viewWillLayoutSubviews {
@@ -137,39 +142,53 @@
     APIShaderRepository* _repository = [[APIShaderRepository alloc] init];
     [_repository invalidateShader:_shader.shaderId];
     
-    _firstView = NO;
-    
     // add shader canvas
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     _shaderCanvasViewController = (ShaderCanvasViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderCanvasViewController"];
-    [_shaderCanvasViewController setTimeLabel:_shaderPlayerTime];
+    
+    [self addChildViewController:_shaderCanvasViewController];
     
     _shaderView = _shaderCanvasViewController.view;
     [_shaderView setHidden:YES];
     
-    [self addChildViewController:_shaderCanvasViewController];
-    [self.view addSubview:_shaderCanvasViewController.view];
+    [self.view addSubview:_shaderView];
+    [self.view sendSubviewToBack:_shaderView];
     [self layoutCanvasView];
-    
+}
+
+- (void) compileShader {
     // compile image shader
     NSString *error;
     if( [_shaderCanvasViewController compileShaderPass:_shader.imagePass theError:&error] ) {
+        
         [_shaderCanvasViewController start];
+        [_shaderView setHidden:NO];
+        
+        NSString *headerComment = [_shader getHeaderComments];
+        [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
+            UIAlertView* alert = [[UIAlertView alloc]  initWithTitle:@"Header comments" message:headerComment delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil];
+            [alert show];
+        } forControlEvents:UIControlEventTouchDown];
         
         __weak typeof (self) weakSelf = self;
-        [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+        [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
             [weakSelf.shaderCompiling setHidden:YES];
-        } completion:^(BOOL finished) {
-            [_shaderView setHidden:NO];
-            [_shaderImageView setHidden:YES];
             [_shaderPlayerContainer setHidden:NO];
-            [self.navigationItem setRightBarButtonItem:_shaderShareButton animated:YES];
+            [_shaderImageView setAlpha:0.f];
+            
+            if( ![headerComment isEqualToString:@""] ) {
+                [_shaderCompileInfoButton setHidden:NO];
+            }
+        } completion:^(BOOL finished) {
+            [_shaderCanvasViewController setTimeLabel:_shaderPlayerTime];
+            [_shaderImageView setHidden:YES];
+            [self.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
+            
             _compiled = YES;
         }];
     } else {
         [_shaderCompiling setText:@"Shader error"];
         [_shaderCompiling setTextColor:[UIColor redColor]];
-        [_shaderLikesInfo setHidden:YES];
         
         [_shaderCompileInfoButton setTintColor:[UIColor redColor]];
         [_shaderCompileInfoButton setHidden:NO];
@@ -178,8 +197,6 @@
             [alert show];
         } forControlEvents:UIControlEventTouchDown];
     }
-//    NSString *trimmedText = [@" dit is     een      test                a   " stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-//    NSLog(@"->%@<-\n", trimmedText);
 }
 
 #pragma mark - UI
@@ -206,7 +223,7 @@
     
     _exporting = YES;
     
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook :("];
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook."];
     [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
         [self exportImage:YES];
     }];

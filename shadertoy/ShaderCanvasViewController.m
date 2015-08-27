@@ -69,6 +69,7 @@ const GLubyte Indices[] = {
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self allocChannels];
+    [self setDefaultCanvasScaleFactor];
     
     _programId = 0;
 }
@@ -326,9 +327,6 @@ const GLubyte Indices[] = {
     
     GLKView *view = (GLKView *)self.view;
     view.context = self.context;
-    
-    [self setDefaultCanvasScaleFactor];
-    
     [EAGLContext setCurrentContext:self.context];
     
     [self genBuffers];
@@ -411,6 +409,7 @@ const GLubyte Indices[] = {
 #pragma mark - GLKViewDelegate
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
+    if( self.view.hidden ) return;
     if( !_programId ) return;
     if( !_running && !_forceDrawInRect) return;
     _forceDrawInRect = NO;
@@ -442,6 +441,8 @@ const GLubyte Indices[] = {
     
     glBindVertexArrayOES(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    
+    NSLog(@"render %f\n", self.view.contentScaleFactor );
 }
 
 #pragma mark - GLKViewControllerDelegate

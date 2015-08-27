@@ -19,7 +19,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderTouchPossible;
 
 @property (strong, nonatomic) IBOutlet UILabel *shaderCompiling;
-@property (strong, nonatomic) IBOutlet UILabel *shaderLikesInfo;
 @property (strong, nonatomic) IBOutlet UIButton *shaderCompileInfoButton;
 
 @property (strong, nonatomic) IBOutlet UIButton *shaderPlayerRewind;

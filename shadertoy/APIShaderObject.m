@@ -60,12 +60,35 @@
     }
     return self;
 }
+- (NSString *) getHeaderComments {
+    BOOL inCommentBlock = NO;
+    NSString* header = @"";
+    NSArray* lines = [self.code componentsSeparatedByString:@"\n"];
+    
+    for( NSString* line in lines ) {
+        NSString *trimmedLine = [line stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if( inCommentBlock ) {
+            header = [[header stringByAppendingString:trimmedLine] stringByAppendingString:@"\n"];
+            if(  [line rangeOfString:@"*/"].location != NSNotFound ) {
+                return [header stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            }
+        } else if( [line rangeOfString:@"/*"].location != NSNotFound ) {
+            inCommentBlock = YES;
+            header = [[header stringByAppendingString:trimmedLine] stringByAppendingString:@"\n"];
+        } else if( [line isEqualToString:@""] || ([line rangeOfString:@"//"].location == 0 && [line rangeOfString:@"#define"].location == NSNotFound) ) {
+            header = [[header stringByAppendingString:trimmedLine] stringByAppendingString:@"\n"];
+        } else {
+            return [header stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        }
+    }
+    return @"";
+}
 @end
 
 @implementation APIShaderObject : NSObject
 - (APIShaderObject *) updateWithDict:(NSDictionary *) dict {
     NSDictionary* info = [dict objectForKey:@"info"];
-                          
+    
     self.shaderId = [info objectForKey:@"id"];
     self.shaderName = [info objectForKey:@"name"];
     self.shaderDescription = [info objectForKey:@"description"];
@@ -119,9 +142,9 @@
 }
 
 - (NSURL *) getPreviewImageUrl {
-//    NSString* url = [[@"https://www.shadertoy.com/media/shaders/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
+    //    NSString* url = [[@"https://www.shadertoy.com/media/shaders/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
     NSString* url = [[@"http://reindernijhoff.net/shadertoythumbs/" stringByAppendingString:_shaderId] stringByAppendingString:@".jpg"];
-
+    
     return [NSURL URLWithString:url];
 }
 
@@ -149,6 +172,14 @@
 
 - (void) invalidateLastUpdatedDate {
     self.dateLastUpdated = self.date;
+}
+
+- (BOOL) useMouse {
+    return [self.imagePass.code containsString:@"iMouse"];
+}
+
+- (NSString *) getHeaderComments {
+    return [self.imagePass getHeaderComments];
 }
 
 

@@ -65,4 +65,7 @@
 - (BOOL) needsUpdateFromAPI;
 - (void) invalidateLastUpdatedDate;
 
+- (BOOL) useMouse;
+- (NSString *) getHeaderComments;
+
 @end

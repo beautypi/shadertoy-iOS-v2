@@ -133,7 +133,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2hd-ey-DP7">
+                            <imageView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2hd-ey-DP7">
                                 <rect key="frame" x="0.0" y="64" width="600" height="338"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -144,17 +144,11 @@
                                 <rect key="frame" x="0.0" y="401" width="600" height="34"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Compiling shader..." lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z3Z-zp-Yvy">
-                                        <rect key="frame" x="16" y="8" width="507" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="v05-F5-MU7">
-                                        <rect key="frame" x="531" y="8" width="53" height="21"/>
+                                        <rect key="frame" x="16" y="8" width="240" height="21"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="53" id="Fjs-hE-qnb"/>
+                                            <constraint firstAttribute="width" constant="240" id="NtQ-XP-e2W"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -201,14 +195,10 @@
                                     <constraint firstItem="CFC-rn-Geo" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="6" id="DRa-FU-8hB"/>
                                     <constraint firstAttribute="trailing" secondItem="CFC-rn-Geo" secondAttribute="trailing" constant="16" id="FOH-yD-mS7"/>
                                     <constraint firstItem="z3Z-zp-Yvy" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="8" id="G44-Gx-aBm"/>
-                                    <constraint firstItem="v05-F5-MU7" firstAttribute="leading" secondItem="z3Z-zp-Yvy" secondAttribute="trailing" constant="8" id="PAE-ea-NWu"/>
                                     <constraint firstItem="z3Z-zp-Yvy" firstAttribute="leading" secondItem="jCD-UI-gmR" secondAttribute="leading" constant="16" id="TfJ-qQ-kqw"/>
                                     <constraint firstAttribute="height" constant="34" id="Tsi-Lh-voH"/>
-                                    <constraint firstAttribute="bottom" secondItem="v05-F5-MU7" secondAttribute="bottom" constant="5" id="aHb-nc-qmB"/>
                                     <constraint firstAttribute="bottom" secondItem="CFC-rn-Geo" secondAttribute="bottom" constant="6" id="j0S-oG-tBN"/>
                                     <constraint firstAttribute="bottom" secondItem="z3Z-zp-Yvy" secondAttribute="bottom" constant="5" id="kMg-JF-e8W"/>
-                                    <constraint firstItem="v05-F5-MU7" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="8" id="kyL-XU-PWt"/>
-                                    <constraint firstAttribute="trailing" secondItem="v05-F5-MU7" secondAttribute="trailing" constant="16" id="p2R-ZZ-4Ge"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="fjf-AZ-5Mu">
@@ -298,7 +288,6 @@
                         <outlet property="shaderCompiling" destination="z3Z-zp-Yvy" id="KdN-Fo-i9v"/>
                         <outlet property="shaderDescription" destination="Ey0-HH-by2" id="kfv-cH-oKq"/>
                         <outlet property="shaderImageView" destination="2hd-ey-DP7" id="tpd-eb-MbB"/>
-                        <outlet property="shaderLikesInfo" destination="v05-F5-MU7" id="2ro-XS-De1"/>
                         <outlet property="shaderName" destination="fjf-AZ-5Mu" id="APH-Sj-yaz"/>
                         <outlet property="shaderPlayerContainer" destination="4Dm-wj-zRQ" id="3JK-2X-5i6"/>
                         <outlet property="shaderPlayerPlay" destination="wub-xz-EYa" id="RHZ-Dt-w8q"/>
