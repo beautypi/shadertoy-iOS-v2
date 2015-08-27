@@ -458,8 +458,6 @@ const GLubyte Indices[] = {
     
     glBindVertexArrayOES(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
-    
-    NSLog(@"render %f\n", self.view.contentScaleFactor );
 }
 
 #pragma mark - GLKViewControllerDelegate

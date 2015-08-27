@@ -44,6 +44,11 @@
     _compiled = NO;
     
     self.navigationItem.rightBarButtonItem = nil;
+    
+    [_shaderCompileInfoButton setHidden:YES];
+    [_shaderCompileInfoButton setTintColor:[UIColor blackColor]];
+    [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
+    [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,13 +63,8 @@
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];
     [_shaderDescription setText:[[_shader.shaderDescription stringByReplacingOccurrencesOfString:@"<br/>" withString:@"\n"] stripHtml]];
-    [_shaderCompileInfoButton setHidden:YES];
-    [_shaderCompileInfoButton setTintColor:[UIColor blackColor]];
     
     [_shaderTouchPossible setHidden:![_shader useMouse]];
-    [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
-    
-    [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
     [self layoutCanvasView];
     [super viewWillAppear:animated];
@@ -288,7 +288,7 @@ static float const kFrameDelay = 0.085f;
 
 #pragma mark - Export HQ image
 
-static float const exportHQWidth = 2560.f;
+static float const exportHQWidth = 1920.f;
 static int const exportHQTiles = 4;
 static float const exportTileWidth = 2.f * exportHQWidth / ((float)exportHQTiles);
 static float const exportTileHeight = exportTileWidth * 9.f/16.f;
