@@ -29,8 +29,8 @@
     BOOL _exporting;
     BOOL _compiled;
     
-    NSMutableArray *_gifImageArray;
-    UIProgressView *_gifImageProgressView;
+    NSMutableArray *_exportImageArray;
+    UIProgressView *_exportProgressView;
 }
 @end
 
@@ -100,6 +100,7 @@
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
     
     CGRect frame = _shaderImageView.layer.frame;
+    float oldWidth = _shaderImageView.layer.frame.size.width;
     
     if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
         //Landscape mode
@@ -112,14 +113,14 @@
     }
     _shaderView.frame = frame;
     
-    if( !_exporting ) {
+    if( !_exporting && oldWidth != _shaderImageView.layer.frame.size.width ) {
         [_shaderCanvasViewController forceDraw];
     }
 }
 
 - (void) viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-//    [self layoutCanvasView];
+    [self layoutCanvasView];
     
     if( _firstView ) {
         _firstView = NO;
@@ -129,7 +130,6 @@
 
 - (void) viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    
     [self layoutCanvasView];
 }
 
@@ -237,12 +237,12 @@
     [alert show];
 }
 
-#pragma mark - Export image
+#pragma mark - Export animated gif
 
 static NSUInteger const kFrameCount = 32;
 static float const kFrameDelay = 0.085f;
 
-- (NSURL *) makeAnimatedGif {
+- (NSURL *) composeAnimatedGif {
     NSDictionary *fileProperties = @{(__bridge id)kCGImagePropertyGIFDictionary: @{
                                              (__bridge id)kCGImagePropertyGIFLoopCount: @0, // 0 means loop forever
                                              } };
@@ -258,7 +258,7 @@ static float const kFrameDelay = 0.085f;
     CGImageDestinationSetProperties(destination, (__bridge CFDictionaryRef)fileProperties);
     
     for ( int i=0; i<kFrameCount; i++ ) {
-        UIImage* image = [_gifImageArray objectAtIndex:i];
+        UIImage* image = [_exportImageArray objectAtIndex:i];
         CGImageDestinationAddImage(destination, image.CGImage, (__bridge CFDictionaryRef)frameProperties);
     }
     
@@ -273,17 +273,82 @@ static float const kFrameDelay = 0.085f;
     __weak typeof (self) weakSelf = self;
     
     [_shaderCanvasViewController renderOneFrame:time success:^(UIImage *image) {
-        UIImage *scaledImage = [image resizedImageByMagick:@"480x480"]; // [image resizedImageToFitInSize:CGSizeMake(230.f, 230.f) scaleIfSmaller:NO];
-        [_gifImageArray insertObject:scaledImage atIndex:frameNumber];
+        UIImage *scaledImage = [image resizedImageByMagick:@"480x480"];
+        [_exportImageArray insertObject:scaledImage atIndex:frameNumber];
         
-        [_gifImageProgressView setProgress:(float)frameNumber/(float)kFrameCount animated:NO];
+        [_exportProgressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
         
         if( frameNumber < kFrameCount-1 ) {
             [weakSelf addAnimationFrameToArray:(frameNumber+1) time:(time + kFrameDelay) complete:complete];
         } else {
-            complete([self makeAnimatedGif]);
+            complete([self composeAnimatedGif]);
         }
     }];
+}
+
+#pragma mark - Export HQ image
+
+static float const exportHQWidth = 2560.f;
+static int const exportHQTiles = 4;
+static float const exportTileWidth = 2.f * exportHQWidth / ((float)exportHQTiles);
+static float const exportTileHeight = exportTileWidth * 9.f/16.f;
+
+- (UIImage *) composeHQImage {
+    CGSize size = CGSizeMake( 2.f * exportHQWidth, 2.f * exportHQWidth * 9.f/16.f );
+    UIGraphicsBeginImageContextWithOptions(size, YES, 1.f);
+    
+    for( int frameNumber=0; frameNumber<exportHQTiles*exportHQTiles; frameNumber++ ){
+        float x = (float)((int)(frameNumber/exportHQTiles)) * exportTileWidth;
+        float y = (float)(exportHQTiles-1-(int)(frameNumber%exportHQTiles)) * exportTileHeight;
+        UIImage* currentImage = [_exportImageArray objectAtIndex:frameNumber];
+        [currentImage drawInRect:CGRectMake(x, y, exportTileWidth, exportTileHeight)];
+    }
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return [image resizedImageWithMaximumSize:CGSizeMake(exportHQWidth, exportHQWidth)];
+}
+
+- (void) addHQTileToArray:(int)frameNumber time:(float)time complete:(void (^)(UIImage *image))complete {
+    __weak typeof (self) weakSelf = self;
+    
+    float scale = 1.f/(float)exportHQTiles;
+    float x = (float)((int)(frameNumber/exportHQTiles)) * exportTileWidth;
+    float y = (float)((int)(frameNumber%exportHQTiles)) * exportTileHeight;
+    NSLog(@"%f %f\n",x,y);
+    [_shaderCanvasViewController setFragCoordScale:scale andXOffset:x andYOffset:y];
+    
+    [_shaderCanvasViewController renderOneFrame:time success:^(UIImage *image) {
+        [_exportImageArray insertObject:image atIndex:frameNumber];
+        
+        [_exportProgressView setProgress:(float)(frameNumber+1)/(float)(exportHQTiles*exportHQTiles) animated:NO];
+        
+        if( frameNumber < (exportHQTiles*exportHQTiles)-1 ) {
+            [weakSelf addHQTileToArray:(frameNumber+1) time:time complete:complete];
+        } else {
+            complete([self composeHQImage]);
+        }
+    }];
+}
+
+#pragma mark - Export image
+
+- (UIAlertView *) createExportAlert:(NSString *)title {
+    
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:title];
+    _exportProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    _exportProgressView.frame = CGRectMake(0, 0, 200, 15);
+    _exportProgressView.bounds = CGRectMake(0, 0, 200, 15);
+    _exportProgressView.backgroundColor = [UIColor darkGrayColor];
+    
+    [_exportProgressView setUserInteractionEnabled:NO];
+    [_exportProgressView setTrackTintColor:[UIColor darkGrayColor]];
+    [_exportProgressView setProgressTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
+    [_exportProgressView setProgress:0.f animated:NO];
+    
+    [alert setValue:_exportProgressView forKey:@"accessoryView"];
+    return alert;
 }
 
 - (void)exportImage:(BOOL) asGif {
@@ -293,22 +358,11 @@ static float const kFrameDelay = 0.085f;
     
     __weak typeof (self) weakSelf = self;
     
-    _gifImageArray = [[NSMutableArray alloc] initWithCapacity:kFrameCount];
+    _exportImageArray = [[NSMutableArray alloc] initWithCapacity:kFrameCount];
     
     if( asGif ) {
         // gif export
-        UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting GIF"];
-        _gifImageProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-        _gifImageProgressView.frame = CGRectMake(0, 0, 200, 15);
-        _gifImageProgressView.bounds = CGRectMake(0, 0, 200, 15);
-        _gifImageProgressView.backgroundColor = [UIColor darkGrayColor];
-        
-        [_gifImageProgressView setUserInteractionEnabled:NO];
-        [_gifImageProgressView setTrackTintColor:[UIColor darkGrayColor]];
-        [_gifImageProgressView setProgressTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
-        [_gifImageProgressView setProgress:0.f animated:NO];
-        
-        [alert setValue:_gifImageProgressView forKey:@"accessoryView"];
+        UIAlertView* alert =[self createExportAlert:@"Exporting animated GIF"];
         [alert show];
         
         [_shaderCanvasViewController setCanvasScaleFactor: 2.f*480.f / self.view.frame.size.width ];
@@ -323,17 +377,16 @@ static float const kFrameDelay = 0.085f;
         });
     } else {
         // normal export
-        UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Exporting HQ image"];
+        UIAlertView* alert =[self createExportAlert:@"Exporting HQ image"];
         [alert show];
         
-        [_shaderCanvasViewController setCanvasScaleFactor: 2.f * 1280.f / self.view.frame.size.width ];
+        [_shaderCanvasViewController setCanvasScaleFactor: exportTileWidth / self.view.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [_shaderCanvasViewController renderOneFrame:[_shaderCanvasViewController getIGlobalTime] success:^(UIImage *image) {
-                UIImage *scaledImage = [image resizedImageByMagick:@"1280x1280"];
+            [self addHQTileToArray:0 time:[_shaderCanvasViewController getIGlobalTime]complete:^(UIImage *image) {
                 [alert dismissWithClickedButtonIndex:0 animated:YES];
                 
-                [weakSelf shareText:text andImage:(NSData *)scaledImage andUrl:url];
+                [weakSelf shareText:text andImage:(NSData *)image andUrl:url];
                 [shaderCanvasViewController setDefaultCanvasScaleFactor];
             }];
         });

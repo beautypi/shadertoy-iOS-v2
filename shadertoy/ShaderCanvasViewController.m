@@ -44,6 +44,8 @@ const GLubyte Indices[] = {
     GLuint _channelTimeUniform;
     GLuint _channelUniform[4];
     
+    GLuint _ifFragCoordOffsetUniform;
+    
     GLKVector4 _mouse;
     BOOL _mouseDown;
     NSDate *_startTime;
@@ -51,6 +53,9 @@ const GLubyte Indices[] = {
     float *_channelResolution;
     GLKTextureInfo *_channelTextureInfo[4];
     BOOL _channelTextureUseNearest[4];
+
+    float _ifFragCoordScale;
+    float _ifFragCoordOffsetXY[2];
     
     BOOL _running;
     BOOL _forceDrawInRect;
@@ -108,6 +113,7 @@ const GLubyte Indices[] = {
     uniform float     iSampleRate;           // sound sample rate (i.e., 44100) \n \
     uniform vec3      iChannelResolution[4]; // channel resolution (in pixels) \n \
     uniform float     iChannelTime[4];       // channel playback time (in sec) \n   \n \
+    uniform vec2      ifFragCoordOffsetUniform;\n \
     ";
     
     for( APIShaderPassInput* input in shaderPass.inputs )  {
@@ -129,7 +135,7 @@ const GLubyte Indices[] = {
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
                           @" \n \
                           void main()  { \n \
-                          mainImage(gl_FragColor, gl_FragCoord.xy); \n \
+                          mainImage(gl_FragColor, gl_FragCoord.xy + ifFragCoordOffsetUniform ); \n \
                           gl_FragColor.w = 1.; \n \
                           } \n \
                           " ];
@@ -230,6 +236,8 @@ const GLubyte Indices[] = {
     _channelTimeUniform = glGetUniformLocation(_programId, "iChannelTime");
     _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
     
+    _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
+    
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
     for (APIShaderPassInput* input in _shaderPass.inputs)  {
         if( [input.ctype isEqualToString:@"video"] ) {
@@ -283,7 +291,7 @@ const GLubyte Indices[] = {
 }
 
 - (void)bindUniforms {
-    GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor, self.view.frame.size.height * self.view.contentScaleFactor, 1. );
+    GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale, self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale, 1. );
     glUniform3fv(_resolutionUniform, 1, &resolution.x );
     
     glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
@@ -291,6 +299,8 @@ const GLubyte Indices[] = {
     glUniform4f(_mouseUniform, _mouse.x * self.view.contentScaleFactor, _mouse.y * self.view.contentScaleFactor, _mouse.z * self.view.contentScaleFactor, _mouse.w * self.view.contentScaleFactor );
     
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
+    
+    glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
     
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:[NSDate date]];
     glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second);
@@ -344,6 +354,12 @@ const GLubyte Indices[] = {
 
 #pragma mark - User Interface delegate
 
+- (void) setFragCoordScale:(float)scale andXOffset:(float)xOffset andYOffset:(float)yOffset {
+    _ifFragCoordScale = scale;
+    _ifFragCoordOffsetXY[0] = xOffset;
+    _ifFragCoordOffsetXY[1] = yOffset;
+}
+
 - (void)start {
     _running = YES;
     [self rewind];
@@ -390,6 +406,7 @@ const GLubyte Indices[] = {
 - (void)setCanvasScaleFactor:(float)scaleFactor {
     _forceDrawInRect = NO;
     self.view.contentScaleFactor = scaleFactor;
+    [self setFragCoordScale:1.f andXOffset:0.f andYOffset:0.f];
 }
 
 - (void) setDefaultCanvasScaleFactor {

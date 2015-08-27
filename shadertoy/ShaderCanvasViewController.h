@@ -20,6 +20,7 @@
 - (BOOL) isRunning;
 - (void) setTimeLabel:(UILabel *)label;
 - (void) forceDraw;
+- (void) setFragCoordScale:(float)scale andXOffset:(float)xOffset andYOffset:(float)yOffset;
 
 - (float) getIGlobalTime;
 
