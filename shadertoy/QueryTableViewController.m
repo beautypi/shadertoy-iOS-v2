@@ -75,6 +75,8 @@
 }
 
 - (void) viewDidAppear:(BOOL)animated {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    
     __weak QueryTableViewController *weakSelf = self;
     
     [self.tableView addPullToRefreshWithActionHandler:^{
@@ -92,7 +94,6 @@
     NSString* dataKey = [@"queryResults" stringByAppendingString:_sortBy];
     NSArray *data = [[LocalCache sharedLocalCache] getObject:dataKey];
     if( !data ) return [[NSArray alloc] init];
-    
     
     dataKey = [@"queryResultsDateCached" stringByAppendingString:_sortBy];
     NSDate *date = [[LocalCache sharedLocalCache] getObject:dataKey];

@@ -31,7 +31,7 @@
     self.navigationItem.leftBarButtonItem = item;
     
     [self.aboutText setText:
-     @"Shadertoy App is a fast and lightweight app, which can be used to view the shaders of http://www.shadertoy.com on your iPhone.\n\n"
+     @"Shadertoy App can be used to view the shaders of http://www.shadertoy.com on your iPhone.\n\n"
      @"This app uses the Shadertoy.com API.\n\n"
      @"Coded by: Reinder Nijhoff.\n" ];
      
