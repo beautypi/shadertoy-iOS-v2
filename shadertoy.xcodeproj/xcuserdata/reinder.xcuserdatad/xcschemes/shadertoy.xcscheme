@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4BF748C31B84852A00E2F772"
-               BuildableName = "shadertoy.app"
-               BlueprintName = "shadertoy"
+               BuildableName = "Shadertoy.app"
+               BlueprintName = "Shadertoy"
                ReferencedContainer = "container:shadertoy.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -57,8 +57,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4BF748C31B84852A00E2F772"
-            BuildableName = "shadertoy.app"
-            BlueprintName = "shadertoy"
+            BuildableName = "Shadertoy.app"
+            BlueprintName = "Shadertoy"
             ReferencedContainer = "container:shadertoy.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -77,8 +77,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4BF748C31B84852A00E2F772"
-            BuildableName = "shadertoy.app"
-            BlueprintName = "shadertoy"
+            BuildableName = "Shadertoy.app"
+            BlueprintName = "Shadertoy"
             ReferencedContainer = "container:shadertoy.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -96,8 +96,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4BF748C31B84852A00E2F772"
-            BuildableName = "shadertoy.app"
-            BlueprintName = "shadertoy"
+            BuildableName = "Shadertoy.app"
+            BlueprintName = "Shadertoy"
             ReferencedContainer = "container:shadertoy.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

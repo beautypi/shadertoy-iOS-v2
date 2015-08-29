@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "UIImageView+AFNetworking.h"
+#import "GAI.h"
 
 @interface AppDelegate ()
 
@@ -22,7 +23,11 @@
     [[UITabBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];    
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-
+    
+    [GAI sharedInstance].trackUncaughtExceptions = YES;
+    [[GAI sharedInstance] trackerWithTrackingId:@"UA-66897577-1"];
+    [[[GAI sharedInstance] defaultTracker] setAllowIDFACollection:NO];
+    
     return YES;
 }
 

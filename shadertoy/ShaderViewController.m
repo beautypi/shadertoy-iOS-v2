@@ -20,6 +20,10 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "MBProgressHUD.h"
 
+#import "GAI.h"
+#import "GAIFields.h"
+#import "GAIDictionaryBuilder.h"
+
 @interface ShaderViewController () {
     APIShaderObject* _shader;
     UIView* _shaderView;
@@ -70,7 +74,6 @@
     [self layoutCanvasView];
     [super viewWillAppear:animated];
 }
-
 
 - (CGSize)get_visible_size {
     CGSize result;
@@ -127,6 +130,15 @@
         _firstView = NO;
         [self compileShader];
     }
+    
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName value:@"Shader"];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
+    
+    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ShaderView"    // Event category (required)
+                                                          action:@"viewDidAppear"
+                                                           label:_shader.shaderId // Event label
+                                                           value:nil] build]];    // Event value
 }
 
 - (void) viewWillLayoutSubviews {
@@ -395,6 +407,21 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
                 [shaderCanvasViewController setDefaultCanvasScaleFactor];
             }];
         });
+    }
+    
+    if( asGif ) {
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ExportImage"    // Event category (required)
+                                                              action:@"GIF"
+                                                               label:_shader.shaderId // Event label
+                                                               value:nil] build]];    // Event value
+    } else {
+        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ExportImage"    // Event category (required)
+                                                              action:@"HQ"
+                                                               label:_shader.shaderId // Event label
+                                                               value:nil] build]];    // Event value
+    
     }
 }
 

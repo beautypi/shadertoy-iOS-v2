@@ -79,8 +79,16 @@ const GLubyte Indices[] = {
     _programId = 0;
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
+- (void)dealloc {
+    [self tearDownGL];
+    
+    if ([EAGLContext currentContext] == self.context) {
+        [EAGLContext setCurrentContext:nil];
+    }
+    self.context = nil;
+    
+    free(_channelTime);
+    free(_channelResolution);
 }
 
 #pragma mark - View lifecycle
@@ -176,7 +184,7 @@ const GLubyte Indices[] = {
     return YES;
 }
 
-- (void)genBuffers {
+- (void)createBuffers {
     glGenVertexArraysOES(1, &_vertexArray);
     glBindVertexArrayOES(_vertexArray);
     
@@ -312,18 +320,6 @@ const GLubyte Indices[] = {
     }
 }
 
-- (void)dealloc {
-    [self tearDownGL];
-    
-    if ([EAGLContext currentContext] == self.context) {
-        [EAGLContext setCurrentContext:nil];
-    }
-    self.context = nil;
-    
-    free(_channelTime);
-    free(_channelResolution);
-}
-
 #pragma mark - ShaderCanvasViewController
 
 - (BOOL)compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error {
@@ -339,7 +335,7 @@ const GLubyte Indices[] = {
     view.context = self.context;
     [EAGLContext setCurrentContext:self.context];
     
-    [self genBuffers];
+    [self createBuffers];
     if( [self createShaderProgram:_shaderPass theError:error] ) {
         [self findUniforms];
         
@@ -475,7 +471,6 @@ const GLubyte Indices[] = {
         tmpCallback(snapShotImage);
     }
 }
-
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
     _forceDrawInRect = YES;

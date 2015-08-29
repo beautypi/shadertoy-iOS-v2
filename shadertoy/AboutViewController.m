@@ -12,6 +12,10 @@
 #import "BlocksKit+UIKit.h"
 #import <MessageUI/MessageUI.h>
 
+#import "GAI.h"
+#import "GAIFields.h"
+#import "GAIDictionaryBuilder.h"
+
 @interface AboutViewController ()
 
 @end
@@ -24,11 +28,10 @@
     UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageByMagick:@"10000x24"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
     }];
-    
     self.navigationItem.leftBarButtonItem = item;
     
     [self.aboutText setText:
-     @"Shadertoy App is a fast and lightweight app, which can be used to view the shaders of http://www.shadertoy.com on your phone.\n\n"
+     @"Shadertoy App is a fast and lightweight app, which can be used to view the shaders of http://www.shadertoy.com on your iPhone.\n\n"
      @"This app uses the Shadertoy.com API.\n\n"
      @"Coded by: Reinder Nijhoff.\n" ];
      
@@ -38,13 +41,16 @@
      ];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
     
+    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+    [tracker set:kGAIScreenName value:@"About"];
+    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];    
 }
 
 - (void)initTabBarItem {
-    self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemMore tag:1];
+    self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"About" image:[UIImage imageNamed:@"about"] tag:1];
 }
 
 - (IBAction)contactClick:(id)sender {

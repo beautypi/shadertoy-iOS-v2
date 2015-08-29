@@ -165,9 +165,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4BF748C31B84852A00E2F772 /* shadertoy */ = {
+		4BF748C31B84852A00E2F772 /* Shadertoy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4BF748EA1B84852A00E2F772 /* Build configuration list for PBXNativeTarget "shadertoy" */;
+			buildConfigurationList = 4BF748EA1B84852A00E2F772 /* Build configuration list for PBXNativeTarget "Shadertoy" */;
 			buildPhases = (
 				46ECE1D491EFDF368C30AC7E /* Check Pods Manifest.lock */,
 				4BF748C01B84852A00E2F772 /* Sources */,
@@ -180,7 +180,7 @@
 			);
 			dependencies = (
 			);
-			name = shadertoy;
+			name = Shadertoy;
 			productName = shadertoy;
 			productReference = 4BF748C41B84852A00E2F772 /* shadertoy.app */;
 			productType = "com.apple.product-type.application";
@@ -212,7 +212,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4BF748C31B84852A00E2F772 /* shadertoy */,
+				4BF748C31B84852A00E2F772 /* Shadertoy */,
 			);
 		};
 /* End PBXProject section */
@@ -438,7 +438,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4BF748EA1B84852A00E2F772 /* Build configuration list for PBXNativeTarget "shadertoy" */ = {
+		4BF748EA1B84852A00E2F772 /* Build configuration list for PBXNativeTarget "Shadertoy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4BF748EB1B84852A00E2F772 /* Debug */,
