@@ -37,7 +37,7 @@
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
 		4B8610B41B8C7B6900928AD5 /* AboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
 		4B8610B51B8C7B6900928AD5 /* AboutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutViewController.m; sourceTree = "<group>"; };
-		4BF748C41B84852A00E2F772 /* shadertoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shadertoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BF748C41B84852A00E2F772 /* Shadertoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shadertoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BF748C81B84852A00E2F772 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4BF748C91B84852A00E2F772 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4BF748CB1B84852A00E2F772 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -94,7 +94,7 @@
 		4BF748C51B84852A00E2F772 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4BF748C41B84852A00E2F772 /* shadertoy.app */,
+				4BF748C41B84852A00E2F772 /* Shadertoy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,7 +182,7 @@
 			);
 			name = Shadertoy;
 			productName = shadertoy;
-			productReference = 4BF748C41B84852A00E2F772 /* shadertoy.app */;
+			productReference = 4BF748C41B84852A00E2F772 /* Shadertoy.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
