@@ -10,6 +10,9 @@
 #import "UIImageView+AFNetworking.h"
 #import "GAI.h"
 
+#import <Fabric/Fabric.h>
+#import <Crashlytics/Crashlytics.h>
+
 @interface AppDelegate ()
 
 @end
@@ -27,6 +30,8 @@
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [[GAI sharedInstance] trackerWithTrackingId:@"UA-66897577-1"];
     [[[GAI sharedInstance] defaultTracker] setAllowIDFACollection:NO];
+    
+    [Fabric with:@[CrashlyticsKit]];
     
     return YES;
 }
