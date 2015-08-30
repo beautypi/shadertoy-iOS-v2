@@ -139,7 +139,10 @@ const GLubyte Indices[] = {
                           float dFdy(float p){return 0.;}  vec2 dFdy(vec2 p){return vec2(0.);}  vec3 dFdy(vec3 p){return vec3(0.);} \n \
                           " ];
     
-    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:shaderPass.code];
+    NSString *code = shaderPass.code;
+    code = [code stringByReplacingOccurrencesOfString:@"precision " withString:@"//precision "];
+    
+    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:code];
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
                           @" \n \
                           void main()  { \n \
