@@ -161,7 +161,7 @@
 
 - (void) dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-
+    
     _shader = nil;
     _soundPassPlayer = nil;
     
@@ -217,7 +217,7 @@
         if( [shaderViewController compileShaderPass:shaderPass theError:&error] ) {
             [self bk_performBlock:^(id obj) {
                 success();
-            } afterDelay:0.1f];
+            } afterDelay:0.05f];
         } else {
             [_shaderCompiling setText:@"Shader error"];
             [_shaderCompiling setTextColor:[UIColor redColor]];
@@ -234,35 +234,37 @@
 
 - (void) compileImageShader {
     [_shaderCompiling setText:@"Compiling shader..."];
-
+    
+    __weak typeof (self) weakSelf = self;
+    
     [self compileShaderPass:_shader.imagePass vc:_imageShaderViewController success:^{
         [_imageShaderViewController start];
-        [_soundPassPlayer play];
-        
+        [_soundPassPlayer play];        
         [_imageShaderView setHidden:NO];
         
-        NSString *headerComment = [_shader getHeaderComments];
-        [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
-            UIAlertView* alert = [[UIAlertView alloc]  initWithTitle:@"Header comments" message:headerComment delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil];
-            [alert show];
-        } forControlEvents:UIControlEventTouchDown];
-        
-        __weak typeof (self) weakSelf = self;
-        [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-            [weakSelf.shaderCompiling setHidden:YES];
-            [_shaderPlayerContainer setHidden:NO];
-            [_shaderImageView setAlpha:0.f];
+        [self bk_performBlock:^(id obj) {
+            NSString *headerComment = [_shader getHeaderComments];
+            [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
+                UIAlertView* alert = [[UIAlertView alloc]  initWithTitle:@"Header comments" message:headerComment delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil];
+                [alert show];
+            } forControlEvents:UIControlEventTouchDown];
             
-            if( ![headerComment isEqualToString:@""] ) {
-                [_shaderCompileInfoButton setHidden:NO];
-            }
-        } completion:^(BOOL finished) {
-            [_imageShaderViewController setTimeLabel:_shaderPlayerTime];
-            [_shaderImageView setHidden:YES];
-            [self.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
-            
-            _compiled = YES;
-        }];
+            [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+                [_shaderCompiling setHidden:YES];
+                [_shaderPlayerContainer setHidden:NO];
+                [_shaderImageView setAlpha:0.f];
+                [_imageShaderViewController setTimeLabel:_shaderPlayerTime];
+                
+                if( ![headerComment isEqualToString:@""] ) {
+                    [_shaderCompileInfoButton setHidden:NO];
+                }
+            } completion:^(BOOL finished) {
+                [_shaderImageView setHidden:YES];
+                [weakSelf.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
+                
+                _compiled = YES;
+            }];
+        } afterDelay:0.1f];
     }];
 }
 
@@ -326,8 +328,7 @@
 
 - (IBAction)shaderPlayerRewindClick:(id)sender {
     [_imageShaderViewController rewind];
-    [_soundPassPlayer setTime:[_imageShaderViewController getIGlobalTime]];
-    [_soundPassPlayer play];
+    [self playSoundSyncedWithShader];
 }
 
 - (IBAction)shaderPlayerPlayClick:(id)sender {

@@ -49,7 +49,8 @@
     
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
     
-    [_shaderImageView setImageWithURL:[shader getPreviewImageUrl] placeholderImage:nil fadeInWithDuration:0.5f];
+    [_shaderImageView setImageWithURL:[shader getPreviewImageUrl] placeholderImage:_shaderImageView.image fadeInWithDuration:0.5f];
+  //  [_shaderImageView sd_setImageWithURL:[shader getPreviewImageUrl]];
     
     if( _firstUpdate ) {
         [_shaderTitle setText:shader.shaderName];
