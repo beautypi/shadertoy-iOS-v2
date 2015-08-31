@@ -62,7 +62,11 @@
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
-    [_imageShaderViewController forceDraw];
+    if (self.isViewLoaded && self.view.window) {
+        // viewController is visible
+        [_imageShaderViewController forceDraw];
+        [self playSoundSyncedWithShader];
+    }
 }
 
 - (void) viewWillAppear:(BOOL)animated {
@@ -77,6 +81,10 @@
     
     [self layoutCanvasView];
     [super viewWillAppear:animated];
+}
+
+- (void) viewWillDisappear:(BOOL)animated {
+    [_soundPassPlayer stop];
 }
 
 - (CGSize)get_visible_size {
@@ -133,11 +141,13 @@
     if( _firstView ) {
         _firstView = NO;
         
-//        if( _shader.soundPass ) {
-//            [self compileSoundShader];
-//        } else {
+        if( _shader.soundPass ) {
+            [self compileSoundShader];
+        } else {
             [self compileImageShader];
-//        }
+        }
+    } else {
+        [self playSoundSyncedWithShader];
     }
     
     trackScreen(@"Shader");
@@ -151,6 +161,15 @@
 
 - (void) dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+    _shader = nil;
+    _soundPassPlayer = nil;
+    
+    _imageShaderView = nil;
+    _imageShaderViewController = nil;
+    
+    _soundShaderView = nil;
+    _soundShaderViewController = nil;
 }
 
 - (UIAlertView *) createProgressAlert:(NSString *)title {
@@ -265,6 +284,7 @@
         [_soundShaderViewController setDefaultCanvasScaleFactor];
         [weakSelf renderSoundShaderFrame:0 complete:^{
             [_soundPassPlayer prepareToPlay];
+            [weakSelf playSoundSyncedWithShader];
             
             [_soundShaderView removeFromSuperview];
             [_soundShaderViewController removeFromParentViewController];
@@ -292,10 +312,21 @@
     }];
 }
 
+- (void) playSoundSyncedWithShader {
+    if( [_imageShaderViewController isRunning] ) {
+        [_soundPassPlayer setTime:[_imageShaderViewController getIGlobalTime]];
+        [_soundPassPlayer play];
+    } else {
+        [_soundPassPlayer stop];
+    }
+}
+
 #pragma mark - UI
 
 - (IBAction)shaderPlayerRewindClick:(id)sender {
     [_imageShaderViewController rewind];
+    [_soundPassPlayer setTime:[_imageShaderViewController getIGlobalTime]];
+    [_soundPassPlayer play];
 }
 
 - (IBAction)shaderPlayerPlayClick:(id)sender {
@@ -306,6 +337,7 @@
         [_shaderPlayerPlay setSelected:NO];
         [_imageShaderViewController play];
     }
+    [self playSoundSyncedWithShader];
 }
 
 - (IBAction)shaderShareClick:(id)sender {

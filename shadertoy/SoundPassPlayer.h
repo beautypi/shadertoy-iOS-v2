@@ -9,10 +9,17 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface SoundPassPlayer : NSObject
+@interface SoundPassPlayer : NSObject {
+    
+@public
+    unsigned char *buffer;
+    UInt32 startFrame;
+}
 
 - (void) fillSoundBufferFromImage:(UIImage *)image block:(NSInteger)block;
 - (void) prepareToPlay;
 - (void) play;
+- (void) stop;
+- (void) setTime:(float)time;
 
 @end
