@@ -142,11 +142,11 @@ const GLubyte Indices[] = {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
                               @" \n \
                               void main()  { \n \
-                              float t = ifFragCoordOffsetUniform.x + (((0.+gl_FragCoord.x)/11025.) + (255.-gl_FragCoord.y)*(256.0/11025.)); \n \
+                              float t = ifFragCoordOffsetUniform.x + (((iResolution.x-0.5+gl_FragCoord.x)/11025.) + (iResolution.y-.5-gl_FragCoord.y)*(iResolution.x/11025.)); \n \
                               vec2 y = mainSound( t ); \n \
-                              vec2 v  = clamp(0.5+0.5*y,0.,1.); \n \
-                              vec2 vl = fract(v*256.0); \n \
-                              vec2 vh = fract(v); \n \
+                              vec2 v  = floor((0.5+0.5*y)*65536.0); \n \
+                              vec2 vl = mod(v,256.0)/255.0; \n \
+                              vec2 vh = floor(v/256.0)/255.0; \n \
                               gl_FragColor = vec4(vl.x,vh.x,vl.y,vh.y); \n \
                               } \n \
                               " ];

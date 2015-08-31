@@ -97,12 +97,13 @@ const int bufferNumBlocks = 10;
     
     NSError *error;
     avap1 = [[AVAudioPlayer alloc] initWithData:soundFileData1 fileTypeHint:@"wav" error:&error];
-    
+    [avap1 setVolume:0.25f];
     [avap1 prepareToPlay];
 }
 
 - (void) play {
     [avap1 play];
+    [avap1 setVolume:0.25f];
 }
 
 @end

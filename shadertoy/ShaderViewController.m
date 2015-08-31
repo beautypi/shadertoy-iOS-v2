@@ -133,11 +133,11 @@
     if( _firstView ) {
         _firstView = NO;
         
-        if( _shader.soundPass && false ) {
-            [self compileSoundShader];
-        } else {
+//        if( _shader.soundPass ) {
+//            [self compileSoundShader];
+//        } else {
             [self compileImageShader];
-        }
+//        }
     }
     
     trackScreen(@"Shader");
