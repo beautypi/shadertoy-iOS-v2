@@ -217,7 +217,7 @@
         if( [shaderViewController compileShaderPass:shaderPass theError:&error] ) {
             [self bk_performBlock:^(id obj) {
                 success();
-            } afterDelay:0.05f];
+            } afterDelay:0.1f];
         } else {
             [_shaderCompiling setText:@"Shader error"];
             [_shaderCompiling setTextColor:[UIColor redColor]];
