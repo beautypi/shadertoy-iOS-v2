@@ -135,11 +135,11 @@
 				4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */,
 				4BF749101B84CE3000E2F772 /* ShaderViewController.h */,
 				4BF749111B84CE3000E2F772 /* ShaderViewController.m */,
+				4B8610BC1B947F9600928AD5 /* SoundPassPlayer.h */,
+				4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */,
 				4BF748C71B84852A00E2F772 /* Supporting Files */,
 				4B8610BB1B94592000928AD5 /* Utils.h */,
 				4B8610B91B94590E00928AD5 /* Utils.m */,
-				4B8610BC1B947F9600928AD5 /* SoundPassPlayer.h */,
-				4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -207,6 +207,7 @@
 				TargetAttributes = {
 					4BF748C31B84852A00E2F772 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = 98UZZR2W46;
 					};
 				};
 			};
@@ -433,6 +434,7 @@
 			baseConfigurationReference = 2800C908504AD9E3F8AB4736 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -445,6 +447,7 @@
 			baseConfigurationReference = CD72C56EEC40BF479E69F6A3 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

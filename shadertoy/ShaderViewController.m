@@ -276,7 +276,8 @@
     [self.view addSubview:_soundShaderView];
     
     [_soundShaderView setFrame:CGRectMake(0, -256, 256, 256)];
-  
+    [_soundShaderView setAutoresizingMask:UIViewAutoresizingNone];
+    
     _soundPassPlayer = [[SoundPassPlayer alloc] init];
     
     __weak typeof (self) weakSelf = self;
@@ -345,6 +346,7 @@
     
     [_shaderPlayerPlay setSelected:YES];
     [_imageShaderViewController pause];
+    [self playSoundSyncedWithShader];
     
     _exporting = YES;
     
