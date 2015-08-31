@@ -12,9 +12,7 @@
 #import "BlocksKit+UIKit.h"
 #import <MessageUI/MessageUI.h>
 
-#import "GAI.h"
-#import "GAIFields.h"
-#import "GAIDictionaryBuilder.h"
+#import "Utils.h"
 
 @interface AboutViewController ()
 
@@ -44,9 +42,7 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-    [tracker set:kGAIScreenName value:@"About"];
-    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];    
+    trackScreen(@"About");
 }
 
 - (void)initTabBarItem {

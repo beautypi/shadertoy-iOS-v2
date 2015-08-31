@@ -462,6 +462,9 @@ const GLubyte Indices[] = {
 #pragma mark - GLKViewControllerDelegate
 
 - (void)update {
+    if( [self getIGlobalTime] > 60.f*60.f ) {
+        [self rewind];
+    }
     if( _globalTimeLabel ) {
         [_globalTimeLabel setText:[NSString stringWithFormat:@"%.2f", [self getIGlobalTime]]];
     }

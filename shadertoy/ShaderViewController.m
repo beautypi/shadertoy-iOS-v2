@@ -20,9 +20,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "MBProgressHUD.h"
 
-#import "GAI.h"
-#import "GAIFields.h"
-#import "GAIDictionaryBuilder.h"
+#import "Utils.h"
 
 @interface ShaderViewController () {
     APIShaderObject* _shader;
@@ -34,7 +32,7 @@
     BOOL _compiled;
     
     NSMutableArray *_exportImageArray;
-    UIProgressView *_exportProgressView;
+    UIProgressView *_progressView;
 }
 @end
 
@@ -131,14 +129,8 @@
         [self compileShader];
     }
     
-    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-    [tracker set:kGAIScreenName value:@"Shader"];
-    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
-    
-    [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ShaderView"    // Event category (required)
-                                                          action:@"viewDidAppear"
-                                                           label:_shader.shaderId // Event label
-                                                           value:nil] build]];    // Event value
+    trackScreen(@"Shader");
+    trackEvent(@"ShaderView", @"viewDidAppear", _shader.shaderId);
 }
 
 - (void) viewWillLayoutSubviews {
@@ -148,6 +140,22 @@
 
 - (void) dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (UIAlertView *) createProgressAlert:(NSString *)title {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:title];
+    _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+    _progressView.frame = CGRectMake(0, 0, 200, 15);
+    _progressView.bounds = CGRectMake(0, 0, 200, 15);
+    _progressView.backgroundColor = [UIColor darkGrayColor];
+    
+    [_progressView setUserInteractionEnabled:NO];
+    [_progressView setTrackTintColor:[UIColor darkGrayColor]];
+    [_progressView setProgressTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
+    [_progressView setProgress:0.f animated:NO];
+    
+    [alert setValue:_progressView forKey:@"accessoryView"];
+    return alert;
 }
 
 #pragma mark - Compile shader, setup canvas
@@ -293,7 +301,7 @@ static float const kFrameDelay = 0.085f;
         UIImage *scaledImage = [image resizedImageByMagick:@"480x480"];
         [_exportImageArray insertObject:scaledImage atIndex:frameNumber];
         
-        [_exportProgressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
+        [_progressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
         
         if( frameNumber < kFrameCount-1 ) {
             [weakSelf addAnimationFrameToArray:(frameNumber+1) time:(time + kFrameDelay) complete:complete];
@@ -339,7 +347,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     [_shaderCanvasViewController renderOneFrame:time success:^(UIImage *image) {
         [_exportImageArray insertObject:image atIndex:frameNumber];
         
-        [_exportProgressView setProgress:(float)(frameNumber+1)/(float)(exportHQTiles*exportHQTiles) animated:NO];
+        [_progressView setProgress:(float)(frameNumber+1)/(float)(exportHQTiles*exportHQTiles) animated:NO];
         
         if( frameNumber < (exportHQTiles*exportHQTiles)-1 ) {
             [weakSelf addHQTileToArray:(frameNumber+1) time:time complete:complete];
@@ -350,23 +358,6 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
 }
 
 #pragma mark - Export image
-
-- (UIAlertView *) createExportAlert:(NSString *)title {
-    
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:title];
-    _exportProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-    _exportProgressView.frame = CGRectMake(0, 0, 200, 15);
-    _exportProgressView.bounds = CGRectMake(0, 0, 200, 15);
-    _exportProgressView.backgroundColor = [UIColor darkGrayColor];
-    
-    [_exportProgressView setUserInteractionEnabled:NO];
-    [_exportProgressView setTrackTintColor:[UIColor darkGrayColor]];
-    [_exportProgressView setProgressTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
-    [_exportProgressView setProgress:0.f animated:NO];
-    
-    [alert setValue:_exportProgressView forKey:@"accessoryView"];
-    return alert;
-}
 
 - (void)exportImage:(BOOL) asGif {
     NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
@@ -379,7 +370,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     
     if( asGif ) {
         // gif export
-        UIAlertView* alert =[self createExportAlert:@"Exporting animated GIF"];
+        UIAlertView* alert =[self createProgressAlert:@"Exporting animated GIF"];
         [alert show];
         
         [_shaderCanvasViewController setCanvasScaleFactor: 2.f*480.f / self.view.frame.size.width ];
@@ -394,7 +385,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         });
     } else {
         // normal export
-        UIAlertView* alert =[self createExportAlert:@"Exporting HQ image"];
+        UIAlertView* alert =[self createProgressAlert:@"Exporting HQ image"];
         [alert show];
         
         [_shaderCanvasViewController setCanvasScaleFactor: exportTileWidth / self.view.frame.size.width ];
@@ -410,18 +401,9 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     }
     
     if( asGif ) {
-        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ExportImage"    // Event category (required)
-                                                              action:@"GIF"
-                                                               label:_shader.shaderId // Event label
-                                                               value:nil] build]];    // Event value
+        trackEvent(@"ExportImage", @"GIF", _shader.shaderId);
     } else {
-        id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-        [tracker send:[[GAIDictionaryBuilder createEventWithCategory:@"ExportImage"    // Event category (required)
-                                                              action:@"HQ"
-                                                               label:_shader.shaderId // Event label
-                                                               value:nil] build]];    // Event value
-    
+        trackEvent(@"ExportImage", @"HQ", _shader.shaderId);
     }
 }
 

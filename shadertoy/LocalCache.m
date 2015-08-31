@@ -8,14 +8,12 @@
 
 #import "LocalCache.h"
 
-
 @interface LocalCache () {
     NSMutableDictionary *memoryCache;
 }
 @end
 
 static LocalCache *__sharedInstance;
-
 
 @implementation LocalCache
 

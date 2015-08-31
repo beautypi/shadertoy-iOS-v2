@@ -18,9 +18,7 @@
 #import "MBProgressHUD.h"
 #import "UIBarButtonItem+BlocksKit.h"
 
-#import "GAI.h"
-#import "GAIFields.h"
-#import "GAIDictionaryBuilder.h"
+#import "Utils.h"
 
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
@@ -85,9 +83,7 @@
     
     [super viewDidAppear:animated];
     
-    id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
-    [tracker set:kGAIScreenName value:[@"QueryTable_" stringByAppendingString:_sortBy]];
-    [tracker send:[[GAIDictionaryBuilder createScreenView] build]];
+    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
 }
 
 - (NSArray *) getDataFromCache {

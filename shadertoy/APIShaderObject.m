@@ -182,8 +182,4 @@
     return [self.imagePass getHeaderComments];
 }
 
-
 @end
-
-
-
