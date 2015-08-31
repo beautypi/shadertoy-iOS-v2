@@ -10,15 +10,11 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
-typedef struct {
-    float Position[3];
-} Vertex;
-
-const Vertex Vertices[] = {
-    {{1, -1., 0}},
-    {{1, 1, 0}},
-    {{-1, 1, 0}},
-    {{-1, -1, 0}}
+const float Vertices[] = {
+    1, -1, 0,
+    1,  1, 0,
+    -1,  1, 0,
+    -1, -1, 0
 };
 
 const GLubyte Indices[] = {
@@ -53,7 +49,7 @@ const GLubyte Indices[] = {
     float *_channelResolution;
     GLKTextureInfo *_channelTextureInfo[4];
     BOOL _channelTextureUseNearest[4];
-
+    
     float _ifFragCoordScale;
     float _ifFragCoordOffsetXY[2];
     
@@ -74,8 +70,6 @@ const GLubyte Indices[] = {
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self allocChannels];
-    [self setDefaultCanvasScaleFactor];
-    
     _programId = 0;
 }
 
@@ -143,13 +137,28 @@ const GLubyte Indices[] = {
     code = [code stringByReplacingOccurrencesOfString:@"precision " withString:@"//precision "];
     
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:code];
-    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-                          @" \n \
-                          void main()  { \n \
-                          mainImage(gl_FragColor, gl_FragCoord.xy + ifFragCoordOffsetUniform ); \n \
-                          gl_FragColor.w = 1.; \n \
-                          } \n \
-                          " ];
+    
+    if( [shaderPass.type isEqualToString:@"sound"] ) {
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
+                              @" \n \
+                              void main()  { \n \
+                              float t = ifFragCoordOffsetUniform.x + (((0.+gl_FragCoord.x)/11025.) + (255.-gl_FragCoord.y)*(256.0/11025.)); \n \
+                              vec2 y = mainSound( t ); \n \
+                              vec2 v  = clamp(0.5+0.5*y,0.,1.); \n \
+                              vec2 vl = fract(v*256.0); \n \
+                              vec2 vh = fract(v); \n \
+                              gl_FragColor = vec4(vl.x,vh.x,vl.y,vh.y); \n \
+                              } \n \
+                              " ];
+    } else {
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
+                              @" \n \
+                              void main()  { \n \
+                              mainImage(gl_FragColor, gl_FragCoord.xy + ifFragCoordOffsetUniform ); \n \
+                              gl_FragColor.w = 1.; \n \
+                              } \n \
+                              " ];
+    }
     
     char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
     glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
@@ -183,7 +192,6 @@ const GLubyte Indices[] = {
         
         return NO;
     }
-    
     return YES;
 }
 
@@ -200,7 +208,7 @@ const GLubyte Indices[] = {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
     
     glEnableVertexAttribArray(_positionSlot);
-    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid *) offsetof(Vertex, Position));
+    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
     
     glBindVertexArrayOES(0);
 }
@@ -304,13 +312,9 @@ const GLubyte Indices[] = {
 - (void)bindUniforms {
     GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale, self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale, 1. );
     glUniform3fv(_resolutionUniform, 1, &resolution.x );
-    
     glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
-    
     glUniform4f(_mouseUniform, _mouse.x * self.view.contentScaleFactor, _mouse.y * self.view.contentScaleFactor, _mouse.z * self.view.contentScaleFactor, _mouse.w * self.view.contentScaleFactor );
-    
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
-    
     glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
     
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:[NSDate date]];
@@ -344,6 +348,7 @@ const GLubyte Indices[] = {
         
         self.preferredFramesPerSecond = 20.;
         _running = NO;
+        [self setDefaultCanvasScaleFactor];
     } else {
         [self tearDownGL];
         return NO;
@@ -408,8 +413,17 @@ const GLubyte Indices[] = {
     [self setFragCoordScale:1.f andXOffset:0.f andYOffset:0.f];
 }
 
+- (float) getDefaultCanvasScaleFactor {
+    if( [_shaderPass.type isEqualToString:@"sound"] ) {
+        return 1.f;
+    } else {
+        // todo: scale factor depending on GPU type?
+        return 3.f/4.f;
+    }
+}
+
 - (void) setDefaultCanvasScaleFactor {
-    [self setCanvasScaleFactor:3.f/4.f];
+    [self setCanvasScaleFactor:[self getDefaultCanvasScaleFactor]];
     [self forceDraw];
     [(GLKView *)self.view display];
 }
@@ -477,6 +491,7 @@ const GLubyte Indices[] = {
         tmpCallback(snapShotImage);
     }
 }
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
     _forceDrawInRect = YES;
@@ -486,6 +501,7 @@ const GLubyte Indices[] = {
     _mouse.x = _mouse.z = touchLocation.x;
     _mouse.y = _mouse.w = self.view.layer.frame.size.height-touchLocation.y;
 }
+
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
     _forceDrawInRect = YES;
@@ -495,6 +511,7 @@ const GLubyte Indices[] = {
     _mouse.x = touchLocation.x;
     _mouse.y = self.view.layer.frame.size.height-touchLocation.y;
 }
+
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
     _forceDrawInRect = YES;
@@ -502,6 +519,7 @@ const GLubyte Indices[] = {
     _mouse.z = -fabsf(_mouse.z);
     _mouse.w = -fabsf(_mouse.w);
 }
+
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     _mouseDown = YES;
     _forceDrawInRect = YES;
