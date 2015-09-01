@@ -68,6 +68,7 @@
     }
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    [[self.tableView pullToRefreshView] stopAnimating];
     
     [super viewWillAppear:animated];
 }

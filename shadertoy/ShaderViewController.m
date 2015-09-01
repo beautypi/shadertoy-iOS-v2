@@ -18,7 +18,6 @@
 
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
-#import "MBProgressHUD.h"
 
 #import "Utils.h"
 #import "SoundPassPlayer.h"
@@ -239,7 +238,7 @@
     
     [self compileShaderPass:_shader.imagePass vc:_imageShaderViewController success:^{
         [_imageShaderViewController start];
-        [_soundPassPlayer play];        
+        [weakSelf playSoundSyncedWithShader];
         [_imageShaderView setHidden:NO];
         
         [self bk_performBlock:^(id obj) {
@@ -287,7 +286,6 @@
         [_soundShaderViewController setDefaultCanvasScaleFactor];
         [weakSelf renderSoundShaderFrame:0 complete:^{
             [_soundPassPlayer prepareToPlay];
-            [weakSelf playSoundSyncedWithShader];
             
             [_soundShaderView removeFromSuperview];
             [_soundShaderViewController removeFromParentViewController];
