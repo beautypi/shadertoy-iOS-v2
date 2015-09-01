@@ -60,6 +60,8 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    
     // get data from cache
     _data = [self getDataFromCache];
     if( ![_data count] ) {
@@ -74,8 +76,6 @@
 }
 
 - (void) viewDidAppear:(BOOL)animated {
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
-    
     __weak QueryTableViewController *weakSelf = self;
     
     [self.tableView addPullToRefreshWithActionHandler:^{
