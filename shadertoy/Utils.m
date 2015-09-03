@@ -29,30 +29,51 @@ void trackScreen( NSString *screen ) {
 @implementation UIImage (Utils)
 
 - (UIImage *) setShaderWatermarkText:(APIShaderObject *)shader {
-    return self;
-//    return [self drawWatermarkText:[@"\"" stringByAppendingString:[[shader.shaderName stringByAppendingString:@"\" by "] stringByAppendingString:shader.username]]];
-}
-
-- (UIImage *) drawWatermarkText:(NSString*)text {
+    NSString *text = [@"\"" stringByAppendingString:[[shader.shaderName stringByAppendingString:@"\" by "] stringByAppendingString:shader.username]];
+ 
     CGSize imageSize = self.size;
     
-    UIColor *textColor = [UIColor colorWithWhite:1.0 alpha:.8];
-    UIFont *font = [UIFont systemFontOfSize:imageSize.height * 0.045];
-    CGFloat paddingX = imageSize.height * 0.01;
-    CGFloat paddingY = imageSize.height * 0.01;
+    BOOL large = NO;
     
+    if( imageSize.height > 1024.f ) {
+        large = YES;
+    }
+    
+    UIColor *textColor = [UIColor colorWithWhite:1.0 alpha:large?.8f:1.f];
+    UIFont *font = [UIFont systemFontOfSize:imageSize.height * (large?0.029f:0.045f)];
     NSDictionary *attr = @{NSForegroundColorAttributeName: textColor, NSFontAttributeName: font};
-    CGSize textSize = [text sizeWithAttributes:attr];
-    CGRect textRect = CGRectMake(imageSize.width - textSize.width - paddingX, imageSize.height - textSize.height - paddingY, textSize.width, textSize.height);
     
     // Create the image
     UIGraphicsBeginImageContext(imageSize);
     [self drawInRect:CGRectMake(0, 0, imageSize.width, imageSize.height)];
-    CGContextSetShadow(UIGraphicsGetCurrentContext(), CGSizeMake(0.0f, 0.0f), imageSize.height * 0.003);
-    [text drawInRect:CGRectIntegral(textRect) withAttributes:attr];
+    if( large ) {
+        CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0f, 0.0f), imageSize.height * 0.001, [UIColor colorWithWhite:0. alpha:.9].CGColor);
+    } else {
+        CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0f, 0.0f), imageSize.height * 0.003, [UIColor colorWithWhite:0. alpha:.5].CGColor);
+    }
+    if( large ) {
+        NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitYear fromDate:shader.date];
+        text = [[text stringByAppendingString:@", "] stringByAppendingString:[NSString stringWithFormat:@"%ld",(long)[components year]]];
+        
+        [self drawTextInCurrentContext:text attr:attr paddingX:imageSize.height * 0.01 paddingY:imageSize.height * 0.029];
+        
+        font = [UIFont systemFontOfSize:imageSize.height * 0.015];
+        text = [[shader getShaderUrl] absoluteString];
+        NSDictionary *attr2 = @{NSForegroundColorAttributeName: textColor, NSFontAttributeName: font};
+        [self drawTextInCurrentContext:text attr:attr2 paddingX:imageSize.height * 0.01 paddingY:imageSize.height * 0.01];
+    } else {
+        [self drawTextInCurrentContext:text attr:attr paddingX:imageSize.height * 0.01 paddingY:imageSize.height * 0.01];
+    }
+    
     UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return resultImage;
+}
+
+- (void) drawTextInCurrentContext:(NSString *)text attr:(NSDictionary *)attr paddingX:(int)paddingX paddingY:(int)paddingY {
+    CGSize textSize = [text sizeWithAttributes:attr];
+    CGRect textRect = CGRectMake(self.size.width - textSize.width - paddingX, self.size.height - textSize.height - paddingY, textSize.width, textSize.height);
+    [text drawInRect:CGRectIntegral(textRect) withAttributes:attr];
 }
 
 - (UIImage *) resizedImageWithMaximumSize: (CGSize) size {

@@ -19,7 +19,6 @@ void trackScreen( NSString *screen );
 @interface UIImage (Utils)
 
 - (UIImage *) setShaderWatermarkText:(APIShaderObject *)shader;
-- (UIImage *) drawWatermarkText:(NSString*)text;
 - (UIImage *) resizedImageWithMaximumSize: (CGSize) size;
 
 @end
