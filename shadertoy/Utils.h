@@ -7,11 +7,21 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "APIShaderObject.h"
 
 #ifndef shadertoy_Utils_h
 #define shadertoy_Utils_h
 
 void trackEvent( NSString *category, NSString *action, NSString *label );
 void trackScreen( NSString *screen );
+
+@interface UIImage (Utils)
+
+- (UIImage *) setShaderWatermarkText:(APIShaderObject *)shader;
+- (UIImage *) drawWatermarkText:(NSString*)text;
+- (UIImage *) resizedImageWithMaximumSize: (CGSize) size;
+
+@end
 
 #endif

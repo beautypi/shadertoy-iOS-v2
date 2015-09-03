@@ -13,7 +13,6 @@
 #import "APIShaderRepository.h"
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+WebCache.h"
-#import "UIImage+ResizeMagick.h"
 #import "BlocksKit.h"
 
 #import <ImageIO/ImageIO.h>
@@ -399,7 +398,7 @@ static float const kFrameDelay = 0.085f;
     __weak typeof (self) weakSelf = self;
     
     [_imageShaderViewController renderOneFrame:time success:^(UIImage *image) {
-        UIImage *scaledImage = [image resizedImageByMagick:@"480x480"];
+        UIImage *scaledImage = [[image resizedImageWithMaximumSize:CGSizeMake(480, 480)] setShaderWatermarkText:_shader];
         [_exportImageArray insertObject:scaledImage atIndex:frameNumber];
         
         [_progressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
@@ -433,7 +432,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    return [image resizedImageWithMaximumSize:CGSizeMake(exportHQWidth, exportHQWidth)];
+    return [[image resizedImageWithMaximumSize:CGSizeMake(exportHQWidth, exportHQWidth)] setShaderWatermarkText:_shader];
 }
 
 - (void) addHQTileToArray:(int)frameNumber time:(float)time complete:(void (^)(UIImage *image))complete {

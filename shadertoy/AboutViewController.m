@@ -8,7 +8,6 @@
 
 #import "AboutViewController.h"
 
-#import "UIImage+ResizeMagick.h"
 #import "BlocksKit+UIKit.h"
 #import <MessageUI/MessageUI.h>
 
@@ -23,7 +22,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageByMagick:@"10000x24"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageWithMaximumSize:CGSizeMake(10000,24)] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
     }];
     self.navigationItem.leftBarButtonItem = item;

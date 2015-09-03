@@ -11,7 +11,6 @@
 #import "QueryTableViewCell.h"
 #import "APIShaderRepository.h"
 #import "ShaderViewController.h"
-#import "UIImage+ResizeMagick.h"
 
 #import "SVPullToRefresh.h"
 #import "LocalCache.h"
@@ -37,7 +36,7 @@
     _repository = [[APIShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
     
-    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageByMagick:@"10000x24"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageWithMaximumSize:CGSizeMake(10000,24)] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     __weak QueryTableViewController *weakSelf = self;
     UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
         [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
