@@ -352,7 +352,7 @@
     [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
         [self exportImage:YES];
     }];
-    [alert bk_addButtonWithTitle:@"Export HQ image (twitter/facebook)" handler:^{
+    [alert bk_addButtonWithTitle:@"Export HQ image" handler:^{
         [self exportImage:NO];
     }];
     [alert bk_addButtonWithTitle:@"Cancel" handler:^{
