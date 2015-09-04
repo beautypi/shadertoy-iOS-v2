@@ -364,8 +364,8 @@
 
 #pragma mark - Export animated gif
 
-static NSUInteger const kFrameCount = 32;
-static float const kFrameDelay = 0.085f;
+static NSUInteger const kFrameCount = 28;
+static float const kFrameDelay = 0.1f;
 
 - (NSURL *) composeAnimatedGif {
     NSDictionary *fileProperties = @{(__bridge id)kCGImagePropertyGIFDictionary: @{

@@ -31,11 +31,12 @@
      @"Shadertoy App can be used to view the shaders of http://www.shadertoy.com on your iPhone.\n\n"
      @"This app uses the Shadertoy.com API.\n\n"
      @"Coded by: Reinder Nijhoff.\n" ];
-     
-     [self.aboutText2 setText:
-     @"\nThis is version 0.1 of the Shadertoy App. Not all input types of the shaders (keyboard, webcam, sound, video) are fully implemented yet.\n\n"
-     @"Please let me know if you have any suggestions, comments or questions about this app:\n"
-     ];
+    
+    NSString * version = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
+    [self.aboutText2 setText:
+     [NSString stringWithFormat:@"\nThis is version %@ of the Shadertoy App. Not all input types of the shaders (keyboard, webcam, sound, video) are fully implemented yet.\n\n"
+      @"Please let me know if you have any suggestions, comments or questions about this app:\n"
+      , version]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
