@@ -313,7 +313,11 @@ const GLubyte Indices[] = {
     GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale, self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale, 1. );
     glUniform3fv(_resolutionUniform, 1, &resolution.x );
     glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
-    glUniform4f(_mouseUniform, _mouse.x * self.view.contentScaleFactor, _mouse.y * self.view.contentScaleFactor, _mouse.z * self.view.contentScaleFactor, _mouse.w * self.view.contentScaleFactor );
+    glUniform4f(_mouseUniform,
+                _mouse.x * self.view.contentScaleFactor  / _ifFragCoordScale,
+                _mouse.y * self.view.contentScaleFactor  / _ifFragCoordScale,
+                _mouse.z * self.view.contentScaleFactor  / _ifFragCoordScale,
+                _mouse.w * self.view.contentScaleFactor  / _ifFragCoordScale);
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
     glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
     
