@@ -39,18 +39,14 @@ void trackScreen( NSString *screen ) {
         large = YES;
     }
     
-    UIColor *textColor = [UIColor colorWithWhite:1.0 alpha:large?.8f:1.f];
+    UIColor *textColor = [UIColor colorWithWhite:1.0 alpha:large?.95f:1.f];
     UIFont *font = [UIFont systemFontOfSize:imageSize.height * (large?0.029f:0.045f)];
     NSDictionary *attr = @{NSForegroundColorAttributeName: textColor, NSFontAttributeName: font};
     
     // Create the image
     UIGraphicsBeginImageContext(imageSize);
     [self drawInRect:CGRectMake(0, 0, imageSize.width, imageSize.height)];
-    if( large ) {
-        CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0f, 0.0f), imageSize.height * 0.001, [UIColor colorWithWhite:0. alpha:.9].CGColor);
-    } else {
-        CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0f, 0.0f), imageSize.height * 0.003, [UIColor colorWithWhite:0. alpha:.5].CGColor);
-    }
+    CGContextSetShadowWithColor(UIGraphicsGetCurrentContext(), CGSizeMake(0.0f, 0.0f), imageSize.height * 0.003, [UIColor colorWithWhite:0. alpha:.9].CGColor);
     if( large ) {
         NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitYear fromDate:shader.date];
         text = [[text stringByAppendingString:@", "] stringByAppendingString:[NSString stringWithFormat:@"%ld",(long)[components year]]];
