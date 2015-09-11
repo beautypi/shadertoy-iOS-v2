@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "UIImageView+AFNetworking.h"
-#import "GAI.h"
+#import <GoogleAnalytics/GAI.h>
 
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
@@ -18,7 +18,6 @@
 @end
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 // ff8020

@@ -30,7 +30,6 @@ OSStatus RenderTone(
         
         UInt32 frameOffset = spp->startFrame + channel * 2;
         
-        // Generate the samples
         for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
             if( frameOffset < bufferBlockSize*bufferNumBlocks ) {
                 float v = _buffer[ frameOffset + 0 ] + 256.*_buffer[ frameOffset + 1 ];
@@ -47,7 +46,7 @@ OSStatus RenderTone(
 }
 
 void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState) {
-    //    SoundPassPlayer *SoundPassPlayer = (__bridge SoundPassPlayer *)inClientData;
+//    SoundPassPlayer *SoundPassPlayer = (__bridge SoundPassPlayer *)inClientData;
 }
 
 @interface SoundPassPlayer () {
@@ -86,57 +85,41 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState) {
     defaultOutputDescription.componentFlags = 0;
     defaultOutputDescription.componentFlagsMask = 0;
     
-    // Get the default playback output unit
     AudioComponent defaultOutput = AudioComponentFindNext(NULL, &defaultOutputDescription);
-    NSAssert(defaultOutput, @"Can't find default output");
+    AudioComponentInstanceNew(defaultOutput, &toneUnit);
     
-    // Create a new unit based on this that we'll use for output
-    OSErr err = AudioComponentInstanceNew(defaultOutput, &toneUnit);
-    NSAssert1(toneUnit, @"Error creating unit: %ld", err);
-    
-    // Set our tone rendering function on the unit
     AURenderCallbackStruct input;
     input.inputProc = RenderTone;
     input.inputProcRefCon = (__bridge void *)(self);
-    err = AudioUnitSetProperty(toneUnit,
-                               kAudioUnitProperty_SetRenderCallback,
-                               kAudioUnitScope_Input,
-                               0,
-                               &input,
-                               sizeof(input));
-    NSAssert1(err == noErr, @"Error setting callback: %ld", err);
-    
-    // Set the format to 32 bit, single channel, floating point, linear PCM
-    const int four_bytes_per_float = 4;
-    const int eight_bits_per_byte = 8;
+    AudioUnitSetProperty(toneUnit,
+                         kAudioUnitProperty_SetRenderCallback,
+                         kAudioUnitScope_Input,
+                         0,
+                         &input,
+                         sizeof(input));
     
     AudioStreamBasicDescription streamFormat;
     streamFormat.mSampleRate = frameRate;
     streamFormat.mFormatID = kAudioFormatLinearPCM;
     streamFormat.mFormatFlags = kAudioFormatFlagsNativeFloatPacked | kAudioFormatFlagIsNonInterleaved;
-    streamFormat.mBytesPerPacket = four_bytes_per_float;
+    streamFormat.mBytesPerPacket = 4;
     streamFormat.mFramesPerPacket = 1;
-    streamFormat.mBytesPerFrame = four_bytes_per_float;
+    streamFormat.mBytesPerFrame = 4;
     streamFormat.mChannelsPerFrame = 2;
-    streamFormat.mBitsPerChannel = four_bytes_per_float * eight_bits_per_byte;
-    err = AudioUnitSetProperty (toneUnit,
-                                kAudioUnitProperty_StreamFormat,
-                                kAudioUnitScope_Input,
-                                0,
-                                &streamFormat,
-                                sizeof(AudioStreamBasicDescription));
-    NSAssert1(err == noErr, @"Error setting stream format: %ld", err);
+    streamFormat.mBitsPerChannel = 4 * 8;
+    AudioUnitSetProperty (toneUnit,
+                          kAudioUnitProperty_StreamFormat,
+                          kAudioUnitScope_Input,
+                          0,
+                          &streamFormat,
+                          sizeof(AudioStreamBasicDescription));
     
     return;
 }
 
 - (void) play {
-    OSErr err = AudioUnitInitialize(toneUnit);
-    NSAssert1(err == noErr, @"Error initializing unit: %ld", err);
-    
-    // Start playback
-    err = AudioOutputUnitStart(toneUnit);
-    NSAssert1(err == noErr, @"Error starting unit: %ld", err);
+    AudioUnitInitialize(toneUnit);
+    AudioOutputUnitStart(toneUnit);
 }
 
 - (void) stop {
