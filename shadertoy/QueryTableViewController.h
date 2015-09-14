@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface QueryTableViewController : UITableViewController
+@interface QueryTableViewController : UITableViewController <UISearchBarDelegate>
 
 - (void) setSortBy:(NSString *)sortBy;
 - (void) reloadData;

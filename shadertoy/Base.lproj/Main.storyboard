@@ -112,8 +112,15 @@
                             <outlet property="delegate" destination="ETs-m1-k9d" id="zlw-GI-nCP"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="pbK-En-o5i"/>
+                    <navigationItem key="navigationItem" id="pbK-En-o5i">
+                        <barButtonItem key="rightBarButtonItem" systemItem="search" id="3MT-V9-e0I">
+                            <connections>
+                                <action selector="searchButtonClick:" destination="ETs-m1-k9d" id="GaV-dX-1jk"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
+                        <outlet property="searchBarButtonItem" destination="3MT-V9-e0I" id="QlI-Rd-jmV"/>
                         <segue destination="1Yc-aP-wtt" kind="show" identifier="showShader" id="yxR-52-W98"/>
                     </connections>
                 </tableViewController>

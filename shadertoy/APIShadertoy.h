@@ -16,6 +16,7 @@
 @interface APIShadertoy : NSObject
 
 - (AFHTTPRequestOperation *) getShaderKeys:(NSString *)sortBy success:(void (^)(NSArray *results))success;
+- (AFHTTPRequestOperation *) getShaderKeys:(NSString *)sortBy query:(NSString *)query success:(void (^)(NSArray *results))success;
 - (AFHTTPRequestOperation *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success;
 
 @end

@@ -9,7 +9,7 @@
 #ifndef shadertoy_keys_h
 #define shadertoy_keys_h
 
-#define GoogleAnalyticsKey  @""
+#define GoogleAnalyticsKey  @"UA-66897577-1"
 #define APIShadertoyKey     @"NtHKWH"
 
 #endif
