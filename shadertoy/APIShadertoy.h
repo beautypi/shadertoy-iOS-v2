@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AFNetworking.h"
+#import <AFNetworking/AFNetworking.h>
 #import "APIShaderObject.h"
+#import "Keys.h"
 
 #define APIShadertoyBaseUrl @"https://www.shadertoy.com/api/v1/shaders/"
-#define APIShadertoyKey @"NtHKWH"
 
 @interface APIShadertoy : NSObject
 
