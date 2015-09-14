@@ -321,7 +321,11 @@ const GLubyte Indices[] = {
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
     glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
     
-    NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:[NSDate date]];
+    NSDate* date = [NSDate date];
+    if( !_running ) {
+        date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
+    }
+    NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:date];
     glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second);
     
     for( int i=0; i<4; i++ )  {
