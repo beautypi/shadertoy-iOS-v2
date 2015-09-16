@@ -37,6 +37,8 @@
     
     NSMutableArray *_exportImageArray;
     UIProgressView *_progressView;
+    
+    ShaderViewMode _viewMode;
 }
 @end
 
@@ -48,6 +50,7 @@
     _firstView = YES;
     _exporting = NO;
     _compiled = NO;
+    _viewMode = VIEW_NORMAL;
     
     self.navigationItem.rightBarButtonItem = nil;
     
@@ -85,7 +88,7 @@
     [_soundPassPlayer stop];
 }
 
-- (CGSize)get_visible_size {
+- (CGSize) getVisibleSizeLandscape {
     CGSize result;
     CGSize size = [[UIScreen mainScreen] bounds].size;
     
@@ -102,9 +105,11 @@
     size = [[UIApplication sharedApplication] statusBarFrame].size;
     result.height -= MIN(size.width, size.height);
     
-    if( self.tabBarController != nil ) {
-        size = self.tabBarController.tabBar.frame.size;
-        result.height -= MIN(size.width, size.height);
+    if( _viewMode == VIEW_NORMAL ) {
+        if( self.tabBarController != nil ) {
+            size = self.tabBarController.tabBar.frame.size;
+            result.height -= MIN(size.width, size.height);
+        }
     }
     
     return result;
@@ -114,20 +119,26 @@
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
     
     CGRect frame = _shaderImageView.layer.frame;
-    float oldWidth = _shaderImageView.layer.frame.size.width;
+    CGSize oldSize = frame.size;
     
     if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
         //Landscape mode
-        CGSize size = [self get_visible_size];
+        CGSize size = [self getVisibleSizeLandscape];
         frame.size.height = MIN( frame.size.height, size.height );
         _shaderImageView.layer.frame = frame;
         [[self navigationController] setNavigationBarHidden:YES animated:YES];
+        
+        if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
+            [[self.tabBarController tabBar] setHidden:YES];
+        }
+        
     } else {
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
+        [[self.tabBarController tabBar] setHidden:NO];
     }
     _imageShaderView.frame = frame;
     
-    if( !_exporting && oldWidth != _shaderImageView.layer.frame.size.width ) {
+    if( !_exporting && (oldSize.width != _shaderImageView.layer.frame.size.width || oldSize.height != _shaderImageView.layer.frame.size.height) ) {
         [_imageShaderViewController forceDraw];
     }
 }

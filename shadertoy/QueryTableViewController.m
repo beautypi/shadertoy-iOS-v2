@@ -18,16 +18,21 @@
 #import "UIBarButtonItem+BlocksKit.h"
 
 #import "Utils.h"
+#import "NSObject+BKBlockExecution.h"
 
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
     APIShaderRepository* _repository;
     NSString* _sortBy;
     NSArray* _data;
-    UISearchBar* _searchBar;
-    NSString* _searchQuery;
+    
     AFHTTPRequestOperation* _currentAFRequestOperation;
-    BOOL _searchMode;
+    
+    UISearchBar*    _searchBar;
+    NSString*       _searchQuery;
+    id              _searchBlockTimer;
+    
+    QueryTableMode _queryTableMode;
 }
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *searchBarButtonItem;
 
@@ -40,9 +45,9 @@
     _client = [[APIShadertoy alloc] init];
     _repository = [[APIShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
-    _searchMode = NO;
+    _queryTableMode = QUERY_NORMAL;
     
-    [self showLogo];
+    [self switchQueryTableMode:QUERY_NORMAL];
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -59,10 +64,10 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [self cancelRequests];
     
-    if( ![self isInSearchMode] ) {
-        [self loadData];
+    if( [self getQueryTableMode] == QUERY_NORMAL ) {
+        [self loadNormalData];
     }
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
@@ -73,13 +78,8 @@
 
 - (void) viewDidAppear:(BOOL)animated {
     __weak QueryTableViewController *weakSelf = self;
-    
     [self.tableView addPullToRefreshWithActionHandler:^{
-        if( [weakSelf isInSearchMode] ) {
-            [weakSelf reloadSearchData];
-        } else {
-            [weakSelf reloadData];
-        }
+        [weakSelf reloadData];
     }];
     
     [super viewDidAppear:animated];
@@ -87,11 +87,10 @@
     trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
 }
 
-- (void) loadData {
+- (void) loadNormalData {
     // get data from cache
     _data = [self getDataFromCache];
     if( ![_data count] ) {
-        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
         [self reloadData];
     }
     [self.tableView reloadData];
@@ -123,38 +122,92 @@
 }
 
 - (void) reloadData {
-    [_currentAFRequestOperation cancel];
+    if( ![_data count] ) {
+        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    }
+    
     __weak QueryTableViewController *weakSelf = self;
-    _currentAFRequestOperation = [_client getShaderKeys:_sortBy success:^(NSArray *results) {
-        _data = results;
-        [self storeDataToCache:_data];
-        [weakSelf.tableView reloadData];
-        [[weakSelf.tableView pullToRefreshView] stopAnimating];
-        [MBProgressHUD hideAllHUDsForView:weakSelf.view animated:YES];
-    }];
+    
+    if( [self getQueryTableMode] == QUERY_NORMAL ) {
+        _currentAFRequestOperation = [_client getShaderKeys:_sortBy success:^(NSArray *results) {
+            [weakSelf setDataIsLoaded:results];
+            [self storeDataToCache:results];
+        }];
+    }
+    if( [self getQueryTableMode] == QUERY_SEARCH ) {
+        _currentAFRequestOperation = [_client getShaderKeys:_sortBy query:_searchQuery success:^(NSArray *results) {
+            [weakSelf setDataIsLoaded:results];
+            if( [results count] ) {
+                [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            }
+        }];
+    }
 }
 
-- (void) reloadSearchData {
+- (void) setDataIsLoaded:(NSArray *)results {
+    _data = results;
+    [self.tableView reloadData];
+    [[self.tableView pullToRefreshView] stopAnimating];
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+}
+
+#pragma mark - Query Table Modes
+
+- (QueryTableMode) getQueryTableMode {
+    return _queryTableMode;
+}
+
+- (void) switchQueryTableMode:(QueryTableMode) mode {
+    [self hideLogo];
+    [self hideSearchBar];
+    [self cancelRequests];
+    
+    switch( mode ) {
+        case QUERY_SEARCH:
+            [self setupSearchBar];
+            break;
+        default:
+        case QUERY_NORMAL:
+            [self setupLogo];
+            break;
+    }
+    _queryTableMode = mode;
+    
+    if( [_data count] ) {
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
+}
+
+-(void) hideLogo {
+    [self.navigationItem setLeftBarButtonItem:nil animated:NO];
+}
+
+-(void) hideSearchBar {
+    [self.navigationItem setLeftBarButtonItem:nil animated:NO];
+    _searchBar = nil;
+}
+
+-(void) cancelRequests {
     [_currentAFRequestOperation cancel];
-    __weak QueryTableViewController *weakSelf = self;
-    _currentAFRequestOperation = [_client getShaderKeys:_sortBy query:_searchQuery success:^(NSArray *results) {
-        _data = results;
-        [weakSelf.tableView reloadData];
-        [[weakSelf.tableView pullToRefreshView] stopAnimating];
-        [MBProgressHUD hideAllHUDsForView:weakSelf.view animated:YES];
-        if( [_data count] ) {
-            [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-        }
-    }];
+    [[self.tableView pullToRefreshView] stopAnimating];
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
 }
 
-- (void) didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
+-(void) setupSearchBar {
+    _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 88, 44)];
+    UIBarButtonItem *searchBarItem = [[UIBarButtonItem alloc] initWithCustomView:_searchBar];
+    
+    [self.navigationItem setLeftBarButtonItem:searchBarItem animated:YES];
+    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(cancelSearchButtonClick:)] animated:YES];
+    
+    [_searchBar becomeFirstResponder];
+    [_searchBar setDelegate:self];
+    
+    _data = [[NSArray alloc] init];
+    [self.tableView reloadData];
 }
 
-#pragma mark - Search functions
-
-- (void) showLogo {
+-(void) setupLogo {
     UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageWithMaximumSize:CGSizeMake(10000,24)] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     __weak QueryTableViewController *weakSelf = self;
     UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
@@ -163,58 +216,46 @@
         }
     }];
     self.navigationItem.leftBarButtonItem = item;
+    
+    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButtonClick:)] animated:YES];
+    [self loadNormalData];
 }
 
-- (UISearchBar *) showSearchBar {
-    UISearchBar *searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 88, 44)];
-    UIBarButtonItem *searchBarItem = [[UIBarButtonItem alloc] initWithCustomView:searchBar];
-    [self.navigationItem setLeftBarButtonItem:searchBarItem animated:YES];
-    return searchBar;
-}
+#pragma mark - Search functions
 
 - (IBAction) searchButtonClick:(id)sender {
-    _searchMode = YES;
-    
-    _searchBar = [self showSearchBar];
-    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelSearchButtonClick:)] animated:YES];
-    
-    [_searchBar becomeFirstResponder];
-    [_searchBar setDelegate:self];
-    
-    [_currentAFRequestOperation cancel];
-    [[self.tableView pullToRefreshView] stopAnimating];
-    
-    
-    _data = [[NSArray alloc] init];
-    [self.tableView reloadData];
+    [self switchQueryTableMode:QUERY_SEARCH];
 }
 
 - (IBAction) cancelSearchButtonClick:(id)sender {
-    _searchMode = NO;
-    
-    _searchBar = nil;
-    [self showLogo];
-    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButtonClick:)] animated:YES];
-    [self loadData];
-    if( [_data count] ) {
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    }
+    [self switchQueryTableMode:QUERY_NORMAL];
 }
 
 - (void) search:(NSString *)query {
+    if(_searchBlockTimer) {
+        [NSObject bk_cancelBlock:_searchBlockTimer];
+        _searchBlockTimer = nil;
+    }
+    
+    if( [query isEqualToString:@""] ) {
+        [self cancelRequests];
+        _data = [[NSArray alloc] init];
+        [self.tableView reloadData];
+        return;
+    }
+    
     _searchQuery = query;
-}
-
-- (BOOL) isInSearchMode {
-    return _searchMode;
+    
+    _searchBlockTimer = [NSObject bk_performBlock:^{
+        [self cancelRequests];
+        [self reloadData];
+    } afterDelay:.5];
 }
 
 #pragma mark - Searchbar delegate
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [_searchBar resignFirstResponder];
-    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    [self reloadSearchData];
 }
 
 - (void) searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {

@@ -10,6 +10,12 @@
 #import <GLKit/GLKit.h>
 #import "APIShaderObject.h"
 
+typedef NS_ENUM(NSUInteger, ShaderViewMode) {
+    VIEW_NORMAL,
+    VIEW_FULLSCREEN,
+    VIEW_FULLSCREEN_IF_LANDSCAPE
+};
+
 @interface ShaderViewController : UIViewController
 
 @property (strong, nonatomic) IBOutlet UIImageView *shaderImageView;
