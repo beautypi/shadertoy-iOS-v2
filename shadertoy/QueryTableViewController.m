@@ -26,9 +26,10 @@
     
     AFHTTPRequestOperation* _currentAFRequestOperation;
     
-    UISearchBar*    _searchBar;
-    NSString*       _searchQuery;
-    id              _searchBlockTimer;
+    UISearchBar*            _searchBar;
+    NSString*               _searchQuery;
+    id                      _searchBlockTimer;
+    NSMutableDictionary*    _searchCache;
     
     QueryTableMode _queryTableMode;
 }
@@ -43,12 +44,30 @@
     _client = [[APIShadertoy alloc] init];
     _repository = [[APIShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
+    _searchCache = [[NSMutableDictionary alloc] init];
     _queryTableMode = QUERY_NORMAL;
     
     [self switchQueryTableMode:QUERY_NORMAL];
     
     self.refreshControl = [[UIRefreshControl alloc] init];
     [self.refreshControl addTarget:self action:@selector(reloadData) forControlEvents:UIControlEventValueChanged];
+}
+
+- (void) viewWillAppear:(BOOL)animated {
+    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
+    
+    [self cancelRequests];
+    
+    if( [self getQueryTableMode] == QUERY_NORMAL ) {
+        [self loadNormalData];
+    }
+    [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    [super viewWillAppear:animated];
+}
+
+- (void)didReceiveMemoryWarning {
+    _searchCache = [[NSMutableDictionary alloc] init];
+    [super didReceiveMemoryWarning];
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -62,18 +81,6 @@
     
     if( [_sortBy isEqualToString:@"love"] )
         self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFavorites tag:1];
-}
-
-- (void) viewWillAppear:(BOOL)animated {
-    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
-
-    [self cancelRequests];
-    
-    if( [self getQueryTableMode] == QUERY_NORMAL ) {
-        [self loadNormalData];
-    }
-    [[self navigationController] setNavigationBarHidden:NO animated:NO];
-    [super viewWillAppear:animated];
 }
 
 - (void) loadNormalData {
@@ -112,6 +119,7 @@
 
 - (void) reloadData {
     if( ![_data count] ) {
+        [self.refreshControl endRefreshing];
         [self.refreshControl beginRefreshing];
         [self.tableView setContentOffset:CGPointMake(0, self.tableView.contentOffset.y-self.refreshControl.frame.size.height) animated:NO];
     }
@@ -125,8 +133,10 @@
         }];
     }
     if( [self getQueryTableMode] == QUERY_SEARCH ) {
+        NSString *searchQueryCopy = [_searchQuery copy];
         _currentAFRequestOperation = [_client getShaderKeys:_sortBy query:_searchQuery success:^(NSArray *results) {
             [weakSelf setDataIsLoaded:results];
+            [_searchCache setValue:(results?results:[NSArray array]) forKey:searchQueryCopy];
             if( [results count] ) {
                 [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
             }
@@ -138,6 +148,19 @@
     _data = results;
     [self.tableView reloadData];
     [self.refreshControl endRefreshing];
+    [self setNoShadersFound:![_data count]];
+}
+
+- (void) setNoShadersFound:(BOOL)visible {
+    if( visible ) {
+        UILabel *noDataLabel          = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
+        noDataLabel.text              = @"No shaders found";
+        noDataLabel.textColor         = [UIColor darkGrayColor];
+        noDataLabel.textAlignment     = NSTextAlignmentCenter;
+        self.tableView.backgroundView = noDataLabel;
+    } else {
+        self.tableView.backgroundView = nil;
+    }
 }
 
 #pragma mark - Query Table Modes
@@ -150,6 +173,7 @@
     [self hideLogo];
     [self hideSearchBar];
     [self cancelRequests];
+    [self setNoShadersFound:NO];
     
     switch( mode ) {
         case QUERY_SEARCH:
@@ -183,10 +207,12 @@
 
 -(void) setupSearchBar {
     _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 88, 44)];
+    _searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _searchBar.autocapitalizationType = UITextAutocapitalizationTypeNone;
     UIBarButtonItem *searchBarItem = [[UIBarButtonItem alloc] initWithCustomView:_searchBar];
     
     [self.navigationItem setLeftBarButtonItem:searchBarItem animated:YES];
-    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(cancelSearchButtonClick:)] animated:YES];
+    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelSearchButtonClick:)] animated:YES];
     
     [_searchBar becomeFirstResponder];
     [_searchBar setDelegate:self];
@@ -220,6 +246,8 @@
 }
 
 - (void) search:(NSString *)query {
+    [self setNoShadersFound:NO];
+    
     if(_searchBlockTimer) {
         [NSObject bk_cancelBlock:_searchBlockTimer];
         _searchBlockTimer = nil;
@@ -232,12 +260,17 @@
         return;
     }
     
-    _searchQuery = query;
+    _searchQuery = [query lowercaseString];
     
-    _searchBlockTimer = [NSObject bk_performBlock:^{
-        [self cancelRequests];
-        [self reloadData];
-    } afterDelay:.5];
+    NSArray* cachedResults = [_searchCache valueForKey:_searchQuery];
+    if( cachedResults ) {
+        [self setDataIsLoaded:cachedResults];
+    } else {
+        _searchBlockTimer = [NSObject bk_performBlock:^{
+            [self cancelRequests];
+            [self reloadData];
+        } afterDelay:.5];
+    }
 }
 
 #pragma mark - Searchbar delegate

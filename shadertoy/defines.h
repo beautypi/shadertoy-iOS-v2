@@ -15,7 +15,7 @@
 
 #define ImageExportHQWidth 1920.f
 #define ImageExportGIFWidth 480.f
-#define ImageExportGIFFrameCount 28
+#define ImageExportGIFFrameCount 36
 #define ImageExportGIFFrameDelay 0.1f
 
 #endif

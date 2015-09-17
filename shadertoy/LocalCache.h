@@ -13,7 +13,6 @@
 
 + (instancetype)sharedLocalCache;
 
-
 - (void) storeObject:(id)object forKey:(NSString *)key;
 - (id) getObject:(NSString *)key;
 
@@ -21,7 +20,6 @@
 - (APIShaderObject *) getShaderObject:(NSString *)key;
 
 - (void) removeObject:(NSString *)key;
-
 - (void) clear;
 
 @end
