@@ -18,9 +18,7 @@
     [self sd_setImageWithURL:url
             placeholderImage:nil
                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                       if ( cacheType != SDImageCacheTypeNone ) // image was cached
-                           [weakSelf setImage:image];
-                       else
+                       if ( cacheType == SDImageCacheTypeNone ) // image was not cached
                            [UIView transitionWithView:weakSelf duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
                                [weakSelf setImage:image];
                            } completion:nil];
@@ -48,9 +46,7 @@
     _shader = shader;
     
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
-    
-    [_shaderImageView setImageWithURL:[shader getPreviewImageUrl] placeholderImage:_shaderImageView.image fadeInWithDuration:0.5f];
-  //  [_shaderImageView sd_setImageWithURL:[shader getPreviewImageUrl]];
+    [_shaderImageView setImageWithURL:[shader getPreviewImageUrl] placeholderImage:nil fadeInWithDuration:0.5f];
     
     if( _firstUpdate ) {
         [_shaderTitle setText:shader.shaderName];
