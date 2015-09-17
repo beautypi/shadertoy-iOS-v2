@@ -12,9 +12,7 @@
 #import "APIShaderRepository.h"
 #import "ShaderViewController.h"
 
-#import "SVPullToRefresh.h"
 #import "LocalCache.h"
-#import "MBProgressHUD.h"
 #import "UIBarButtonItem+BlocksKit.h"
 
 #import "Utils.h"
@@ -48,6 +46,9 @@
     _queryTableMode = QUERY_NORMAL;
     
     [self switchQueryTableMode:QUERY_NORMAL];
+    
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(reloadData) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -64,27 +65,15 @@
 }
 
 - (void) viewWillAppear:(BOOL)animated {
+    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
+
     [self cancelRequests];
     
     if( [self getQueryTableMode] == QUERY_NORMAL ) {
         [self loadNormalData];
     }
-    
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
-    [[self.tableView pullToRefreshView] stopAnimating];
-    
     [super viewWillAppear:animated];
-}
-
-- (void) viewDidAppear:(BOOL)animated {
-    __weak QueryTableViewController *weakSelf = self;
-    [self.tableView addPullToRefreshWithActionHandler:^{
-        [weakSelf reloadData];
-    }];
-    
-    [super viewDidAppear:animated];
-    
-    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
 }
 
 - (void) loadNormalData {
@@ -123,7 +112,8 @@
 
 - (void) reloadData {
     if( ![_data count] ) {
-        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        [self.refreshControl beginRefreshing];
+        [self.tableView setContentOffset:CGPointMake(0, self.tableView.contentOffset.y-self.refreshControl.frame.size.height) animated:NO];
     }
     
     __weak QueryTableViewController *weakSelf = self;
@@ -147,8 +137,7 @@
 - (void) setDataIsLoaded:(NSArray *)results {
     _data = results;
     [self.tableView reloadData];
-    [[self.tableView pullToRefreshView] stopAnimating];
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [self.refreshControl endRefreshing];
 }
 
 #pragma mark - Query Table Modes
@@ -189,8 +178,7 @@
 
 -(void) cancelRequests {
     [_currentAFRequestOperation cancel];
-    [[self.tableView pullToRefreshView] stopAnimating];
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [self.refreshControl endRefreshing];
 }
 
 -(void) setupSearchBar {
@@ -256,6 +244,7 @@
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [_searchBar resignFirstResponder];
+    [self search:searchBar.text];
 }
 
 - (void) searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
