@@ -107,11 +107,9 @@
     size = [[UIApplication sharedApplication] statusBarFrame].size;
     result.height -= MIN(size.width, size.height);
     
-    if( _viewMode == VIEW_NORMAL ) {
-        if( self.tabBarController != nil ) {
-            size = self.tabBarController.tabBar.frame.size;
-            result.height -= MIN(size.width, size.height);
-        }
+    if( self.tabBarController != nil && !self.tabBarController.tabBar.isHidden ) {
+        size = self.tabBarController.tabBar.frame.size;
+        result.height -= MIN(size.width, size.height);
     }
     
     return result;
@@ -125,15 +123,14 @@
     
     if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
         //Landscape mode
-        CGSize size = [self getVisibleSizeLandscape];
-        frame.size.height = MIN( frame.size.height, size.height );
-        _shaderImageView.layer.frame = frame;
-        [[self navigationController] setNavigationBarHidden:YES animated:YES];
-        
         if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
             [[self.tabBarController tabBar] setHidden:YES];
         }
+        CGSize size = [self getVisibleSizeLandscape];
+        frame.size.height = MIN( size.height, frame.size.height );
+        _shaderImageView.layer.frame = frame;
         
+        [[self navigationController] setNavigationBarHidden:YES animated:YES];
     } else {
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
         [[self.tabBarController tabBar] setHidden:NO];
