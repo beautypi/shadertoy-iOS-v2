@@ -206,13 +206,14 @@
 }
 
 -(void) setupSearchBar {
-    _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 88, 44)];
+    _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 24, 44)];
     _searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     _searchBar.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    _searchBar.showsCancelButton = YES;
     UIBarButtonItem *searchBarItem = [[UIBarButtonItem alloc] initWithCustomView:_searchBar];
     
+    [self.navigationItem setRightBarButtonItem:nil animated:NO];
     [self.navigationItem setLeftBarButtonItem:searchBarItem animated:YES];
-    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelSearchButtonClick:)] animated:YES];
     
     [_searchBar becomeFirstResponder];
     [_searchBar setDelegate:self];
@@ -239,10 +240,6 @@
 
 - (IBAction) searchButtonClick:(id)sender {
     [self switchQueryTableMode:QUERY_SEARCH];
-}
-
-- (IBAction) cancelSearchButtonClick:(id)sender {
-    [self switchQueryTableMode:QUERY_NORMAL];
 }
 
 - (void) search:(NSString *)query {
@@ -273,15 +270,29 @@
     }
 }
 
+- (void)enableControlsInView:(UIView *)view {
+    for (id subview in view.subviews) {
+        if ([subview isKindOfClass:[UIControl class]]) {
+            [subview setEnabled:YES];
+        }
+        [self enableControlsInView:subview];
+    }
+}
+
 #pragma mark - Searchbar delegate
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [_searchBar resignFirstResponder];
+    [self enableControlsInView:_searchBar];
     [self search:searchBar.text];
 }
 
 - (void) searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     [self search:searchText];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    [self switchQueryTableMode:QUERY_NORMAL];
 }
 
 #pragma mark - Table view data source
@@ -330,6 +341,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if( _searchBar && [_searchBar isFirstResponder] ) {
         [_searchBar resignFirstResponder];
+        [self enableControlsInView:_searchBar];
         return;
     }
     
