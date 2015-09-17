@@ -11,7 +11,11 @@
 
 #define GoogleAnalyticsKey  @"UA-66897577-1"
 #define APIShadertoyKey     @"NtHKWH"
-
 #define APIShadertoyBaseUrl @"https://www.shadertoy.com/api/v1/shaders/"
+
+#define ImageExportHQWidth 1920.f
+#define ImageExportGIFWidth 480.f
+#define ImageExportGIFFrameCount 28
+#define ImageExportGIFFrameDelay 0.1f
 
 #endif

@@ -19,6 +19,8 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "Utils.h"
+#import "defines.h"
+
 #import "SoundPassPlayer.h"
 
 @interface ShaderViewController () {
@@ -375,8 +377,8 @@
 
 #pragma mark - Export animated gif
 
-static NSUInteger const kFrameCount = 28;
-static float const kFrameDelay = 0.1f;
+static NSUInteger const kFrameCount = ImageExportGIFFrameCount;
+static float const kFrameDelay = ImageExportGIFFrameDelay;
 
 - (NSURL *) composeAnimatedGif {
     NSDictionary *fileProperties = @{(__bridge id)kCGImagePropertyGIFDictionary: @{
@@ -409,7 +411,7 @@ static float const kFrameDelay = 0.1f;
     __weak typeof (self) weakSelf = self;
     
     [_imageShaderViewController renderOneFrame:time success:^(UIImage *image) {
-        UIImage *scaledImage = [[image resizedImageWithMaximumSize:CGSizeMake(480, 480)] setShaderWatermarkText:_shader];
+        UIImage *scaledImage = [[image resizedImageWithMaximumSize:CGSizeMake(ImageExportGIFWidth, ImageExportGIFWidth)] setShaderWatermarkText:_shader];
         [_exportImageArray insertObject:scaledImage atIndex:frameNumber];
         
         [_progressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
@@ -424,7 +426,7 @@ static float const kFrameDelay = 0.1f;
 
 #pragma mark - Export HQ image
 
-static float const exportHQWidth = 1920.f;
+static float const exportHQWidth = ImageExportHQWidth;
 static int const exportHQTiles = 4;
 static float const exportTileWidth = 2.f * exportHQWidth / ((float)exportHQTiles);
 static float const exportTileHeight = exportTileWidth * 9.f/16.f;
@@ -484,7 +486,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         UIAlertView* alert =[self createProgressAlert:@"Exporting animated GIF"];
         [alert show];
         
-        [_imageShaderViewController setCanvasScaleFactor: 2.f*480.f / self.view.frame.size.width ];
+        [_imageShaderViewController setCanvasScaleFactor: 2.f*ImageExportGIFWidth / self.view.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self addAnimationFrameToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(NSURL *fileURL) {
