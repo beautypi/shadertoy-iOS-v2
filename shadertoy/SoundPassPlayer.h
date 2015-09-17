@@ -10,7 +10,6 @@
 #import <UIKit/UIKit.h>
 
 @interface SoundPassPlayer : NSObject {
-    
 @public
     unsigned char *buffer;
     UInt32 startFrame;

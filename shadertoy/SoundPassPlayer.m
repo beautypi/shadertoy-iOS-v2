@@ -50,7 +50,6 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState) {
 }
 
 @interface SoundPassPlayer () {
-    AVAudioPlayer *avap1;
     AudioComponentInstance toneUnit;
 }
 @end
@@ -68,13 +67,14 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState) {
     [self stop];
     AudioComponentInstanceDispose(toneUnit);
     toneUnit = nil;
-    
     free( buffer );
 }
 
 - (void) fillSoundBufferFromImage:(UIImage *)image block:(NSInteger)block {
-    long int size =bufferBlockSize;
-    memcpy( &buffer[ size*block ], CFDataGetBytePtr(CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage))), size );
+    long int size = bufferBlockSize;
+    CFDataRef cgdata = CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage));
+    memcpy( &buffer[ size*block ], CFDataGetBytePtr(cgdata), size );
+    CFRelease(cgdata);
 }
 
 - (void) prepareToPlay {
