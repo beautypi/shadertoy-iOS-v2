@@ -93,19 +93,19 @@
 
 - (void) layoutCanvasView {
     BOOL landscape = ( [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft) || ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight);
+    CGRect frame;
     
     if( landscape ) {
         if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
             [[self.tabBarController tabBar] setHidden:YES];
         }
         [[self navigationController] setNavigationBarHidden:YES animated:YES];
+        frame = CGRectMake( 0, _shaderImageView.frame.origin.y, [[UIScreen mainScreen] bounds].size.width, landscape?[[UIScreen mainScreen] bounds].size.height:[[UIScreen mainScreen] bounds].size.width/16.f*9.f);
     } else {
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
         [[self.tabBarController tabBar] setHidden:NO];
+        frame = _shaderImageView.frame;
     }
-    
-    CGRect frame = CGRectMake( 0, _shaderImageView.frame.origin.y, [[UIScreen mainScreen] bounds].size.width, landscape?[[UIScreen mainScreen] bounds].size.height:[[UIScreen mainScreen] bounds].size.width/16.f*9.f);
-    [_shaderImageView setFrame:frame];
     
     if( !_exporting && !CGRectEqualToRect( frame, _imageShaderView.frame) ) {
         [_imageShaderView setFrame:frame];
@@ -331,13 +331,6 @@
     
     _exporting = YES;
     
-    CGSize size;
-    size.width = ((int)(((int)([[UIScreen mainScreen] bounds].size.width/(ImageExportHQWidthTiles*2)))*(ImageExportHQWidthTiles*2)/16))*16;
-    size.height = size.width / 16.f * 9.f;
-    CGRect frame = _imageShaderView.frame;
-    frame.size = size;
-    _imageShaderView.frame = frame;
-    
     UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook."];
     [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
         [self exportImage:YES];
@@ -450,6 +443,10 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
 #pragma mark - Export image
 
 - (void)exportImage:(BOOL) asGif {
+    // set render frame size
+    float width = ((int)([[UIScreen mainScreen] bounds].size.width/8/ImageExportHQWidthTiles))*8*ImageExportHQWidthTiles;
+    _imageShaderView.frame = CGRectMake( _imageShaderView.frame.origin.x, _imageShaderView.frame.origin.y, width, width*9.f/16.f);
+    
     NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
     NSURL *url = [_shader getShaderUrl];
     ShaderCanvasViewController *shaderCanvasViewController = _imageShaderViewController;
@@ -463,7 +460,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         UIAlertView* alert =[self createProgressAlert:@"Exporting animated GIF"];
         [alert show];
         
-        [_imageShaderViewController setCanvasScaleFactor: 2.f*ImageExportGIFWidth / self.view.frame.size.width ];
+        [_imageShaderViewController setCanvasScaleFactor: 2.f*ImageExportGIFWidth / _imageShaderView.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self addAnimationFrameToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(NSURL *fileURL) {
@@ -478,7 +475,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         UIAlertView* alert =[self createProgressAlert:@"Exporting HQ image"];
         [alert show];
         
-        [_imageShaderViewController setCanvasScaleFactor: exportTileWidth / self.view.frame.size.width ];
+        [_imageShaderViewController setCanvasScaleFactor: exportTileWidth / _imageShaderView.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self addHQTileToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(UIImage *image) {
