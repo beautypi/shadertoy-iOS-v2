@@ -11,9 +11,8 @@
 #import "APIShaderObject.h"
 
 typedef NS_ENUM(NSUInteger, ShaderViewMode) {
-    VIEW_NORMAL,
-    VIEW_FULLSCREEN,
-    VIEW_FULLSCREEN_IF_LANDSCAPE
+    VIEW_FULLSCREEN_IF_LANDSCAPE,
+    VIEW_FULLSCREEN
 };
 
 @interface ShaderViewController : UIViewController

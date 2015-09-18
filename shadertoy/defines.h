@@ -14,6 +14,7 @@
 #define APIShadertoyBaseUrl @"https://www.shadertoy.com/api/v1/shaders/"
 
 #define ImageExportHQWidth 1920.f
+#define ImageExportHQWidthTiles 4
 #define ImageExportGIFWidth 480.f
 #define ImageExportGIFFrameCount 36
 #define ImageExportGIFFrameDelay 0.1f

@@ -52,7 +52,7 @@
     _firstView = YES;
     _exporting = NO;
     _compiled = NO;
-    _viewMode = VIEW_NORMAL;
+    _viewMode = VIEW_FULLSCREEN_IF_LANDSCAPE;
     
     self.navigationItem.rightBarButtonItem = nil;
     
@@ -88,56 +88,27 @@
 
 - (void) viewWillDisappear:(BOOL)animated {
     [_soundPassPlayer stop];
-}
-
-- (CGSize) getVisibleSizeLandscape {
-    CGSize result;
-    CGSize size = [[UIScreen mainScreen] bounds].size;
-    
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    
-    if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
-        result.width = size.width;
-        result.height = size.height;
-    } else {
-        result.width = size.height;
-        result.height = size.width;
-    }
-    
-    size = [[UIApplication sharedApplication] statusBarFrame].size;
-    result.height -= MIN(size.width, size.height);
-    
-    if( self.tabBarController != nil && !self.tabBarController.tabBar.isHidden ) {
-        size = self.tabBarController.tabBar.frame.size;
-        result.height -= MIN(size.width, size.height);
-    }
-    
-    return result;
+    [super viewWillDisappear:animated];
 }
 
 - (void) layoutCanvasView {
-    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    BOOL landscape = ( [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft) || ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight);
     
-    CGRect frame = _shaderImageView.layer.frame;
-    CGSize oldSize = frame.size;
-    
-    if( (orientation == UIInterfaceOrientationLandscapeLeft) || (orientation == UIInterfaceOrientationLandscapeRight) ) {
-        //Landscape mode
+    if( landscape ) {
         if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
             [[self.tabBarController tabBar] setHidden:YES];
         }
-        CGSize size = [self getVisibleSizeLandscape];
-        frame.size.height = MIN( size.height, frame.size.height );
-        _shaderImageView.layer.frame = frame;
-        
         [[self navigationController] setNavigationBarHidden:YES animated:YES];
     } else {
         [[self navigationController] setNavigationBarHidden:NO animated:YES];
         [[self.tabBarController tabBar] setHidden:NO];
     }
-    _imageShaderView.frame = frame;
     
-    if( !_exporting && (oldSize.width != _shaderImageView.layer.frame.size.width || oldSize.height != _shaderImageView.layer.frame.size.height) ) {
+    CGRect frame = CGRectMake( 0, _shaderImageView.frame.origin.y, [[UIScreen mainScreen] bounds].size.width, landscape?[[UIScreen mainScreen] bounds].size.height:[[UIScreen mainScreen] bounds].size.width/16.f*9.f);
+    [_shaderImageView setFrame:frame];
+    
+    if( !_exporting && !CGRectEqualToRect( frame, _imageShaderView.frame) ) {
+        [_imageShaderView setFrame:frame];
         [_imageShaderViewController forceDraw];
     }
 }
@@ -249,6 +220,7 @@
         [_imageShaderViewController start];
         [weakSelf playSoundSyncedWithShader];
         [_imageShaderView setHidden:NO];
+        [_imageShaderView setAutoresizingMask:UIViewAutoresizingNone];
         
         [self bk_performBlock:^(id obj) {
             NSString *headerComment = [_shader getHeaderComments];
@@ -268,6 +240,7 @@
                 }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
+                [weakSelf.view bringSubviewToFront:_imageShaderView];
                 [weakSelf.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
                 
                 _compiled = YES;
@@ -358,6 +331,13 @@
     
     _exporting = YES;
     
+    CGSize size;
+    size.width = ((int)(((int)([[UIScreen mainScreen] bounds].size.width/(ImageExportHQWidthTiles*2)))*(ImageExportHQWidthTiles*2)/16))*16;
+    size.height = size.width / 16.f * 9.f;
+    CGRect frame = _imageShaderView.frame;
+    frame.size = size;
+    _imageShaderView.frame = frame;
+    
     UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook."];
     [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
         [self exportImage:YES];
@@ -424,7 +404,7 @@ static float const kFrameDelay = ImageExportGIFFrameDelay;
 #pragma mark - Export HQ image
 
 static float const exportHQWidth = ImageExportHQWidth;
-static int const exportHQTiles = 4;
+static int const exportHQTiles = ImageExportHQWidthTiles;
 static float const exportTileWidth = 2.f * exportHQWidth / ((float)exportHQTiles);
 static float const exportTileHeight = exportTileWidth * 9.f/16.f;
 
