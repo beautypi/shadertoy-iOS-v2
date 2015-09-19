@@ -29,8 +29,7 @@
     
     [self.aboutText setText:
      @"Shadertoy App can be used to view the shaders of http://www.shadertoy.com on your iPhone.\n\n"
-     @"This app uses the Shadertoy.com API.\n\n"
-     @"Coded by: Reinder Nijhoff.\n" ];
+     @"Developed by Reinder Nijhoff.\n" ];
     
     NSString * version = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
     [self.aboutText2 setText:

@@ -8,7 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface QueryTableViewController : UITableViewController
+typedef NS_ENUM(NSUInteger, QueryTableMode) {
+    QUERY_NORMAL,
+    QUERY_SEARCH
+};
+
+@interface QueryTableViewController : UITableViewController <UISearchBarDelegate>
 
 - (void) setSortBy:(NSString *)sortBy;
 - (void) reloadData;

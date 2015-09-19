@@ -7,11 +7,12 @@
 //
 
 #import "AppDelegate.h"
-#import "UIImageView+AFNetworking.h"
-#import <GoogleAnalytics/GAI.h>
 
+#import <GoogleAnalytics/GAI.h>
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
+
+#import "defines.h"
 
 @interface AppDelegate ()
 
@@ -20,15 +21,17 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-// ff8020
+    // ff8020
     self.window.tintColor = [UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f];
     [[UITabBar appearance] setBarTintColor:[UIColor darkGrayColor]];
-    [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];    
+    [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    [GAI sharedInstance].trackUncaughtExceptions = YES;
-    [[GAI sharedInstance] trackerWithTrackingId:@"UA-66897577-1"];
-    [[[GAI sharedInstance] defaultTracker] setAllowIDFACollection:NO];
+    if( ![GoogleAnalyticsKey isEqualToString:@""] ) {
+        [GAI sharedInstance].trackUncaughtExceptions = YES;
+        [[GAI sharedInstance] trackerWithTrackingId:GoogleAnalyticsKey];
+        [[[GAI sharedInstance] defaultTracker] setAllowIDFACollection:NO];
+    }
     
     [Fabric with:@[CrashlyticsKit]];
     

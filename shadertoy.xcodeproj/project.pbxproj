@@ -43,6 +43,7 @@
 		4B8610BB1B94592000928AD5 /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		4B8610BC1B947F9600928AD5 /* SoundPassPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundPassPlayer.h; sourceTree = "<group>"; };
 		4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundPassPlayer.m; sourceTree = "<group>"; };
+		4B9563C61BA6C23D00BAD34D /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		4BF748C41B84852A00E2F772 /* Shadertoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shadertoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BF748C81B84852A00E2F772 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4BF748C91B84852A00E2F772 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -119,6 +120,7 @@
 				4BF748CB1B84852A00E2F772 /* AppDelegate.h */,
 				4BF748CC1B84852A00E2F772 /* AppDelegate.m */,
 				4BF748D71B84852A00E2F772 /* Images.xcassets */,
+				4B9563C61BA6C23D00BAD34D /* defines.h */,
 				4BF748D91B84852A00E2F772 /* LaunchScreen.xib */,
 				4BF7490D1B84C48200E2F772 /* LocalCache.h */,
 				4BF7490E1B84C48200E2F772 /* LocalCache.m */,
@@ -202,7 +204,7 @@
 		4BF748BC1B84852A00E2F772 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Reinder Nijhoff";
 				TargetAttributes = {
 					4BF748C31B84852A00E2F772 = {
@@ -370,6 +372,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -436,10 +439,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -450,10 +455,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

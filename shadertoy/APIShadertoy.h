@@ -7,15 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AFNetworking.h"
+#import <AFNetworking/AFNetworking.h>
 #import "APIShaderObject.h"
-
-#define APIShadertoyBaseUrl @"https://www.shadertoy.com/api/v1/shaders/"
-#define APIShadertoyKey @"NtHKWH"
+#import "defines.h"
 
 @interface APIShadertoy : NSObject
 
 - (AFHTTPRequestOperation *) getShaderKeys:(NSString *)sortBy success:(void (^)(NSArray *results))success;
+- (AFHTTPRequestOperation *) getShaderKeys:(NSString *)sortBy query:(NSString *)query success:(void (^)(NSArray *results))success;
 - (AFHTTPRequestOperation *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success;
 
 @end

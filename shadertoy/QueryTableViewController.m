@@ -12,19 +12,28 @@
 #import "APIShaderRepository.h"
 #import "ShaderViewController.h"
 
-#import "SVPullToRefresh.h"
 #import "LocalCache.h"
-#import "MBProgressHUD.h"
 #import "UIBarButtonItem+BlocksKit.h"
 
 #import "Utils.h"
+#import "NSObject+BKBlockExecution.h"
 
 @interface QueryTableViewController ()  {
     APIShadertoy* _client;
     APIShaderRepository* _repository;
     NSString* _sortBy;
     NSArray* _data;
+    
+    AFHTTPRequestOperation* _currentAFRequestOperation;
+    
+    UISearchBar*            _searchBar;
+    NSString*               _searchQuery;
+    id                      _searchBlockTimer;
+    NSMutableDictionary*    _searchCache;
+    
+    QueryTableMode _queryTableMode;
 }
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *searchBarButtonItem;
 
 @end
 
@@ -35,14 +44,30 @@
     _client = [[APIShadertoy alloc] init];
     _repository = [[APIShaderRepository alloc] init];
     _data = [[NSArray alloc] init];
+    _searchCache = [[NSMutableDictionary alloc] init];
+    _queryTableMode = QUERY_NORMAL;
     
-    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageWithMaximumSize:CGSizeMake(10000,24)] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    __weak QueryTableViewController *weakSelf = self;
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
-        [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
-    }];
+    [self switchQueryTableMode:QUERY_NORMAL];
     
-    self.navigationItem.leftBarButtonItem = item;
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(reloadData) forControlEvents:UIControlEventValueChanged];
+}
+
+- (void) viewWillAppear:(BOOL)animated {
+    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
+    
+    [self cancelRequests];
+    
+    if( [self getQueryTableMode] == QUERY_NORMAL ) {
+        [self loadNormalData];
+    }
+    [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    [super viewWillAppear:animated];
+}
+
+- (void)didReceiveMemoryWarning {
+    _searchCache = [[NSMutableDictionary alloc] init];
+    [super didReceiveMemoryWarning];
 }
 
 - (void) setSortBy:(NSString *)sortBy {
@@ -58,32 +83,13 @@
         self.navigationController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFavorites tag:1];
 }
 
-- (void) viewWillAppear:(BOOL)animated {
-    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
-    
+- (void) loadNormalData {
     // get data from cache
     _data = [self getDataFromCache];
     if( ![_data count] ) {
-        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
         [self reloadData];
     }
-    
-    [[self navigationController] setNavigationBarHidden:NO animated:NO];
-    [[self.tableView pullToRefreshView] stopAnimating];
-    
-    [super viewWillAppear:animated];
-}
-
-- (void) viewDidAppear:(BOOL)animated {
-    __weak QueryTableViewController *weakSelf = self;
-    
-    [self.tableView addPullToRefreshWithActionHandler:^{
-        [weakSelf reloadData];
-    }];
-    
-    [super viewDidAppear:animated];
-    
-    trackScreen([@"QueryTable_" stringByAppendingString:_sortBy]);
+    [self.tableView reloadData];
 }
 
 - (NSArray *) getDataFromCache {
@@ -112,24 +118,186 @@
 }
 
 - (void) reloadData {
+    if( ![_data count] ) {
+        [self.refreshControl endRefreshing];
+        [self.refreshControl beginRefreshing];
+        [self.tableView setContentOffset:CGPointMake(0, self.tableView.contentOffset.y-self.refreshControl.frame.size.height) animated:NO];
+    }
+    
     __weak QueryTableViewController *weakSelf = self;
-    [_client getShaderKeys:_sortBy success:^(NSArray *results) {
-        _data = results;
-        [self storeDataToCache:_data];
-        [weakSelf.tableView reloadData];
-        [[weakSelf.tableView pullToRefreshView] stopAnimating];
-        [MBProgressHUD hideAllHUDsForView:weakSelf.view animated:YES];
-    }];
+    
+    if( [self getQueryTableMode] == QUERY_NORMAL ) {
+        _currentAFRequestOperation = [_client getShaderKeys:_sortBy success:^(NSArray *results) {
+            [weakSelf setDataIsLoaded:results];
+            [self storeDataToCache:results];
+        }];
+    }
+    if( [self getQueryTableMode] == QUERY_SEARCH ) {
+        NSString *searchQueryCopy = [_searchQuery copy];
+        _currentAFRequestOperation = [_client getShaderKeys:_sortBy query:_searchQuery success:^(NSArray *results) {
+            [weakSelf setDataIsLoaded:results];
+            [_searchCache setValue:(results?results:[NSArray array]) forKey:searchQueryCopy];
+            if( [results count] ) {
+                [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+            }
+        }];
+    }
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void) setDataIsLoaded:(NSArray *)results {
+    _data = results;
+    [self.tableView reloadData];
+    [self.refreshControl endRefreshing];
+    [self setNoShadersFound:![_data count]];
+}
+
+- (void) setNoShadersFound:(BOOL)visible {
+    if( visible ) {
+        UILabel *noDataLabel          = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
+        noDataLabel.text              = @"No shaders found";
+        noDataLabel.textColor         = [UIColor darkGrayColor];
+        noDataLabel.textAlignment     = NSTextAlignmentCenter;
+        self.tableView.backgroundView = noDataLabel;
+    } else {
+        self.tableView.backgroundView = nil;
+    }
+}
+
+#pragma mark - Query Table Modes
+
+- (QueryTableMode) getQueryTableMode {
+    return _queryTableMode;
+}
+
+- (void) switchQueryTableMode:(QueryTableMode) mode {
+    [self hideLogo];
+    [self hideSearchBar];
+    [self cancelRequests];
+    [self setNoShadersFound:NO];
+    
+    switch( mode ) {
+        case QUERY_SEARCH:
+            [self setupSearchBar];
+            break;
+        default:
+        case QUERY_NORMAL:
+            [self setupLogo];
+            break;
+    }
+    _queryTableMode = mode;
+    
+    if( [_data count] ) {
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
+}
+
+-(void) hideLogo {
+    [self.navigationItem setLeftBarButtonItem:nil animated:NO];
+}
+
+-(void) hideSearchBar {
+    [self.navigationItem setLeftBarButtonItem:nil animated:NO];
+    _searchBar = nil;
+}
+
+-(void) cancelRequests {
+    [_currentAFRequestOperation cancel];
+    [self.refreshControl endRefreshing];
+}
+
+-(void) setupSearchBar {
+    _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width - 24, 44)];
+    _searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _searchBar.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    _searchBar.showsCancelButton = YES;
+    UIBarButtonItem *searchBarItem = [[UIBarButtonItem alloc] initWithCustomView:_searchBar];
+    
+    [self.navigationItem setRightBarButtonItem:nil animated:NO];
+    [self.navigationItem setLeftBarButtonItem:searchBarItem animated:YES];
+    
+    [_searchBar becomeFirstResponder];
+    [_searchBar setDelegate:self];
+    
+    _data = [[NSArray alloc] init];
+    [self.tableView reloadData];
+}
+
+-(void) setupLogo {
+    UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageWithMaximumSize:CGSizeMake(10000,24)] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    __weak QueryTableViewController *weakSelf = self;
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
+        if( [_data count] ) {
+            [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+        }
+    }];
+    self.navigationItem.leftBarButtonItem = item;
+    
+    [self.navigationItem setRightBarButtonItem:[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButtonClick:)] animated:YES];
+    [self loadNormalData];
+}
+
+#pragma mark - Search functions
+
+- (IBAction) searchButtonClick:(id)sender {
+    [self switchQueryTableMode:QUERY_SEARCH];
+}
+
+- (void) search:(NSString *)query {
+    [self setNoShadersFound:NO];
+    
+    if(_searchBlockTimer) {
+        [NSObject bk_cancelBlock:_searchBlockTimer];
+        _searchBlockTimer = nil;
+    }
+    
+    if( [query isEqualToString:@""] ) {
+        [self cancelRequests];
+        _data = [[NSArray alloc] init];
+        [self.tableView reloadData];
+        return;
+    }
+    
+    _searchQuery = [query lowercaseString];
+    
+    NSArray* cachedResults = [_searchCache valueForKey:_searchQuery];
+    if( cachedResults ) {
+        [self setDataIsLoaded:cachedResults];
+    } else {
+        _searchBlockTimer = [NSObject bk_performBlock:^{
+            [self cancelRequests];
+            [self reloadData];
+        } afterDelay:.5];
+    }
+}
+
+- (void)enableControlsInView:(UIView *)view {
+    for (id subview in view.subviews) {
+        if ([subview isKindOfClass:[UIControl class]]) {
+            [subview setEnabled:YES];
+        }
+        [self enableControlsInView:subview];
+    }
+}
+
+#pragma mark - Searchbar delegate
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [_searchBar resignFirstResponder];
+    [self enableControlsInView:_searchBar];
+    [self search:searchBar.text];
+}
+
+- (void) searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    [self search:searchText];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    [self switchQueryTableMode:QUERY_NORMAL];
 }
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
     return 1;
 }
@@ -171,7 +339,11 @@
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self.view endEditing:YES];
+    if( _searchBar && [_searchBar isFirstResponder] ) {
+        [_searchBar resignFirstResponder];
+        [self enableControlsInView:_searchBar];
+        return;
+    }
     
     NSString* shaderId = [_data objectAtIndex:indexPath.row];
     
