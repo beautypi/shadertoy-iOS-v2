@@ -178,6 +178,12 @@
     return [self.imagePass.code containsString:@"iMouse"];
 }
 
+- (BOOL) vrImplemented {
+    return  ([self.imagePass.code containsString:@"mainVR("] ||
+             [self.imagePass.code containsString:@"mainVR ("] ||
+             [self.imagePass.code containsString:@"mainVR  ("]);
+}
+
 - (NSString *) getHeaderComments {
     return [self.imagePass getHeaderComments];
 }

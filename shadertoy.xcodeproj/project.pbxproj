@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
+		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; settings = {ASSET_TAGS = (); }; };
 		4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B51B8C7B6900928AD5 /* AboutViewController.m */; };
 		4B8610BA1B94590E00928AD5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B91B94590E00928AD5 /* Utils.m */; };
 		4B8610BE1B947F9600928AD5 /* SoundPassPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */; };
@@ -37,6 +38,8 @@
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
+		4B759EDC1BADDF93001563AA /* VRSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRSettings.h; sourceTree = "<group>"; };
+		4B759EDD1BADDF93001563AA /* VRSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VRSettings.m; sourceTree = "<group>"; };
 		4B8610B41B8C7B6900928AD5 /* AboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
 		4B8610B51B8C7B6900928AD5 /* AboutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutViewController.m; sourceTree = "<group>"; };
 		4B8610B91B94590E00928AD5 /* Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Utils.m; sourceTree = "<group>"; };
@@ -142,6 +145,8 @@
 				4BF748C71B84852A00E2F772 /* Supporting Files */,
 				4B8610BB1B94592000928AD5 /* Utils.h */,
 				4B8610B91B94590E00928AD5 /* Utils.m */,
+				4B759EDC1BADDF93001563AA /* VRSettings.h */,
+				4B759EDD1BADDF93001563AA /* VRSettings.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -324,6 +329,7 @@
 				4BF748FE1B8498E100E2F772 /* QueryTableViewCell.m in Sources */,
 				4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */,
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
+				4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
 			);

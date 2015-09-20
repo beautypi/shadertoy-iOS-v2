@@ -37,6 +37,7 @@
 @end
 
 
+
 @interface APIShaderObject : NSObject
 
 - (APIShaderObject *) updateWithDict:(NSDictionary *) dict;
@@ -66,6 +67,7 @@
 - (void) invalidateLastUpdatedDate;
 
 - (BOOL) useMouse;
+- (BOOL) vrImplemented;
 - (NSString *) getHeaderComments;
 
 @end
