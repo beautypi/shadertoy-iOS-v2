@@ -28,12 +28,12 @@
     self.navigationItem.leftBarButtonItem = item;
     
     [self.aboutText setText:
-     @"Shadertoy App can be used to view the shaders of http://www.shadertoy.com on your iPhone.\n\n"
+     @"The official Shadertoy App can be used to browse Shadertoy.com on your iOS device.\n\n"
      @"Developed by Reinder Nijhoff.\n" ];
     
     NSString * version = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
     [self.aboutText2 setText:
-     [NSString stringWithFormat:@"\nThis is version %@ of the Shadertoy App. Not all input types of the shaders (keyboard, webcam, sound, video) are fully implemented yet.\n\n"
+     [NSString stringWithFormat:@"\nVersion %@ : Not all shader input types are implemented yet (keyboard, webcam, sound, video).\n\n"
       @"Please let me know if you have any suggestions, comments or questions about this app:\n"
       , version]];
 }
