@@ -17,33 +17,15 @@
                         <constraint firstAttribute="height" constant="40" id="POl-Y6-dFX"/>
                     </constraints>
                 </imageView>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="App" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ouQ-J9-wV5">
-                    <rect key="frame" x="224" y="168" width="32" height="21"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="21" id="6EY-6X-TiR"/>
-                        <constraint firstAttribute="width" constant="32" id="kUX-pZ-u0b"/>
-                    </constraints>
-                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <nil key="highlightedColor"/>
-                </label>
             </subviews>
             <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
-                <constraint firstItem="ouQ-J9-wV5" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="67" id="Fj6-aE-bvu"/>
-                <constraint firstAttribute="centerX" secondItem="ouQ-J9-wV5" secondAttribute="centerX" id="GVG-1E-jk2"/>
                 <constraint firstItem="uxp-gF-kPj" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="8" id="RlC-in-K6h"/>
                 <constraint firstAttribute="trailing" secondItem="uxp-gF-kPj" secondAttribute="trailing" constant="8" id="TBV-gd-Q5M"/>
                 <constraint firstItem="uxp-gF-kPj" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="120" id="aqR-cw-USQ"/>
-                <constraint firstItem="ouQ-J9-wV5" firstAttribute="top" secondItem="uxp-gF-kPj" secondAttribute="bottom" constant="8" id="cTS-DF-vm4"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <variation key="default">
-                <mask key="constraints">
-                    <exclude reference="Fj6-aE-bvu"/>
-                </mask>
-            </variation>
             <point key="canvasLocation" x="548" y="455"/>
         </view>
     </objects>
