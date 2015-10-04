@@ -117,7 +117,7 @@ const GLubyte Indices[] = {
     if( [shaderPass.type isEqualToString:@"sound"] ) {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_sound" ofType:@"glsl"]];
     } else {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_vr" ofType:@"glsl"]];
     }
     
     char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];

@@ -10,8 +10,10 @@
 #import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSUInteger, VRSettingsRenderMode) {
+    VR_FULL_SCREEN,
+    VR_SPLIT_SCREEN,
+    VR_CROSS_EYE,
     VR_CYAN_RED,
-    VR_SPLIT_SCREEN
 };
 typedef NS_ENUM(NSUInteger, VRSettingsInput) {
     VR_INPUT_NONE,
