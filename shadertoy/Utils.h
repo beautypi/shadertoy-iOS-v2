@@ -23,4 +23,11 @@ void trackScreen( NSString *screen );
 
 @end
 
+
+@interface NSString (Utils)
+
+- (NSString *) readFromFile:(NSString *)fileName ofType:(NSString *)type;
+
+@end
+
 #endif

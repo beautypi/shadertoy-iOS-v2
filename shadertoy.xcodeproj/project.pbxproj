@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; settings = {ASSET_TAGS = (); }; };
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
 		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; settings = {ASSET_TAGS = (); }; };
@@ -35,6 +36,7 @@
 /* Begin PBXFileReference section */
 		2800C908504AD9E3F8AB4736 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		4874C87E02ECA6C569F740F2 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B2FD9E21BC16FC20026F317 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = shaders; sourceTree = "<group>"; };
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 		4BF748C61B84852A00E2F772 /* shadertoy */ = {
 			isa = PBXGroup;
 			children = (
+				4B2FD9E21BC16FC20026F317 /* shaders */,
 				4B8610B41B8C7B6900928AD5 /* AboutViewController.h */,
 				4B8610B51B8C7B6900928AD5 /* AboutViewController.m */,
 				4BF749071B84B1B500E2F772 /* APIShaderObject.h */,
@@ -214,6 +217,7 @@
 				TargetAttributes = {
 					4BF748C31B84852A00E2F772 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = 98UZZR2W46;
 					};
 				};
 			};
@@ -243,6 +247,7 @@
 				4BF748D61B84852A00E2F772 /* Main.storyboard in Resources */,
 				4BF748FF1B8498E100E2F772 /* QueryTableViewCell.xib in Resources */,
 				4B375CA91B85DCF600583F2B /* presets in Resources */,
+				4B2FD9E31BC16FC20026F317 /* shaders in Resources */,
 				4BF748DB1B84852A00E2F772 /* LaunchScreen.xib in Resources */,
 				4BF748D81B84852A00E2F772 /* Images.xcassets in Resources */,
 			);

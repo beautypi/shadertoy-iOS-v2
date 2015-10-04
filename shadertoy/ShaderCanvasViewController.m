@@ -10,6 +10,8 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
+#import "Utils.h"
+
 const float Vertices[] = {
     1, -1, 0,
     1,  1, 0,
@@ -91,32 +93,13 @@ const GLubyte Indices[] = {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
     
-    NSString *VertexShaderCode = @"\n \
-    precision highp float;\n \
-    precision highp int;\n \
-    attribute vec3 position; \
-    void main() { \
-    gl_Position.xyz = position; \
-    gl_Position.w = 1.0; \
-    }";
+    NSString *VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
     
     char const * VertexSourcePointer = [VertexShaderCode UTF8String];
     glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
     glCompileShader(VertexShaderID);
     
-    NSString *FragmentShaderCode = @"\n \
-    precision highp float;\n \
-    precision highp int;\n \
-    precision mediump sampler2D;\n \
-    uniform vec3      iResolution;           // viewport resolution (in pixels) \n \
-    uniform highp float     iGlobalTime;           // shader playback time (in seconds) \n \
-    uniform vec4      iMouse;                // mouse pixel coords \n \
-    uniform vec4      iDate;                 // (year, month, day, time in seconds) \n \
-    uniform float     iSampleRate;           // sound sample rate (i.e., 44100) \n \
-    uniform vec3      iChannelResolution[4]; // channel resolution (in pixels) \n \
-    uniform float     iChannelTime[4];       // channel playback time (in sec) \n   \n \
-    uniform vec2      ifFragCoordOffsetUniform;\n \
-    ";
+    NSString *FragmentShaderCode = [[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
     
     for( APIShaderPassInput* input in shaderPass.inputs )  {
         if( [input.ctype isEqualToString:@"cubemap"] ) {
@@ -126,38 +109,15 @@ const GLubyte Indices[] = {
         }
     }
     
-    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-                          @" \n \
-                          float fwidth(float p){return 0.;}  vec2 fwidth(vec2 p){return vec2(0.);}  vec3 fwidth(vec3 p){return vec3(0.);} \n \
-                          float dFdx(float p){return 0.;}  vec2 dFdx(vec2 p){return vec2(0.);}  vec3 dFdx(vec3 p){return vec3(0.);} \n \
-                          float dFdy(float p){return 0.;}  vec2 dFdy(vec2 p){return vec2(0.);}  vec3 dFdy(vec3 p){return vec3(0.);} \n \
-                          " ];
-    
     NSString *code = shaderPass.code;
     code = [code stringByReplacingOccurrencesOfString:@"precision " withString:@"//precision "];
     
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:code];
     
     if( [shaderPass.type isEqualToString:@"sound"] ) {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-                              @" \n \
-                              void main()  { \n \
-                              float t = ifFragCoordOffsetUniform.x + (((iResolution.x-0.5+gl_FragCoord.x)/11025.) + (iResolution.y-.5-gl_FragCoord.y)*(iResolution.x/11025.)); \n \
-                              vec2 y = mainSound( t ); \n \
-                              vec2 v  = floor((0.5+0.5*y)*65536.0); \n \
-                              vec2 vl = mod(v,256.0)/255.0; \n \
-                              vec2 vh = floor(v/256.0)/255.0; \n \
-                              gl_FragColor = vec4(vl.x,vh.x,vl.y,vh.y); \n \
-                              } \n \
-                              " ];
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_sound" ofType:@"glsl"]];
     } else {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:
-                              @" \n \
-                              void main()  { \n \
-                              mainImage(gl_FragColor, gl_FragCoord.xy + ifFragCoordOffsetUniform ); \n \
-                              gl_FragColor.w = 1.; \n \
-                              } \n \
-                              " ];
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
     }
     
     char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
