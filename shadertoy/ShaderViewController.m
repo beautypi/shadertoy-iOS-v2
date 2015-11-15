@@ -26,6 +26,7 @@
 @interface ShaderViewController () {
     APIShaderObject* _shader;
     SoundPassPlayer* _soundPassPlayer;
+    VRSettings* _vrSettings;
     
     UIView* _imageShaderView;
     ShaderCanvasViewController* _imageShaderViewController;
@@ -238,6 +239,9 @@
                 if( ![headerComment isEqualToString:@""] ) {
                     [_shaderCompileInfoButton setHidden:NO];
                 }
+                if( [_shader vrImplemented] && !_vrSettings ) {
+                    [_shaderVRButton setHidden:NO];
+                }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
                 [weakSelf.view bringSubviewToFront:_imageShaderView];
@@ -302,6 +306,24 @@
     } else {
         [_soundPassPlayer stop];
     }
+}
+
+#pragma mark - VR
+
+- (void) setVRSettings:(VRSettings *)vrSettings {
+    _vrSettings = vrSettings;
+    [_imageShaderViewController setVRSettings:vrSettings];
+}
+
+- (IBAction)shaderVRClick:(id)sender {
+    VRSettings *vrSettings = [[VRSettings alloc] init];
+    
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+    UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
+    
+    [((ShaderViewController *)viewController) setShaderObject:_shader];
+    [((ShaderViewController *)viewController) setVRSettings:vrSettings];
+    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 #pragma mark - UI

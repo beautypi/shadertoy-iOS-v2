@@ -26,6 +26,7 @@ const GLubyte Indices[] = {
 
 @interface ShaderCanvasViewController () {
     APIShaderPass* _shaderPass;
+    VRSettings* _vrSettings;
     
     GLuint _programId;
     GLuint _vertexBuffer;
@@ -94,13 +95,19 @@ const GLubyte Indices[] = {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
     
-    NSString *VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
+    NSString *VertexShaderCode;
+    
+    if( _vrSettings ) {
+        VertexShaderCode = [_vrSettings getVertexShaderCode];
+    } else {
+        VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
+    }
     
     char const * VertexSourcePointer = [VertexShaderCode UTF8String];
     glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
     glCompileShader(VertexShaderID);
     
-    NSString *FragmentShaderCode = [[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
+    NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
     
     for( APIShaderPassInput* input in shaderPass.inputs )  {
         if( [input.ctype isEqualToString:@"cubemap"] ) {
@@ -117,6 +124,8 @@ const GLubyte Indices[] = {
     
     if( [shaderPass.type isEqualToString:@"sound"] ) {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_sound" ofType:@"glsl"]];
+    } else if( _vrSettings ) {
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[_vrSettings getFragmentShaderCode]];
     } else {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
     }
@@ -324,6 +333,12 @@ const GLubyte Indices[] = {
             glUniform1i(_channelUniform[i], i);
         }
     }
+}
+
+#pragma mark - VR
+
+- (void) setVRSettings:(VRSettings *)vrSettings {
+    _vrSettings = vrSettings;
 }
 
 #pragma mark - ShaderCanvasViewController

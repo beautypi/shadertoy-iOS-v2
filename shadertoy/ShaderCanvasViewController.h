@@ -8,6 +8,7 @@
 
 #import <GLKit/GLKit.h>
 #import "APIShaderObject.h"
+#import "VRSettings.h"
 
 typedef NS_ENUM(NSUInteger, ShaderInputFilterMode) {
     NEAREST,
@@ -22,6 +23,7 @@ typedef NS_ENUM(NSUInteger, ShaderInputWrapMode) {
 
 @interface ShaderCanvasViewController : GLKViewController
 
+- (void) setVRSettings:(VRSettings *)vrSettings;
 - (BOOL) compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error;
 
 - (void) start;
