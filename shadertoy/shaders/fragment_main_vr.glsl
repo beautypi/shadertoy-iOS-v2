@@ -1,11 +1,11 @@
 vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
 vec4 iLeftEyeDegrees = vec4( -45., 45.*9./16., 45., -45.*9./16.);
-vec3 iLeftEyeTranslation = vec3( -0.045, 0., 0. );
+vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
 vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
 
 vec4 iRightEyeRect = vec4( 0., 0., 1., 1.);
 vec4 iRightEyeDegrees = vec4( -45., 45.*9./16., 45., -45.*9./16.);
-vec3 iRightEyeTranslation = vec3( 0.045, 0., 0. );
+vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
 vec3 iRightEyeRotation = vec3( 0., 0., 0. );
 
 mat3 iVrMatRotate( in vec3 xyz ) {
@@ -38,12 +38,13 @@ void main()  {
     vec3 rd = normalize( vec3( mix( tan( eyeDegrees.x ), tan( eyeDegrees.z ), uv.x ),
                                -mix( tan( eyeDegrees.y ), tan( eyeDegrees.w ), uv.y ),
                                -1. ) );
+    vec3 ro = eyeTranslation;
     
-    eyeRotation.yx = .5*mix( vec2(-3.1415926), vec2(3.1415926), abs(iMouse.xy) / iResolution.xy );
+    eyeRotation.yx = .5*mix( vec2(-3.1415926), vec2(3.1415926), abs(iMouse.xy) / iResolution.xy ) * vec2(1.,-1.);
     
     mat3 rotation = iVrMatRotate( eyeRotation );
     rd = rotation * rd;
-    vec3 ro = rotation * eyeTranslation;
+    ro = rotation * ro;
     
     mainVR( gl_FragColor, uv * iResolution.xy, ro, rd );
     

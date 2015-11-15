@@ -117,7 +117,7 @@ const GLubyte Indices[] = {
     if( [shaderPass.type isEqualToString:@"sound"] ) {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_sound" ofType:@"glsl"]];
     } else {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_vr" ofType:@"glsl"]];
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
     }
     
     char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
@@ -286,7 +286,8 @@ const GLubyte Indices[] = {
         date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
     }
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:date];
-    glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second);
+    double seconds = [date timeIntervalSince1970];
+    glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second + (seconds - floor(seconds)) );
     
     for( int i=0; i<4; i++ )  {
         if( _channelUniform[i] < 99 ) {
