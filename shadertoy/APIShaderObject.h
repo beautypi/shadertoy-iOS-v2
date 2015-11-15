@@ -9,6 +9,19 @@
 #import <Foundation/Foundation.h>
 #import "AFNetworking.h"
 
+@interface APIShaderPassInputSampler : NSObject
+
+- (APIShaderPassInputSampler *) updateWithDict:(NSDictionary *) dict;
+- (void)encodeWithCoder:(NSCoder *)coder;
+- (id)initWithCoder:(NSCoder *)coder;
+
+@property (nonatomic, strong) NSString *filter;
+@property (nonatomic, strong) NSString *wrap;
+@property (nonatomic, strong) NSString *vflip;
+@property (nonatomic, strong) NSString *srgb;
+
+@end
+
 @interface APIShaderPassInput : NSObject
 
 - (APIShaderPassInput *) updateWithDict:(NSDictionary *) dict;
@@ -19,6 +32,7 @@
 @property (nonatomic, strong) NSString *src;
 @property (nonatomic, strong) NSString *ctype;
 @property (nonatomic, strong) NSNumber *channel;
+@property (nonatomic, strong) APIShaderPassInputSampler *sampler;
 
 @end
 

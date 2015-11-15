@@ -9,6 +9,17 @@
 #import <GLKit/GLKit.h>
 #import "APIShaderObject.h"
 
+typedef NS_ENUM(NSUInteger, ShaderInputFilterMode) {
+    NEAREST,
+    MIPMAP,
+    LINEAR
+};
+
+typedef NS_ENUM(NSUInteger, ShaderInputWrapMode) {
+    CLAMP,
+    REPEAT
+};
+
 @interface ShaderCanvasViewController : GLKViewController
 
 - (BOOL) compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error;
