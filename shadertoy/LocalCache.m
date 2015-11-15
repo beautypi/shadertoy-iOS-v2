@@ -58,7 +58,16 @@ static LocalCache *__sharedInstance;
     NSData* object = [userDefaults objectForKey:key];
     if( !object ) return NULL;
     
-    return  [NSKeyedUnarchiver unarchiveObjectWithData:object];
+    @try {
+        return  [NSKeyedUnarchiver unarchiveObjectWithData:object];
+    }
+    @catch (NSException *exception) {
+        //....
+    }
+    @finally {
+        //...
+    }
+    return NULL;
 }
 
 - (void) removeObject:(NSString *)key {
