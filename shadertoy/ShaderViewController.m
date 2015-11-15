@@ -444,7 +444,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
 
 - (void)exportImage:(BOOL) asGif {
     // set render frame size
-    float width = ((int)([[UIScreen mainScreen] bounds].size.width/8/ImageExportHQWidthTiles))*8*ImageExportHQWidthTiles;
+    float width = ((int)([[UIScreen mainScreen] bounds].size.width/16/ImageExportHQWidthTiles))*16*ImageExportHQWidthTiles;
     _imageShaderView.frame = CGRectMake( _imageShaderView.frame.origin.x, _imageShaderView.frame.origin.y, width, width*9.f/16.f);
     
     NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
