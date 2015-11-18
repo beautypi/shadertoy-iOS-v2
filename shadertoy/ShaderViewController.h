@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+
 #import "APIShaderObject.h"
+#import "VRSettings.h"
 
 typedef NS_ENUM(NSUInteger, ShaderViewMode) {
     VIEW_FULLSCREEN_IF_LANDSCAPE,
@@ -25,6 +27,7 @@ typedef NS_ENUM(NSUInteger, ShaderViewMode) {
 
 @property (strong, nonatomic) IBOutlet UILabel *shaderCompiling;
 @property (strong, nonatomic) IBOutlet UIButton *shaderCompileInfoButton;
+@property (strong, nonatomic) IBOutlet UIButton *shaderVRButton;
 
 @property (strong, nonatomic) IBOutlet UIButton *shaderPlayerRewind;
 @property (strong, nonatomic) IBOutlet UIButton *shaderPlayerPlay;
@@ -34,5 +37,6 @@ typedef NS_ENUM(NSUInteger, ShaderViewMode) {
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *shaderShareButton;
 
 - (void) setShaderObject:(APIShaderObject *)shader;
+- (void) setVRSettings:(VRSettings *)vrSettings;
 
 @end

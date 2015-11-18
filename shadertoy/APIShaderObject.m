@@ -8,13 +8,45 @@
 
 #import "APIShaderObject.h"
 
+
+@implementation APIShaderPassInputSampler : NSObject
+- (APIShaderPassInputSampler *) updateWithDict:(NSDictionary *) dict {
+    self.filter = [dict objectForKey:@"filter"];
+    self.wrap = [dict objectForKey:@"wrap"];
+    self.vflip = [dict objectForKey:@"vflip"];
+    self.srgb = [dict objectForKey:@"srgb"];
+    
+    return self;
+}
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:self.filter forKey:@"filter"];
+    [coder encodeObject:self.wrap forKey:@"wrap"];
+    [coder encodeObject:self.vflip forKey:@"vflip"];
+    [coder encodeObject:self.srgb forKey:@"srgb"];
+}
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self != nil) {
+        self.filter = [coder decodeObjectForKey:@"filter"];
+        self.wrap = [coder decodeObjectForKey:@"wrap"];
+        self.vflip = [coder decodeObjectForKey:@"vflip"];
+        self.srgb = [coder decodeObjectForKey:@"srgb"];
+    }
+    return self;
+}
+@end
+
+
 @implementation APIShaderPassInput : NSObject
 - (APIShaderPassInput *) updateWithDict:(NSDictionary *) dict {
     self.inputId = [dict objectForKey:@"id"];
     self.src = [dict objectForKey:@"src"];
     self.ctype = [dict objectForKey:@"ctype"];
     self.channel = [dict objectForKey:@"channel"];
-    
+    NSDictionary* d = [dict objectForKey:@"sampler"];
+    if( d ) {  // backward compatibility
+        self.sampler = [[[APIShaderPassInputSampler alloc] init] updateWithDict:d];
+    }
     return self;
 }
 - (void)encodeWithCoder:(NSCoder *)coder {
@@ -22,6 +54,9 @@
     [coder encodeObject:self.src forKey:@"src"];
     [coder encodeObject:self.ctype forKey:@"ctype"];
     [coder encodeObject:self.channel forKey:@"channel"];
+    if( self.sampler ) {  // backward compatibility
+        [coder encodeObject:self.sampler forKey:@"sampler"];
+    }
 }
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
@@ -30,6 +65,9 @@
         self.src = [coder decodeObjectForKey:@"src"];
         self.ctype = [coder decodeObjectForKey:@"ctype"];
         self.channel = [coder decodeObjectForKey:@"channel"];
+        if( [coder containsValueForKey:@"sampler"] ) { // backward compatibility
+            self.sampler = [coder decodeObjectForKey:@"sampler"];
+        }
     }
     return self;
 }

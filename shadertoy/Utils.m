@@ -118,3 +118,15 @@ void trackScreen( NSString *screen ) {
 }
 
 @end
+
+
+@implementation NSString (Utils)
+
+- (NSString *) readFromFile:(NSString *)fileName ofType:(NSString *)type {
+    NSString *txtFilePath = [[NSBundle mainBundle] pathForResource:fileName ofType:type];
+    NSString *txtFileContents = [NSString stringWithContentsOfFile:txtFilePath encoding:NSUTF8StringEncoding error:NULL];
+
+    return txtFileContents;
+}
+
+@end;
