@@ -240,7 +240,7 @@
                     [_shaderCompileInfoButton setHidden:NO];
                 }
                 if( [_shader vrImplemented] && !_vrSettings ) {
-                    [_shaderVRButton setHidden:NO];
+//                    [_shaderVRButton setHidden:NO];
                 }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
