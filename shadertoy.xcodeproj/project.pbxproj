@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; settings = {ASSET_TAGS = (); }; };
+		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; };
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
-		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; settings = {ASSET_TAGS = (); }; };
+		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; };
 		4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B51B8C7B6900928AD5 /* AboutViewController.m */; };
 		4B8610BA1B94590E00928AD5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B91B94590E00928AD5 /* Utils.m */; };
 		4B8610BE1B947F9600928AD5 /* SoundPassPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */; };
@@ -452,7 +452,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
+				PRODUCT_BUNDLE_IDENTIFIER = net.reinder.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -468,7 +468,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
+				PRODUCT_BUNDLE_IDENTIFIER = net.reinder.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

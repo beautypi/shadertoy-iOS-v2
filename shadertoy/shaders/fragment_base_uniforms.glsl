@@ -1,3 +1,6 @@
+#extension GL_EXT_shader_texture_lod : enable
+#extension GL_OES_standard_derivatives : enable
+
 precision highp float;
 precision highp int;
 precision mediump sampler2D;
@@ -11,7 +14,3 @@ uniform vec3      iChannelResolution[4];        // channel resolution (in pixels
 uniform float     iChannelTime[4];              // channel playback time (in sec)
 
 uniform vec2      ifFragCoordOffsetUniform;     // used for tiled based hq rendering
-
-float fwidth(float p){return 0.;}  vec2 fwidth(vec2 p){return vec2(0.);}  vec3 fwidth(vec3 p){return vec3(0.);}
-float dFdx(float p){return 0.;}  vec2 dFdx(vec2 p){return vec2(0.);}  vec3 dFdx(vec3 p){return vec3(0.);}
-float dFdy(float p){return 0.;}  vec2 dFdy(vec2 p){return vec2(0.);}  vec3 dFdy(vec3 p){return vec3(0.);}
