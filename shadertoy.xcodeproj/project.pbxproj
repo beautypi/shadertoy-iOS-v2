@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; };
+		4B321C5C1C14362100EA227E /* ShaderCanvasInputController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C5B1C14362100EA227E /* ShaderCanvasInputController.m */; };
+		4B321C5E1C14B2DD00EA227E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B321C5D1C14B2DD00EA227E /* Accelerate.framework */; };
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
 		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; };
@@ -30,13 +32,16 @@
 		4BF749171B84D35A00E2F772 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749151B84D35A00E2F772 /* GLKit.framework */; };
 		4BF749181B84D35A00E2F772 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749161B84D35A00E2F772 /* OpenGLES.framework */; };
 		4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749201B84E17B00E2F772 /* MainTabBarController.m */; };
-		75E2E6885120A17A1C1417B6 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4874C87E02ECA6C569F740F2 /* Pods.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		75E2E6885120A17A1C1417B6 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4874C87E02ECA6C569F740F2 /* Pods.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2800C908504AD9E3F8AB4736 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		4874C87E02ECA6C569F740F2 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B2FD9E21BC16FC20026F317 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = shaders; sourceTree = "<group>"; };
+		4B321C5A1C14362100EA227E /* ShaderCanvasInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasInputController.h; sourceTree = "<group>"; };
+		4B321C5B1C14362100EA227E /* ShaderCanvasInputController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasInputController.m; sourceTree = "<group>"; };
+		4B321C5D1C14B2DD00EA227E /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
@@ -84,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B321C5E1C14B2DD00EA227E /* Accelerate.framework in Frameworks */,
 				4BF749171B84D35A00E2F772 /* GLKit.framework in Frameworks */,
 				4BF749181B84D35A00E2F772 /* OpenGLES.framework in Frameworks */,
 				75E2E6885120A17A1C1417B6 /* Pods.framework in Frameworks */,
@@ -114,7 +120,6 @@
 		4BF748C61B84852A00E2F772 /* shadertoy */ = {
 			isa = PBXGroup;
 			children = (
-				4B2FD9E21BC16FC20026F317 /* shaders */,
 				4B8610B41B8C7B6900928AD5 /* AboutViewController.h */,
 				4B8610B51B8C7B6900928AD5 /* AboutViewController.m */,
 				4BF749071B84B1B500E2F772 /* APIShaderObject.h */,
@@ -125,8 +130,8 @@
 				4BF748F11B848AD900E2F772 /* APIShadertoy.m */,
 				4BF748CB1B84852A00E2F772 /* AppDelegate.h */,
 				4BF748CC1B84852A00E2F772 /* AppDelegate.m */,
-				4BF748D71B84852A00E2F772 /* Images.xcassets */,
 				4B9563C61BA6C23D00BAD34D /* defines.h */,
+				4BF748D71B84852A00E2F772 /* Images.xcassets */,
 				4BF748D91B84852A00E2F772 /* LaunchScreen.xib */,
 				4BF7490D1B84C48200E2F772 /* LocalCache.h */,
 				4BF7490E1B84C48200E2F772 /* LocalCache.m */,
@@ -139,8 +144,11 @@
 				4BF748FD1B8498E100E2F772 /* QueryTableViewCell.xib */,
 				4BF748F31B8491A100E2F772 /* QueryTableViewController.h */,
 				4BF748F41B8491A100E2F772 /* QueryTableViewController.m */,
+				4B321C5A1C14362100EA227E /* ShaderCanvasInputController.h */,
+				4B321C5B1C14362100EA227E /* ShaderCanvasInputController.m */,
 				4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */,
 				4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */,
+				4B2FD9E21BC16FC20026F317 /* shaders */,
 				4BF749101B84CE3000E2F772 /* ShaderViewController.h */,
 				4BF749111B84CE3000E2F772 /* ShaderViewController.m */,
 				4B8610BC1B947F9600928AD5 /* SoundPassPlayer.h */,
@@ -166,6 +174,7 @@
 		E5503E79E7E94822BE19495A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4B321C5D1C14B2DD00EA227E /* Accelerate.framework */,
 				4BF749151B84D35A00E2F772 /* GLKit.framework */,
 				4BF749161B84D35A00E2F772 /* OpenGLES.framework */,
 				4874C87E02ECA6C569F740F2 /* Pods.framework */,
@@ -336,6 +345,7 @@
 				4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
+				4B321C5C1C14362100EA227E /* ShaderCanvasInputController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

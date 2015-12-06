@@ -7,6 +7,8 @@
 //
 
 #import "ShaderCanvasViewController.h"
+#import "ShaderCanvasInputController.h"
+
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
@@ -38,21 +40,22 @@ const GLubyte Indices[] = {
     GLuint _globalTimeUniform;
     GLuint _mouseUniform;
     GLuint _dateUniform;
+    
     GLuint _sampleRateUniform;
+    float _iSampleRate;
     GLuint _channelResolutionUniform;
+    float *_channelResolution;
     GLuint _channelTimeUniform;
+    float *_channelTime;
     GLuint _channelUniform[4];
+    
+    NSMutableArray *_shaderInputs;
     
     GLuint _ifFragCoordOffsetUniform;
     
     GLKVector4 _mouse;
     BOOL _mouseDown;
     NSDate *_startTime;
-    float *_channelTime;
-    float *_channelResolution;
-    GLKTextureInfo *_channelTextureInfo[4];
-    ShaderInputFilterMode _channelTextureFilterMode[4];
-    ShaderInputWrapMode _channelTextureWrapMode[4];
     
     float _ifFragCoordScale;
     float _ifFragCoordOffsetXY[2];
@@ -75,6 +78,19 @@ const GLubyte Indices[] = {
     [super viewDidLoad];
     [self allocChannels];
     _programId = 0;
+}
+
+
+- (void)allocChannels {
+    _shaderInputs = [[NSMutableArray alloc] initWithCapacity:4];
+    
+    _channelTime = malloc(sizeof(float) * 4);
+    _channelResolution = malloc(sizeof(float) * 12);
+    
+    memset (_channelTime,0,sizeof(float) * 4);
+    memset (_channelResolution,0,sizeof(float) * 12);
+    
+    memset (&_channelUniform[0],99,sizeof(GLuint) * 4);
 }
 
 - (void)dealloc {
@@ -190,24 +206,6 @@ const GLubyte Indices[] = {
     glDeleteBuffers(1, &_indexBuffer);
     glDeleteVertexArraysOES(1, &_vertexArray);
     glDeleteProgram(_programId);
-    
-    for( int i=0; i<4; i++ )  {
-        if( _channelTextureInfo[i] ) {
-            GLuint name = _channelTextureInfo[i].name;
-            glDeleteTextures(1, &name);
-        }
-    }
-}
-
-- (void)allocChannels {
-    _channelTime = malloc(sizeof(float) * 4);
-    _channelResolution = malloc(sizeof(float) * 12);
-    
-    memset (_channelTime,0,sizeof(float) * 4);
-    memset (_channelResolution,0,sizeof(float) * 12);
-    
-    memset (_channelTextureInfo,0,sizeof(GLKTextureInfo *) * 4);
-    memset (&_channelUniform[0],99,sizeof(GLuint) * 4);
 }
 
 - (void)findUniforms {
@@ -225,86 +223,11 @@ const GLubyte Indices[] = {
     
     _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
     
-    // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
-    for (APIShaderPassInput* input in _shaderPass.inputs)  {
-        if( [input.ctype isEqualToString:@"video"] ) {
-            input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
-            input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
-            input.ctype = @"texture";
-        }
-        if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"webcam"] || [input.ctype isEqualToString:@"keyboard"] ) {
-            input.src = [[@"/presets/" stringByAppendingString:input.ctype] stringByAppendingString:@".png"];
-            input.ctype = @"texture";
-        }
-    }
     
     for (APIShaderPassInput* input in _shaderPass.inputs)  {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
         int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
-        
-        ShaderInputFilterMode filterMode = MIPMAP;
-        ShaderInputWrapMode wrapMode = REPEAT;
-        BOOL srgb = NO;
-        BOOL vflip = NO;
-        
-        if( input.sampler ) {
-            if( [input.sampler.filter isEqualToString:@"nearest"] ) {
-                filterMode = NEAREST;
-            } else if( [input.sampler.filter isEqualToString:@"linear"] ) {
-                filterMode = LINEAR;
-            } else {
-                filterMode = MIPMAP;
-            }
-            
-            if( [input.sampler.wrap isEqualToString:@"clamp"] ) {
-                wrapMode = CLAMP;
-            } else {
-                wrapMode = REPEAT;
-            }
-            
-            srgb = [input.sampler.srgb isEqualToString:@"true"];
-            vflip = [input.sampler.vflip isEqualToString:@"true"];
-        }
-        
-        _channelTextureFilterMode[ c ] = filterMode;
-        _channelTextureWrapMode[ c ] = wrapMode;
-        
-        if( [input.ctype isEqualToString:@"texture"] ) {
-            // load texture to channel
-            NSError *theError;
-            
-            NSString* file = [[@"." stringByAppendingString:input.src] stringByReplacingOccurrencesOfString:@".jpg" withString:@".png"];
-            file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
-            glGetError();
-            
-            GLKTextureInfo *spriteTexture = [GLKTextureLoader textureWithContentsOfFile:file options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:(filterMode == MIPMAP)],
-                                                                                                       GLKTextureLoaderOriginBottomLeft: [NSNumber numberWithBool:vflip],
-                                                                                                       GLKTextureLoaderSRGB: [NSNumber numberWithBool:srgb]
-                                                                                                       } error:&theError];
-            
-            _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
-            _channelTextureInfo[ c ] = spriteTexture;
-            _channelResolution[ c*3 ] = [spriteTexture width];
-            _channelResolution[ c*3+1 ] = [spriteTexture height];
-        }
-        if( [input.ctype isEqualToString:@"cubemap"] ) {
-            // load texture to channel
-            NSError *theError;
-            
-            NSString* file = [@"." stringByAppendingString:input.src];
-            file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
-            glGetError();
-            
-            GLKTextureInfo *spriteTexture = [GLKTextureLoader cubeMapWithContentsOfFile:file options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:(filterMode == MIPMAP)],
-                                                                                                       GLKTextureLoaderOriginBottomLeft: [NSNumber numberWithBool:vflip],
-                                                                                                       GLKTextureLoaderSRGB: [NSNumber numberWithBool:srgb]
-                                                                                                       } error:&theError];
-            
-            _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
-            _channelTextureInfo[  c ] = spriteTexture;
-            _channelResolution[ c*3 ] = [spriteTexture width];
-            _channelResolution[ c*3+1 ] = [spriteTexture height];
-        }
+        _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
     }
 }
 
@@ -335,6 +258,15 @@ const GLubyte Indices[] = {
     }
 }
 
+- (void) initShaderPassInputs {
+    for (APIShaderPassInput* input in _shaderPass.inputs)  {
+        ShaderCanvasInputController* inputController = [[ShaderCanvasInputController alloc] init];
+        [inputController initWithShaderPassInput:input];
+        
+        [_shaderInputs addObject:inputController];
+    }
+}
+
 #pragma mark - VR
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
@@ -358,11 +290,15 @@ const GLubyte Indices[] = {
     
     [self createBuffers];
     if( [self createShaderProgram:_shaderPass theError:error] ) {
+        
         [self findUniforms];
+        [self initShaderPassInputs];
         
         self.preferredFramesPerSecond = 20.;
         _running = NO;
+        
         [self setDefaultCanvasScaleFactor];
+        
     } else {
         [self tearDownGL];
         return NO;
@@ -381,22 +317,53 @@ const GLubyte Indices[] = {
 - (void)start {
     _running = YES;
     [self rewind];
+    
+    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+        [shaderInput rewindTo:0];
+        [shaderInput play];
+    }
 }
 
 - (void)pause {
     _totalTime = [self getIGlobalTime];
     _running = NO;
+    
+    [self pauseInputs];
 }
 
 - (void)play {
     _running = YES;
     _startTime = [NSDate date];
+    
+    [self resumeInputs];
+}
+
+- (void) pauseInputs {
+    double globalTime = [self getIGlobalTime];
+    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+        [shaderInput rewindTo:globalTime];
+        [shaderInput pause];
+    }
+}
+
+- (void) resumeInputs {
+    if( _running ) {
+        double globalTime = [self getIGlobalTime];
+        for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+            [shaderInput rewindTo:globalTime];
+            [shaderInput play];
+        }
+    }
 }
 
 - (void)rewind {
     _startTime = [NSDate date];
     _totalTime = 0.f;
     _forceDrawInRect = YES;
+    
+    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+        [shaderInput rewindTo:0];
+    }
 }
 
 - (float)getIGlobalTime {
@@ -465,32 +432,8 @@ const GLubyte Indices[] = {
     
     [self bindUniforms];
     
-    for( int i=0; i<4; i++ )  {
-        if( _channelTextureInfo[i] ) {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(_channelTextureInfo[i].target, _channelTextureInfo[i].name );
-            
-            if( _channelTextureInfo[i].target == GL_TEXTURE_2D ) {
-                if( _channelTextureWrapMode[i] == REPEAT ) {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                } else {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                }
-                
-                if( _channelTextureFilterMode[i] == NEAREST ) {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                } else if( _channelTextureFilterMode[i] == MIPMAP ) {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                } else {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                }
-            }
-        }
+    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+        [shaderInput bindTexture];
     }
     
     glBindVertexArrayOES(_vertexArray);

@@ -70,6 +70,7 @@
         // viewController is visible
         [_imageShaderViewController forceDraw];
         [self playSoundSyncedWithShader];
+        [_imageShaderViewController resumeInputs];
     }
 }
 
@@ -89,6 +90,7 @@
 
 - (void) viewWillDisappear:(BOOL)animated {
     [_soundPassPlayer stop];
+    [_imageShaderViewController pauseInputs];
     [super viewWillDisappear:animated];
 }
 
@@ -128,6 +130,7 @@
         }
     } else {
         [self playSoundSyncedWithShader];
+        [_imageShaderViewController resumeInputs];
     }
     
     trackScreen(@"Shader");
