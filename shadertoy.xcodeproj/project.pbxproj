@@ -10,6 +10,7 @@
 		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; };
 		4B321C5C1C14362100EA227E /* ShaderCanvasInputController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C5B1C14362100EA227E /* ShaderCanvasInputController.m */; };
 		4B321C5E1C14B2DD00EA227E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B321C5D1C14B2DD00EA227E /* Accelerate.framework */; };
+		4B321C611C15952A00EA227E /* APISoundCloud.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C601C15952A00EA227E /* APISoundCloud.m */; };
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
 		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; };
@@ -42,6 +43,8 @@
 		4B321C5A1C14362100EA227E /* ShaderCanvasInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasInputController.h; sourceTree = "<group>"; };
 		4B321C5B1C14362100EA227E /* ShaderCanvasInputController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasInputController.m; sourceTree = "<group>"; };
 		4B321C5D1C14B2DD00EA227E /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		4B321C5F1C15952A00EA227E /* APISoundCloud.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APISoundCloud.h; sourceTree = "<group>"; };
+		4B321C601C15952A00EA227E /* APISoundCloud.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APISoundCloud.m; sourceTree = "<group>"; };
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
@@ -128,6 +131,8 @@
 				4BF7490B1B84BD8900E2F772 /* APIShaderRepository.m */,
 				4BF748F01B848AD900E2F772 /* APIShadertoy.h */,
 				4BF748F11B848AD900E2F772 /* APIShadertoy.m */,
+				4B321C5F1C15952A00EA227E /* APISoundCloud.h */,
+				4B321C601C15952A00EA227E /* APISoundCloud.m */,
 				4BF748CB1B84852A00E2F772 /* AppDelegate.h */,
 				4BF748CC1B84852A00E2F772 /* AppDelegate.m */,
 				4B9563C61BA6C23D00BAD34D /* defines.h */,
@@ -342,6 +347,7 @@
 				4BF748FE1B8498E100E2F772 /* QueryTableViewCell.m in Sources */,
 				4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */,
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
+				4B321C611C15952A00EA227E /* APISoundCloud.m in Sources */,
 				4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
