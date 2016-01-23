@@ -6,7 +6,7 @@
 //  Copyright © 2015 Reinder Nijhoff. All rights reserved.
 //
 
-#import "ShaderCanvasInputController.h"
+#import "ShaderInput.h"
 
 #import <GLKit/GLKit.h>
 #include <OpenGLES/ES2/gl.h>
@@ -21,7 +21,7 @@
 #import "APISoundCloud.h"
 
 
-@interface ShaderCanvasInputController () {
+@interface ShaderInput () {
     GLKTextureInfo *_textureInfo;
     STKAudioPlayer* _audioPlayer;
     
@@ -33,8 +33,7 @@
     float _iChannelResolutionHeight;
     
     int _channelSlot;
-    
-    
+        
     float* window;
     float* obtainedReal;
     float* originalReal;
@@ -51,8 +50,7 @@
 @end
 
 
-
-@implementation ShaderCanvasInputController
+@implementation ShaderInput
 
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input {
     texId = 99;
@@ -111,7 +109,6 @@
                 
                 
                 const float one = 1;
-                const Float32 kAdjust0DB = 1.5849e-13;
                 
                 float scale = (float)1.0 / (2 * frameCount);
                 
@@ -330,9 +327,6 @@
     }
 }
 
-
-
-
 - (void) dealloc {
     if( _textureInfo ) {
         GLuint name = _textureInfo.name;
@@ -346,8 +340,6 @@
     }
     
 }
-
-
 
 - (void) setupFFT {
     int maxSamples = 4096;

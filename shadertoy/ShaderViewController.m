@@ -193,11 +193,11 @@
     [self layoutCanvasView];
 }
 
-- (void) compileShaderPass:(APIShaderPass *)shaderPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
+- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
     [self bk_performBlock:^(id obj) {
         NSString *error;
         
-        if( [shaderViewController compileShaderPass:shaderPass theError:&error] ) {
+        if( [shaderViewController compileShader:_shader soundPass:soundPass theError:&error] ) {
             [self bk_performBlock:^(id obj) {
                 success();
             } afterDelay:0.05f];
@@ -220,7 +220,7 @@
     
     __weak typeof (self) weakSelf = self;
     
-    [self compileShaderPass:_shader.imagePass vc:_imageShaderViewController success:^{
+    [self compileShader:false vc:_imageShaderViewController success:^{
         [_imageShaderViewController start];
         [weakSelf playSoundSyncedWithShader];
         [_imageShaderView setHidden:NO];
@@ -271,7 +271,7 @@
     _soundPassPlayer = [[SoundPassPlayer alloc] init];
     
     __weak typeof (self) weakSelf = self;
-    [self compileShaderPass:_shader.soundPass vc:_soundShaderViewController success:^{
+    [self compileShader:true vc:_soundShaderViewController success:^{
         [_soundShaderViewController setDefaultCanvasScaleFactor];
         [weakSelf renderSoundShaderFrame:0 complete:^{
             [_soundPassPlayer prepareToPlay];

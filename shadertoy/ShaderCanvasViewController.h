@@ -13,7 +13,7 @@
 @interface ShaderCanvasViewController : GLKViewController
 
 - (void) setVRSettings:(VRSettings *)vrSettings;
-- (BOOL) compileShaderPass:(APIShaderPass *)shaderPass theError:(NSString **)error;
+- (BOOL) compileShader:(APIShaderObject *)shader soundPass:(bool)soundPass theError:(NSString **)error;
 
 - (void) start;
 - (void) pause;

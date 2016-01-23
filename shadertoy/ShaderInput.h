@@ -31,7 +31,7 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
     SOUNDCLOUD
 };
 
-@interface ShaderCanvasInputController : NSObject
+@interface ShaderInput : NSObject
 
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input;
 - (void) bindTexture;

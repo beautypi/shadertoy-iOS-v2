@@ -7,7 +7,7 @@
 //
 
 #import "ShaderPassRenderer.h"
-#import "ShaderCanvasInputController.h"
+#import "ShaderInput.h"
 
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
@@ -192,7 +192,7 @@ const GLubyte Indices[] = {
     _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
     
     
-    for (APIShaderPassInput* input in _shaderPass.inputs)  {
+    for (APIShaderPassInput* input in _shaderPass.inputs) {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
         int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
         _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
@@ -245,7 +245,7 @@ const GLubyte Indices[] = {
 
 - (void) initShaderPassInputs {
     for (APIShaderPassInput* input in _shaderPass.inputs)  {
-        ShaderCanvasInputController* inputController = [[ShaderCanvasInputController alloc] init];
+        ShaderInput* inputController = [[ShaderInput alloc] init];
         [inputController initWithShaderPassInput:input];
         
         [_shaderInputs addObject:inputController];
@@ -275,14 +275,14 @@ const GLubyte Indices[] = {
 }
 
 - (void)start {
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:0];
         [shaderInput play];
     }
 }
 - (void) pauseInputs {
     double globalTime = [self getIGlobalTime];
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:globalTime];
         [shaderInput pause];
     }
@@ -290,7 +290,7 @@ const GLubyte Indices[] = {
 
 - (void) resumeInputs {
     double globalTime = [self getIGlobalTime];
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:globalTime];
         [shaderInput play];
     }
@@ -298,13 +298,14 @@ const GLubyte Indices[] = {
 
 - (void)rewind {
     [self setIGlobalTime:0];
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:0];
     }
 }
 
 - (void) render {
     if( !_programId ) return;
+    if( [_shaderPass.type isEqualToString:@"buffer"] ) return;
     
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -313,7 +314,7 @@ const GLubyte Indices[] = {
     
     [self bindUniforms];
     
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput bindTexture];
     }
     

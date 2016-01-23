@@ -137,17 +137,23 @@
     self.date = [[NSDate alloc] initWithTimeIntervalSince1970:[[info objectForKey:@"date"] floatValue]];
     
     self.dateLastUpdated = [[NSDate alloc] init];
-    
+
+    self.imagePass = nil;
+    self.soundPass = nil;
+    self.bufferPasses = [[NSMutableArray alloc] init];
+
     NSArray* renderpasses = [dict objectForKey:@"renderpass"];
     
     for( NSDictionary* d in renderpasses ) {
         if( [[d objectForKey:@"type"] isEqualToString:@"image"] ) {
             self.imagePass = [[[APIShaderPass alloc] init] updateWithDict:d];
+        } else if( [[d objectForKey:@"type"] isEqualToString:@"sound"] ) {
+            self.soundPass = [[[APIShaderPass alloc] init] updateWithDict:d];
         } else {
-            self.soundPass = [[[APIShaderPass alloc] init]  updateWithDict:d];
+            [self.bufferPasses addObject:[[[APIShaderPass alloc] init] updateWithDict:d]];
         }
     }
-    
+    NSLog(@"%@", dict);
     return self;
 }
 - (void)encodeWithCoder:(NSCoder *)coder {
@@ -160,6 +166,7 @@
     [coder encodeObject:self.date forKey:@"date"];
     [coder encodeObject:self.imagePass forKey:@"imagePass"];
     [coder encodeObject:self.soundPass forKey:@"soundPass"];
+    [coder encodeObject:self.bufferPasses forKey:@"bufferPasses"];
     [coder encodeObject:self.dateLastUpdated forKey:@"dateLastUpdated"];
 }
 - (id)initWithCoder:(NSCoder *)coder {
@@ -174,6 +181,7 @@
         self.date = [coder decodeObjectForKey:@"date"];
         self.imagePass = [coder decodeObjectForKey:@"imagePass"];
         self.soundPass = [coder decodeObjectForKey:@"soundPass"];
+        self.bufferPasses = [coder decodeObjectForKey:@"bufferPasses"];
         self.dateLastUpdated = [coder decodeObjectForKey:@"dateLastUpdated"];
     }
     return self;

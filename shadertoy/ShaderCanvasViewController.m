@@ -7,7 +7,7 @@
 //
 
 #import "ShaderCanvasViewController.h"
-#import "ShaderCanvasInputController.h"
+#import "ShaderInput.h"
 #import "ShaderPassRenderer.h"
 
 #include <OpenGLES/ES2/gl.h>
@@ -16,7 +16,8 @@
 #import "Utils.h"
 
 @interface ShaderCanvasViewController () {
-    ShaderPassRenderer* _shaderPassRenderer;
+    NSMutableArray* _shaderPasses;
+    bool _soundPass;
     
     GLKVector4 _mouse;
     BOOL _mouseDown;
@@ -42,7 +43,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _shaderPassRenderer = [[ShaderPassRenderer alloc] init];
+    _shaderPasses = [[NSMutableArray alloc] init];
 }
 
 - (void)dealloc {
@@ -53,7 +54,7 @@
     }
     self.context = nil;
     
-    _shaderPassRenderer = nil;
+    _shaderPasses = nil;
 }
 
 #pragma mark - View lifecycle
@@ -65,12 +66,14 @@
 #pragma mark - VR
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
-    [_shaderPassRenderer setVRSettings:vrSettings];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass setVRSettings:vrSettings];
+    }
 }
 
 #pragma mark - ShaderCanvasViewController
 
-- (BOOL)compileShaderPass:(APIShaderPass *)shaderPass theError:(NSString **)error {
+- (BOOL) compileShader:(APIShaderObject *)shader soundPass:(bool)soundPass theError:(NSString **)error {
     
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
@@ -82,16 +85,38 @@
     view.context = self.context;
     [EAGLContext setCurrentContext:self.context];
     
-    if( [_shaderPassRenderer createShaderProgram:shaderPass theError:error] ) {
-        
-        self.preferredFramesPerSecond = 20.;
-        _running = NO;
-        
-        [self setDefaultCanvasScaleFactor];
+    _soundPass = soundPass;
+    
+    if( soundPass ) {
+        ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
+        if( ![passRenderer createShaderProgram:shader.soundPass theError:error] ) {
+            [self tearDownGL];
+            return NO;
+        }
+        [_shaderPasses addObject:passRenderer];
     } else {
-        [self tearDownGL];
-        return NO;
+        
+        ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
+        if( ![passRenderer createShaderProgram:shader.imagePass theError:error] ) {
+            [self tearDownGL];
+            return NO;
+        }
+        [_shaderPasses addObject:passRenderer];
+        
+        for (APIShaderPass* pass in shader.bufferPasses) {
+            ShaderPassRenderer* bufferPassRenderer = [[ShaderPassRenderer alloc] init];
+            if( ![bufferPassRenderer createShaderProgram:pass theError:error] ) {
+                [self tearDownGL];
+                return NO;
+            }
+            [_shaderPasses addObject:bufferPassRenderer];
+        }
     }
+    
+    self.preferredFramesPerSecond = 20.;
+    _running = NO;
+    
+    [self setDefaultCanvasScaleFactor];
     return YES;
 }
 
@@ -107,38 +132,47 @@
     _running = YES;
     [self rewind];
     
-    [_shaderPassRenderer start];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass start];
+    }
 }
 
 - (void)pause {
     _totalTime = [self getIGlobalTime];
     _running = NO;
-    
-    [_shaderPassRenderer pauseInputs];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass pauseInputs];
+    }
 }
 
 - (void)play {
     _running = YES;
     _startTime = [NSDate date];
-    
-    [_shaderPassRenderer resumeInputs];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass resumeInputs];
+    }
 }
 
 - (void)rewind {
     _startTime = [NSDate date];
     _totalTime = 0.f;
     _forceDrawInRect = YES;
-    
-    [_shaderPassRenderer rewind];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass rewind];
+    }
 }
 
 
 - (void) pauseInputs {
-    [_shaderPassRenderer pauseInputs];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass pauseInputs];
+    }
 }
 
 - (void) resumeInputs {
-    [_shaderPassRenderer resumeInputs];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass resumeInputs];
+    }
 }
 
 - (float)getIGlobalTime {
@@ -170,12 +204,12 @@
 }
 
 - (float) getDefaultCanvasScaleFactor {
-    //    if( [_shaderPass.type isEqualToString:@"sound"] ) {
-    //        return 1.f;
-    //    } else {
-    // todo: scale factor depending on GPU type?
-    return 3.f/4.f;
-    //    }
+    if( _soundPass ) {
+        return 1.f;
+    } else {
+        // todo: scale factor depending on GPU type?
+        return 3.f/4.f;
+    }
 }
 
 - (void) setDefaultCanvasScaleFactor {
@@ -203,13 +237,14 @@
     if( !_running ) {
         date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
     }
-    
-    [_shaderPassRenderer setFragCoordScale:_ifFragCoordScale andXOffset:_ifFragCoordOffsetXY[0] andYOffset:_ifFragCoordOffsetXY[1]];
-    [_shaderPassRenderer setMouse:_mouse];
-    [_shaderPassRenderer setIGlobalTime:[self getIGlobalTime]];
-    [_shaderPassRenderer setDate:date];
-    [_shaderPassRenderer setResolution:(self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale) y:(self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale)];
-    [_shaderPassRenderer render];
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass setFragCoordScale:_ifFragCoordScale andXOffset:_ifFragCoordOffsetXY[0] andYOffset:_ifFragCoordOffsetXY[1]];
+        [pass setMouse:_mouse];
+        [pass setIGlobalTime:[self getIGlobalTime]];
+        [pass setDate:date];
+        [pass setResolution:(self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale) y:(self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale)];
+        [pass render];
+    }
 }
 
 #pragma mark - GLKViewControllerDelegate
