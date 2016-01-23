@@ -8,50 +8,15 @@
 
 #import "ShaderCanvasViewController.h"
 #import "ShaderCanvasInputController.h"
+#import "ShaderPassRenderer.h"
 
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
 #import "Utils.h"
 
-const float Vertices[] = {
-    1, -1, 0,
-    1,  1, 0,
-    -1,  1, 0,
-    -1, -1, 0
-};
-
-const GLubyte Indices[] = {
-    0, 1, 2,
-    2, 3, 0
-};
-
 @interface ShaderCanvasViewController () {
-    APIShaderPass* _shaderPass;
-    VRSettings* _vrSettings;
-    
-    GLuint _programId;
-    GLuint _vertexBuffer;
-    GLuint _indexBuffer;
-    GLuint _vertexArray;
-    
-    GLuint _positionSlot;
-    GLuint _resolutionUniform;
-    GLuint _globalTimeUniform;
-    GLuint _mouseUniform;
-    GLuint _dateUniform;
-    
-    GLuint _sampleRateUniform;
-    float _iSampleRate;
-    GLuint _channelResolutionUniform;
-    float *_channelResolution;
-    GLuint _channelTimeUniform;
-    float *_channelTime;
-    GLuint _channelUniform[4];
-    
-    NSMutableArray *_shaderInputs;
-    
-    GLuint _ifFragCoordOffsetUniform;
+    ShaderPassRenderer* _shaderPassRenderer;
     
     GLKVector4 _mouse;
     BOOL _mouseDown;
@@ -76,21 +41,8 @@ const GLubyte Indices[] = {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self allocChannels];
-    _programId = 0;
-}
-
-
-- (void)allocChannels {
-    _shaderInputs = [[NSMutableArray alloc] initWithCapacity:4];
     
-    _channelTime = malloc(sizeof(float) * 4);
-    _channelResolution = malloc(sizeof(float) * 12);
-    
-    memset (_channelTime,0,sizeof(float) * 4);
-    memset (_channelResolution,0,sizeof(float) * 12);
-    
-    memset (&_channelUniform[0],99,sizeof(GLuint) * 4);
+    _shaderPassRenderer = [[ShaderPassRenderer alloc] init];
 }
 
 - (void)dealloc {
@@ -101,182 +53,24 @@ const GLubyte Indices[] = {
     }
     self.context = nil;
     
-    free(_channelTime);
-    free(_channelResolution);
+    _shaderPassRenderer = nil;
 }
 
 #pragma mark - View lifecycle
 
-- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
-    GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-    
-    NSString *VertexShaderCode;
-    
-    if( _vrSettings ) {
-        VertexShaderCode = [_vrSettings getVertexShaderCode];
-    } else {
-        VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
-    }
-    
-    char const * VertexSourcePointer = [VertexShaderCode UTF8String];
-    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-    glCompileShader(VertexShaderID);
-    
-    NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
-    
-    for( APIShaderPassInput* input in shaderPass.inputs )  {
-        if( [input.ctype isEqualToString:@"cubemap"] ) {
-            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump samplerCube iChannel%@;\n", input.channel];
-        } else {
-            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump sampler2D iChannel%@;\n", input.channel];
-        }
-    }
-    
-    NSString *code = shaderPass.code;
-    code = [code stringByReplacingOccurrencesOfString:@"precision " withString:@"//precision "];
-    
-    FragmentShaderCode = [FragmentShaderCode stringByAppendingString:code];
-    
-    if( [shaderPass.type isEqualToString:@"sound"] ) {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_sound" ofType:@"glsl"]];
-    } else if( _vrSettings ) {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[_vrSettings getFragmentShaderCode]];
-    } else {
-        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
-    }
-    
-    char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
-    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-    glCompileShader(FragmentShaderID);
-    
-    GLint logLength;
-    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetShaderInfoLog(FragmentShaderID, logLength, &logLength, log);
-        *error = [NSString stringWithFormat:@"%s", log];
-        free(log);
-        
-        return NO;
-    }
-    
-    _programId = glCreateProgram();
-    glAttachShader(_programId, VertexShaderID);
-    glAttachShader(_programId, FragmentShaderID);
-    glLinkProgram(_programId);
-    
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
-    
-    glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(_programId, logLength, &logLength, log);
-        *error = [NSString stringWithFormat:@"%s", log];
-        free(log);
-        
-        return NO;
-    }
-    return YES;
-}
-
-- (void)createBuffers {
-    glGenVertexArraysOES(1, &_vertexArray);
-    glBindVertexArrayOES(_vertexArray);
-    
-    glGenBuffers(1, &_vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &_indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(_positionSlot);
-    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
-    
-    glBindVertexArrayOES(0);
-}
-
 - (void)tearDownGL {
     [EAGLContext setCurrentContext:self.context];
-    
-    glDeleteBuffers(1, &_vertexBuffer);
-    glDeleteBuffers(1, &_indexBuffer);
-    glDeleteVertexArraysOES(1, &_vertexArray);
-    glDeleteProgram(_programId);
-}
-
-- (void)findUniforms {
-    // Position uniform
-    _positionSlot = glGetAttribLocation(_programId, "position");
-    
-    // Frag Shader uniforms
-    _resolutionUniform = glGetUniformLocation(_programId, "iResolution");
-    _globalTimeUniform = glGetUniformLocation(_programId, "iGlobalTime");
-    _mouseUniform = glGetUniformLocation(_programId, "iMouse");
-    _dateUniform = glGetUniformLocation(_programId, "iDate");
-    _sampleRateUniform = glGetUniformLocation(_programId, "iSampleRate");
-    _channelTimeUniform = glGetUniformLocation(_programId, "iChannelTime");
-    _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
-    
-    _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
-    
-    
-    for (APIShaderPassInput* input in _shaderPass.inputs)  {
-        NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
-        int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
-        _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
-    }
-}
-
-- (void)bindUniforms {
-    GLKVector3 resolution = GLKVector3Make( self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale, self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale, 1. );
-    glUniform3fv(_resolutionUniform, 1, &resolution.x );
-    glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
-    glUniform4f(_mouseUniform,
-                _mouse.x * self.view.contentScaleFactor  / _ifFragCoordScale,
-                _mouse.y * self.view.contentScaleFactor  / _ifFragCoordScale,
-                _mouse.z * self.view.contentScaleFactor  / _ifFragCoordScale,
-                _mouse.w * self.view.contentScaleFactor  / _ifFragCoordScale);
-    glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
-    glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
-    
-    NSDate* date = [NSDate date];
-    if( !_running ) {
-        date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
-    }
-    NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:date];
-    double seconds = [date timeIntervalSince1970];
-    glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second + (seconds - floor(seconds)) );
-    
-    for( int i=0; i<4; i++ )  {
-        if( _channelUniform[i] < 99 ) {
-            glUniform1i(_channelUniform[i], i);
-        }
-    }
-}
-
-- (void) initShaderPassInputs {
-    for (APIShaderPassInput* input in _shaderPass.inputs)  {
-        ShaderCanvasInputController* inputController = [[ShaderCanvasInputController alloc] init];
-        [inputController initWithShaderPassInput:input];
-        
-        [_shaderInputs addObject:inputController];
-    }
 }
 
 #pragma mark - VR
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
-    _vrSettings = vrSettings;
+    [_shaderPassRenderer setVRSettings:vrSettings];
 }
 
 #pragma mark - ShaderCanvasViewController
 
-- (BOOL)compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error {
-    _shaderPass = shader;
+- (BOOL)compileShaderPass:(APIShaderPass *)shaderPass theError:(NSString **)error {
     
     self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
@@ -288,17 +82,12 @@ const GLubyte Indices[] = {
     view.context = self.context;
     [EAGLContext setCurrentContext:self.context];
     
-    [self createBuffers];
-    if( [self createShaderProgram:_shaderPass theError:error] ) {
-        
-        [self findUniforms];
-        [self initShaderPassInputs];
+    if( [_shaderPassRenderer createShaderProgram:shaderPass theError:error] ) {
         
         self.preferredFramesPerSecond = 20.;
         _running = NO;
         
         [self setDefaultCanvasScaleFactor];
-        
     } else {
         [self tearDownGL];
         return NO;
@@ -318,42 +107,21 @@ const GLubyte Indices[] = {
     _running = YES;
     [self rewind];
     
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
-        [shaderInput rewindTo:0];
-        [shaderInput play];
-    }
+    [_shaderPassRenderer start];
 }
 
 - (void)pause {
     _totalTime = [self getIGlobalTime];
     _running = NO;
     
-    [self pauseInputs];
+    [_shaderPassRenderer pauseInputs];
 }
 
 - (void)play {
     _running = YES;
     _startTime = [NSDate date];
     
-    [self resumeInputs];
-}
-
-- (void) pauseInputs {
-    double globalTime = [self getIGlobalTime];
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
-        [shaderInput rewindTo:globalTime];
-        [shaderInput pause];
-    }
-}
-
-- (void) resumeInputs {
-    if( _running ) {
-        double globalTime = [self getIGlobalTime];
-        for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
-            [shaderInput rewindTo:globalTime];
-            [shaderInput play];
-        }
-    }
+    [_shaderPassRenderer resumeInputs];
 }
 
 - (void)rewind {
@@ -361,9 +129,16 @@ const GLubyte Indices[] = {
     _totalTime = 0.f;
     _forceDrawInRect = YES;
     
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
-        [shaderInput rewindTo:0];
-    }
+    [_shaderPassRenderer rewind];
+}
+
+
+- (void) pauseInputs {
+    [_shaderPassRenderer pauseInputs];
+}
+
+- (void) resumeInputs {
+    [_shaderPassRenderer resumeInputs];
 }
 
 - (float)getIGlobalTime {
@@ -395,12 +170,12 @@ const GLubyte Indices[] = {
 }
 
 - (float) getDefaultCanvasScaleFactor {
-    if( [_shaderPass.type isEqualToString:@"sound"] ) {
-        return 1.f;
-    } else {
-        // todo: scale factor depending on GPU type?
-        return 3.f/4.f;
-    }
+    //    if( [_shaderPass.type isEqualToString:@"sound"] ) {
+    //        return 1.f;
+    //    } else {
+    // todo: scale factor depending on GPU type?
+    return 3.f/4.f;
+    //    }
 }
 
 - (void) setDefaultCanvasScaleFactor {
@@ -421,23 +196,20 @@ const GLubyte Indices[] = {
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect {
     if( self.view.hidden ) return;
-    if( !_programId ) return;
     if( !_running && !_forceDrawInRect) return;
     _forceDrawInRect = NO;
     
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    glUseProgram(_programId);
-    
-    [self bindUniforms];
-    
-    for( ShaderCanvasInputController* shaderInput in _shaderInputs ) {
-        [shaderInput bindTexture];
+    NSDate* date = [NSDate date];
+    if( !_running ) {
+        date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
     }
     
-    glBindVertexArrayOES(_vertexArray);
-    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    [_shaderPassRenderer setFragCoordScale:_ifFragCoordScale andXOffset:_ifFragCoordOffsetXY[0] andYOffset:_ifFragCoordOffsetXY[1]];
+    [_shaderPassRenderer setMouse:_mouse];
+    [_shaderPassRenderer setIGlobalTime:[self getIGlobalTime]];
+    [_shaderPassRenderer setDate:date];
+    [_shaderPassRenderer setResolution:(self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale) y:(self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale)];
+    [_shaderPassRenderer render];
 }
 
 #pragma mark - GLKViewControllerDelegate
@@ -465,8 +237,8 @@ const GLubyte Indices[] = {
     
     UITouch *touch1 = [touches anyObject];
     CGPoint touchLocation = [touch1 locationInView:self.view];
-    _mouse.x = _mouse.z = touchLocation.x;
-    _mouse.y = _mouse.w = self.view.layer.frame.size.height-touchLocation.y;
+    _mouse.x = _mouse.z = (touchLocation.x) / self.view.frame.size.width;
+    _mouse.y = _mouse.w = (self.view.layer.frame.size.height-touchLocation.y) / self.view.frame.size.height;
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -475,8 +247,8 @@ const GLubyte Indices[] = {
     
     UITouch *touch1 = [touches anyObject];
     CGPoint touchLocation = [touch1 locationInView:self.view];
-    _mouse.x = touchLocation.x;
-    _mouse.y = self.view.layer.frame.size.height-touchLocation.y;
+    _mouse.x = (touchLocation.x) / self.view.frame.size.width;
+    _mouse.y = (self.view.layer.frame.size.height-touchLocation.y) / self.view.frame.size.height;
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {

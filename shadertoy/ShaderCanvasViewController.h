@@ -13,7 +13,7 @@
 @interface ShaderCanvasViewController : GLKViewController
 
 - (void) setVRSettings:(VRSettings *)vrSettings;
-- (BOOL) compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error;
+- (BOOL) compileShaderPass:(APIShaderPass *)shaderPass theError:(NSString **)error;
 
 - (void) start;
 - (void) pause;
@@ -29,7 +29,6 @@
 - (void) renderOneFrame:(float)globalTime success:(void (^)(UIImage *image))success;
 - (void) setCanvasScaleFactor:(float)scaleFactor;
 - (void) setDefaultCanvasScaleFactor;
-
 
 - (void) pauseInputs;
 - (void) resumeInputs;

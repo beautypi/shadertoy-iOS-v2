@@ -13,11 +13,8 @@
 #import <Crashlytics/Crashlytics.h>
 
 #import "defines.h"
-#import <AVFoundation/AVAudioPlayer.h>
-#import <StreamingKit/STKAudioPlayer.h>
 
 @interface AppDelegate () {
-    AVAudioPlayer *player;
 }
 @end
 
@@ -37,30 +34,6 @@
     }
     
     [Fabric with:@[CrashlyticsKit]];
-    
-    
-    NSString *trackID = @"230240104";
-    NSString *clientID = @"64a52bb31abd2ec73f8adda86358cfbf";
-    NSURL *trackURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.soundcloud.com/tracks/%@/stream?client_id=%@", trackID, clientID]];
-   /*
-    NSURLSessionTask *task = [[NSURLSession sharedSession] dataTaskWithURL:trackURL completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        // self.player is strong property
-        self->player = [[AVAudioPlayer alloc] initWithData:data error:nil];
-        [self->player play];
-        NSLog(@"error: %@\n", [error description]);
-        NSLog(@"data: %@\n",data);
-        NSLog(@"response: %@\n", [response description]);
-    }];
-    
-    [task resume];
-    */
-    
-    STKAudioPlayer* audioPlayer = [[STKAudioPlayer alloc] init];
-    
-    NSString *url = [NSString stringWithFormat:@"https://api.soundcloud.com/tracks/%@/stream?client_id=%@", trackID, clientID];
-//    [audioPlayer play:url];
-    
-//    [audioPlayer pause];
     return YES;
 }
 
