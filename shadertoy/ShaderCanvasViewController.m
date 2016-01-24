@@ -117,7 +117,7 @@
     
     self.preferredFramesPerSecond = 60.;
     _running = NO;
-    _frame = 0;
+    _frame = -2;
     
     [self setDefaultCanvasScaleFactor];
     return YES;
@@ -159,7 +159,7 @@
 - (void)rewind {
     _startTime = [NSDate date];
     _totalTime = 0.f;
-    _frame = 0;
+    _frame = -2;
     _forceDrawInRect = YES;
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass rewind];
