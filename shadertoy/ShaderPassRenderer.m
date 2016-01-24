@@ -37,6 +37,8 @@ const GLubyte Indices[] = {
     GLuint _globalTimeUniform;
     GLuint _mouseUniform;
     GLuint _dateUniform;
+    GLuint _timeDeltaUniform;            // render time (in seconds)
+    GLuint _frameUniform;                // shader playback frame
     
     GLuint _sampleRateUniform;
     float _iSampleRate;
@@ -59,6 +61,14 @@ const GLubyte Indices[] = {
     GLKVector4 _mouse;
     float _ifFragCoordScale;
     float _ifFragCoordOffsetXY[2];
+    int _frame;
+    float _deltaTime;
+    
+    GLuint _frameBuffer;
+    GLuint _renderTexture0, _renderTexture1;
+    bool _currentRenderTexture;
+    bool _renderToBuffer;
+    int _renderBufferWidth, _renderBufferHeight;
 }
 @end
 
@@ -70,6 +80,7 @@ const GLubyte Indices[] = {
     self = [super init];
     [self allocChannels];
     _programId = 0;
+    _renderToBuffer = false;
     
     return self;
 }
@@ -80,7 +91,7 @@ const GLubyte Indices[] = {
     _vrSettings = vrSettings;
 }
 
-- (void)createBuffers {
+- (void) initVertexBuffer {
     glGenVertexArraysOES(1, &_vertexArray);
     glBindVertexArrayOES(_vertexArray);
     
@@ -93,6 +104,22 @@ const GLubyte Indices[] = {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
     
     glBindVertexArrayOES(0);
+}
+
+- (void) initRenderBuffers {
+    if( [_shaderPass.type isEqualToString:@"buffer"] ) {
+        _renderToBuffer = true;
+        
+        glGenFramebuffers(1, &_frameBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+        
+        _renderBufferWidth = _renderBufferHeight = -1;
+        
+        glGenTextures(1, &_renderTexture0);
+        glGenTextures(1, &_renderTexture1);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 - (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
@@ -115,11 +142,21 @@ const GLubyte Indices[] = {
     
     NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
     
+    bool channelsUsed[4];
+    for( int i=0; i<4; i++ ) {
+        channelsUsed[i] = false;
+    }
     for( APIShaderPassInput* input in shaderPass.inputs )  {
+        channelsUsed[[input.channel intValue]] = true;
         if( [input.ctype isEqualToString:@"cubemap"] ) {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump samplerCube iChannel%@;\n", input.channel];
         } else {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump sampler2D iChannel%@;\n", input.channel];
+        }
+    }
+    for( int i=0; i<4; i++ ) {
+        if( !channelsUsed[i] ) {
+            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump sampler2D iChannel%d;\n", i];
         }
     }
     
@@ -169,9 +206,11 @@ const GLubyte Indices[] = {
         return NO;
     }
     
-    [self createBuffers];
     [self findUniforms];
+    
+    [self initVertexBuffer];
     [self initShaderPassInputs];
+    [self initRenderBuffers];
     
     return YES;
 }
@@ -188,7 +227,8 @@ const GLubyte Indices[] = {
     _sampleRateUniform = glGetUniformLocation(_programId, "iSampleRate");
     _channelTimeUniform = glGetUniformLocation(_programId, "iChannelTime");
     _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
-    
+    _timeDeltaUniform = glGetUniformLocation(_programId, "iTimeDelta");
+    _frameUniform = glGetUniformLocation(_programId, "iFrame");
     _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
     
     
@@ -213,8 +253,37 @@ const GLubyte Indices[] = {
     _date = date;
 }
 
+- (void) setFrame:(int) frame {
+    _frame = frame;
+}
+
+- (void) setTimeDelta:(float)deltaTime {
+    _deltaTime = deltaTime;
+}
+
 - (void) setResolution:(float)x y:(float)y {
+//    if(_renderToBuffer) x = y = 512.f;
+
     _resolution = GLKVector3Make( x,y, 1. );
+    
+    if( _renderToBuffer && ((int)x != _renderBufferWidth || (int)y != _renderBufferHeight)) {
+        _renderBufferWidth = (int)x;
+        _renderBufferHeight = (int)y;
+        
+        glBindTexture(GL_TEXTURE_2D, _renderTexture0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        
+        glBindTexture(GL_TEXTURE_2D, _renderTexture1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
 }
 
 - (void) setIGlobalTime:(float)iGlobalTime {
@@ -231,6 +300,8 @@ const GLubyte Indices[] = {
     glUniform4f(_mouseUniform, _mouse.x * _resolution.x, _mouse.y * _resolution.y, _mouse.z * _resolution.x, _mouse.w * _resolution.y);
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
     glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
+    glUniform1i(_frameUniform, _frame);
+    glUniform1f(_timeDeltaUniform, _deltaTime);
     
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:_date];
     double seconds = [_date timeIntervalSince1970];
@@ -272,6 +343,12 @@ const GLubyte Indices[] = {
     glDeleteBuffers(1, &_indexBuffer);
     glDeleteVertexArraysOES(1, &_vertexArray);
     glDeleteProgram(_programId);
+    
+    if( _renderToBuffer ) {
+        glDeleteFramebuffers(1, &_frameBuffer);
+        glDeleteTextures(1, &_renderTexture0);
+        glDeleteTextures(1, &_renderTexture1);
+    }
 }
 
 - (void)start {
@@ -303,11 +380,26 @@ const GLubyte Indices[] = {
     }
 }
 
-- (void) render {
+- (GLuint) getCurrentTexId {
+    return _currentRenderTexture?_renderTexture0:_renderTexture1;
+}
+
+- (void) nextFrame {
+    _currentRenderTexture = !_currentRenderTexture;
+}
+
+- (void) render:(NSMutableArray *)shaderPasses {
     if( !_programId ) return;
-    if( [_shaderPass.type isEqualToString:@"buffer"] ) return;
     
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    GLint drawFboId = 0;
+    if( _renderToBuffer ) {
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING_APPLE, &drawFboId);
+        glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, (_currentRenderTexture?_renderTexture1:_renderTexture0), 0);
+    }
+    
+    glViewport(0, 0, _resolution.x, _resolution.y);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(_programId);
@@ -315,15 +407,18 @@ const GLubyte Indices[] = {
     [self bindUniforms];
     
     for( ShaderInput* shaderInput in _shaderInputs ) {
-        [shaderInput bindTexture];
+        [shaderInput bindTexture:shaderPasses];
     }
     
     glEnableVertexAttribArray(_positionSlot);
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
     
-    
     glBindVertexArrayOES(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    
+    if( _renderToBuffer ) {
+        glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+    }
 }
 
 @end

@@ -20,10 +20,13 @@
 #import "Utils.h"
 #import "APISoundCloud.h"
 
+#import "ShaderPassRenderer.h"
+
 
 @interface ShaderInput () {
     GLKTextureInfo *_textureInfo;
-    STKAudioPlayer* _audioPlayer;
+    STKAudioPlayer *_audioPlayer;
+    APIShaderPassInput *_shaderPassInput;
     
     ShaderInputFilterMode _filterMode;
     ShaderInputWrapMode _wrapMode;
@@ -33,7 +36,7 @@
     float _iChannelResolutionHeight;
     
     int _channelSlot;
-        
+    
     float* window;
     float* obtainedReal;
     float* originalReal;
@@ -46,6 +49,7 @@
     GLuint texId;
     
     STKAudioPlayerOptions options;
+    bool _isBuffer;
 }
 @end
 
@@ -53,7 +57,9 @@
 @implementation ShaderInput
 
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input {
+    _shaderPassInput = input;
     texId = 99;
+    _isBuffer = [input.ctype isEqualToString:@"buffer"];
     
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
     if( [input.ctype isEqualToString:@"video"] ) {
@@ -75,7 +81,7 @@
             options.secondsRequiredToStartPlayingAfterBufferUnderun = 0;
             
             _audioPlayer = [[STKAudioPlayer alloc] initWithOptions:options];
-
+            
             [self setupFFT];
             [_audioPlayer appendFrameFilterWithName:@"STKSpectrumAnalyzerFilter" block:^(UInt32 channelsPerFrame, UInt32 bytesPerFrame, UInt32 frameCount, void* frames) {
                 
@@ -207,7 +213,6 @@
     _filterMode = filterMode;
     _wrapMode = wrapMode;
     
-    
     if( [input.ctype isEqualToString:@"texture"] ) {
         // load texture to channel
         NSError *theError;
@@ -244,7 +249,7 @@
     }
 }
 
-- (void) bindTexture {
+- (void) bindTexture:(NSMutableArray *)shaderPasses {
     if( _textureInfo ) {
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
         glBindTexture(_textureInfo.target, _textureInfo.name );
@@ -270,10 +275,11 @@
             }
         }
     }
-    if( texId < 99 ) {
+    if( texId < 99  ) {
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
         glBindTexture(GL_TEXTURE_2D, texId);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, buffer);
+        
         if( _wrapMode == REPEAT ) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -291,6 +297,14 @@
         } else {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+    }
+    if(_isBuffer) {
+        glActiveTexture(GL_TEXTURE0 + _channelSlot);
+        
+        int index = (int)[_shaderPassInput.inputId intValue]-257;
+        if([shaderPasses objectAtIndex:index]) {
+            glBindTexture(GL_TEXTURE_2D, [((ShaderPassRenderer *)[shaderPasses objectAtIndex:index]) getCurrentTexId]);
         }
     }
 }

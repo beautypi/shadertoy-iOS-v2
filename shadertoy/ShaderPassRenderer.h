@@ -22,12 +22,17 @@
 - (void) setIGlobalTime:(float)iGlobalTime;
 - (void) setDate:(NSDate *)date;
 - (void) setMouse:(GLKVector4) mouse;
+- (void) setFrame:(int) frame;
+- (void) setTimeDelta:(float)deltaTime;
 
-- (void) render;
+- (void) render:(NSMutableArray *)shaderPasses;
+- (void) nextFrame;
 
 - (void) start;
 - (void) pauseInputs;
 - (void) resumeInputs;
 - (void) rewind;
+
+- (GLuint) getCurrentTexId;
 
 @end

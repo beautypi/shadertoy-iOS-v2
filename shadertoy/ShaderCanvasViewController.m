@@ -30,6 +30,9 @@
     BOOL _forceDrawInRect;
     float _totalTime;
     UILabel *_globalTimeLabel;
+    int _frame;
+    
+    NSDate* _renderDate;
     
     void (^_grabImageCallBack)(UIImage *image);
 }
@@ -95,14 +98,6 @@
         }
         [_shaderPasses addObject:passRenderer];
     } else {
-        
-        ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
-        if( ![passRenderer createShaderProgram:shader.imagePass theError:error] ) {
-            [self tearDownGL];
-            return NO;
-        }
-        [_shaderPasses addObject:passRenderer];
-        
         for (APIShaderPass* pass in shader.bufferPasses) {
             ShaderPassRenderer* bufferPassRenderer = [[ShaderPassRenderer alloc] init];
             if( ![bufferPassRenderer createShaderProgram:pass theError:error] ) {
@@ -111,10 +106,18 @@
             }
             [_shaderPasses addObject:bufferPassRenderer];
         }
+        
+        ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
+        if( ![passRenderer createShaderProgram:shader.imagePass theError:error] ) {
+            [self tearDownGL];
+            return NO;
+        }
+        [_shaderPasses addObject:passRenderer];
     }
     
     self.preferredFramesPerSecond = 20.;
     _running = NO;
+    _frame = 0;
     
     [self setDefaultCanvasScaleFactor];
     return YES;
@@ -156,6 +159,7 @@
 - (void)rewind {
     _startTime = [NSDate date];
     _totalTime = 0.f;
+    _frame = 0;
     _forceDrawInRect = YES;
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass rewind];
@@ -237,14 +241,30 @@
     if( !_running ) {
         date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
     }
+    if( _renderDate == NULL ) {
+        _renderDate = [NSDate date];
+    }
+    NSDate *now = [NSDate date];
+    float deltaTime = (float)[now timeIntervalSinceDate:_renderDate];
+    
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass setFragCoordScale:_ifFragCoordScale andXOffset:_ifFragCoordOffsetXY[0] andYOffset:_ifFragCoordOffsetXY[1]];
         [pass setMouse:_mouse];
         [pass setIGlobalTime:[self getIGlobalTime]];
         [pass setDate:date];
+        [pass setFrame:_frame];
+        [pass setTimeDelta:deltaTime];
         [pass setResolution:(self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale) y:(self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale)];
-        [pass render];
+        [pass render:_shaderPasses];
     }
+    
+    _frame++;
+    
+    for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass nextFrame];
+    }
+    
+    _renderDate = now;
 }
 
 #pragma mark - GLKViewControllerDelegate

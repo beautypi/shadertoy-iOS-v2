@@ -153,7 +153,6 @@
             [self.bufferPasses addObject:[[[APIShaderPass alloc] init] updateWithDict:d]];
         }
     }
-    NSLog(@"%@", dict);
     return self;
 }
 - (void)encodeWithCoder:(NSCoder *)coder {
