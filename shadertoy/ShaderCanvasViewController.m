@@ -115,7 +115,7 @@
         [_shaderPasses addObject:passRenderer];
     }
     
-    self.preferredFramesPerSecond = 20.;
+    self.preferredFramesPerSecond = 60.;
     _running = NO;
     _frame = 0;
     
@@ -241,9 +241,6 @@
     if( !_running ) {
         date = [NSDate dateWithTimeInterval:[self getIGlobalTime] sinceDate:_startTime];
     }
-    if( _renderDate == NULL ) {
-        _renderDate = [NSDate date];
-    }
     NSDate *now = [NSDate date];
     float deltaTime = (float)[now timeIntervalSinceDate:_renderDate];
     
@@ -252,7 +249,7 @@
         [pass setMouse:_mouse];
         [pass setIGlobalTime:[self getIGlobalTime]];
         [pass setDate:date];
-        [pass setFrame:_frame];
+        [pass setFrame:(_frame>0?_frame:0)];
         [pass setTimeDelta:deltaTime];
         [pass setResolution:(self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale) y:(self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale)];
         [pass render:_shaderPasses];
