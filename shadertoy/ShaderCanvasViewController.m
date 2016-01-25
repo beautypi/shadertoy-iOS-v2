@@ -115,9 +115,9 @@
         [_shaderPasses addObject:passRenderer];
     }
     
-    self.preferredFramesPerSecond = 60.;
+    self.preferredFramesPerSecond = ([shader.bufferPasses count] || [shader vrImplemented])?60.:20.;
     _running = NO;
-    _frame = -2;
+    _frame = 0;
     
     [self setDefaultCanvasScaleFactor];
     return YES;
@@ -243,24 +243,31 @@
     }
     NSDate *now = [NSDate date];
     float deltaTime = (float)[now timeIntervalSinceDate:_renderDate];
+    if( deltaTime > 1.f/20.f ) {
+        deltaTime = 1.f/20.f;
+    }
+    
+    GLint width;
+    GLint height;
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &width);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &height);
     
     for (ShaderPassRenderer* pass in _shaderPasses) {
+        [pass setResolution:((float)width / _ifFragCoordScale) y:((float)height / _ifFragCoordScale)];
         [pass setFragCoordScale:_ifFragCoordScale andXOffset:_ifFragCoordOffsetXY[0] andYOffset:_ifFragCoordOffsetXY[1]];
         [pass setMouse:_mouse];
         [pass setIGlobalTime:[self getIGlobalTime]];
         [pass setDate:date];
         [pass setFrame:(_frame>0?_frame:0)];
         [pass setTimeDelta:deltaTime];
-        [pass setResolution:(self.view.frame.size.width * self.view.contentScaleFactor / _ifFragCoordScale) y:(self.view.frame.size.height * self.view.contentScaleFactor / _ifFragCoordScale)];
         [pass render:_shaderPasses];
     }
-    
-    _frame++;
     
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass nextFrame];
     }
     
+    _frame++;
     _renderDate = now;
 }
 

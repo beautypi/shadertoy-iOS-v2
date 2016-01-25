@@ -81,6 +81,7 @@ const GLubyte Indices[] = {
     [self allocChannels];
     _programId = 0;
     _renderToBuffer = false;
+    _currentRenderTexture = true;
     
     return self;
 }
@@ -109,6 +110,8 @@ const GLubyte Indices[] = {
 - (void) initRenderBuffers {
     if( [_shaderPass.type isEqualToString:@"buffer"] ) {
         _renderToBuffer = true;
+        GLint drawFboId;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
         
         glGenFramebuffers(1, &_frameBuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
@@ -118,7 +121,7 @@ const GLubyte Indices[] = {
         glGenTextures(1, &_renderTexture0);
         glGenTextures(1, &_renderTexture1);
         
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     }
 }
 
@@ -262,8 +265,6 @@ const GLubyte Indices[] = {
 }
 
 - (void) setResolution:(float)x y:(float)y {
-//    if(_renderToBuffer) x = y = 512.f;
-
     _resolution = GLKVector3Make( x,y, 1. );
     
     if( _renderToBuffer && ((int)x != _renderBufferWidth || (int)y != _renderBufferHeight)) {
@@ -272,14 +273,14 @@ const GLubyte Indices[] = {
         
         glBindTexture(GL_TEXTURE_2D, _renderTexture0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         
         glBindTexture(GL_TEXTURE_2D, _renderTexture1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -381,6 +382,10 @@ const GLubyte Indices[] = {
 }
 
 - (GLuint) getCurrentTexId {
+    return _currentRenderTexture?_renderTexture1:_renderTexture0;
+}
+
+- (GLuint) getNextTexId {
     return _currentRenderTexture?_renderTexture0:_renderTexture1;
 }
 
@@ -393,14 +398,17 @@ const GLubyte Indices[] = {
     
     GLint drawFboId = 0;
     if( _renderToBuffer ) {
-        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING_APPLE, &drawFboId);
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
         glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D, (_currentRenderTexture?_renderTexture1:_renderTexture0), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, [self getNextTexId], 0);
     }
     
     glViewport(0, 0, _resolution.x, _resolution.y);
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    
+    if( !_renderToBuffer ) {
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
     
     glUseProgram(_programId);
     
