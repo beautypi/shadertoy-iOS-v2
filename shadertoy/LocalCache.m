@@ -79,8 +79,21 @@ static LocalCache *__sharedInstance;
 
 - (void) clear {
     [memoryCache removeAllObjects];
+    NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+}
+
+- (NSNumber *) getVersion {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults synchronize];
+    NSNumber* version = [userDefaults objectForKey:@"version"];
+    if( !version ) return [NSNumber numberWithInt:0];
+    return version;
+}
+
+- (void) setVersion:(NSNumber *)version {
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:version forKey:@"version"];
+    [userDefaults synchronize];    
 }
 
 @end

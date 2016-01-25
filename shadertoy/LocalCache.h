@@ -22,4 +22,7 @@
 - (void) removeObject:(NSString *)key;
 - (void) clear;
 
+- (NSNumber *) getVersion;
+- (void) setVersion:(NSNumber *)version;
+
 @end
