@@ -69,10 +69,12 @@ const GLubyte Indices[] = {
     bool _currentRenderTexture;
     bool _renderToBuffer;
     int _renderBufferWidth, _renderBufferHeight;
-
     
     GLuint _copyProgramId;
     GLuint _copyRenderTexture;
+    GLuint _copyResolutionSourceUniform;
+    GLuint _copyResolutionTargetUniform;
+    GLuint _copyTextureUniform;
 }
 
 @end
@@ -125,6 +127,7 @@ const GLubyte Indices[] = {
         
         glGenTextures(1, &_renderTexture0);
         glGenTextures(1, &_renderTexture1);
+        glGenTextures(1, &_copyRenderTexture);
         
         glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     }
@@ -170,7 +173,7 @@ const GLubyte Indices[] = {
         
         return -1;
     }
-
+    
     return (int)programId;
 }
 
@@ -230,6 +233,7 @@ const GLubyte Indices[] = {
     [self initVertexBuffer];
     [self initShaderPassInputs];
     [self initRenderBuffers];
+    [self initCopyProgram];
     
     return YES;
 }
@@ -280,26 +284,84 @@ const GLubyte Indices[] = {
     _deltaTime = deltaTime;
 }
 
+- (void) initCopyProgram {
+    if( [_shaderPass.type isEqualToString:@"buffer"] ) {
+        NSString *VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
+        NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_main_copy" ofType:@"glsl"];
+        NSString *error;
+        
+        _copyProgramId = [self compileShader:VertexShaderCode fragmentShaderCode:FragmentShaderCode theError:&error];
+        
+        _copyResolutionSourceUniform = glGetUniformLocation(_copyProgramId, "sourceResolution");
+        _copyResolutionTargetUniform = glGetUniformLocation(_copyProgramId, "targetResolution");
+        _copyTextureUniform = glGetUniformLocation(_copyProgramId, "sourceTexture");
+    }
+}
+
+- (void) copyTexture:(GLuint)source target:(GLuint)target sw:(int)sw sh:(int)sh tw:(int)tw th:(int)th {
+    if( sw <= 0 || sh <= 0 ) return;
+    
+    GLint drawFboId = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target, 0);
+    
+    glViewport(0, 0, tw, th);
+    
+    glUseProgram(_copyProgramId);
+    
+    glUniform1i(_copyTextureUniform, 0);
+    glUniform2f(_copyResolutionSourceUniform, (float)sw, (float)sh);
+    glUniform2f(_copyResolutionTargetUniform, (float)tw, (float)th);
+    
+    glActiveTexture(GL_TEXTURE0 );
+    glBindTexture(GL_TEXTURE_2D, source);
+    
+    glEnableVertexAttribArray(_positionSlot);
+    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
+    
+    glBindVertexArrayOES(_vertexArray);
+    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
+}
+
 - (void) setResolution:(float)x y:(float)y {
     _resolution = GLKVector3Make( x,y, 1. );
     
     if( _renderToBuffer && ((int)x != _renderBufferWidth || (int)y != _renderBufferHeight)) {
+        int oldBufferWidth = _renderBufferWidth;
+        int oldBufferHeight = _renderBufferHeight;
+        
+        if( oldBufferWidth >= 0 && oldBufferHeight >=0 ) {
+            glBindTexture(GL_TEXTURE_2D, _copyRenderTexture);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, oldBufferWidth, oldBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+        
         _renderBufferWidth = (int)x;
         _renderBufferHeight = (int)y;
         
+        [self copyTexture:_renderTexture0 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        [self copyTexture:_copyRenderTexture target:_renderTexture0 sw:oldBufferWidth sh:oldBufferHeight tw:_renderBufferWidth th:_renderBufferHeight];
         
+        [self copyTexture:_renderTexture1 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        [self copyTexture:_copyRenderTexture target:_renderTexture1 sw:oldBufferWidth sh:oldBufferHeight tw:_renderBufferWidth th:_renderBufferHeight];
     }
 }
 
@@ -364,8 +426,13 @@ const GLubyte Indices[] = {
     glDeleteBuffers(1, &_indexBuffer);
     glDeleteVertexArraysOES(1, &_vertexArray);
     glDeleteProgram(_programId);
+    glDeleteProgram(_programId);
+    
     
     if( _renderToBuffer ) {
+        glDeleteTextures(1, &_copyRenderTexture);
+        glDeleteProgram(_copyProgramId);
+        
         glDeleteFramebuffers(1, &_frameBuffer);
         glDeleteTextures(1, &_renderTexture0);
         glDeleteTextures(1, &_renderTexture1);
