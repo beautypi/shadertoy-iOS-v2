@@ -69,7 +69,12 @@ const GLubyte Indices[] = {
     bool _currentRenderTexture;
     bool _renderToBuffer;
     int _renderBufferWidth, _renderBufferHeight;
+
+    
+    GLuint _copyProgramId;
+    GLuint _copyRenderTexture;
 }
+
 @end
 
 
@@ -125,11 +130,52 @@ const GLubyte Indices[] = {
     }
 }
 
-- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
-    _shaderPass = shaderPass;
-    
+- (int) compileShader:(NSString *)VertexShaderCode fragmentShaderCode:(NSString *)FragmentShaderCode theError:(NSString **)error {
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+    
+    char const * VertexSourcePointer = [VertexShaderCode UTF8String];
+    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
+    glCompileShader(VertexShaderID);
+    
+    char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
+    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
+    glCompileShader(FragmentShaderID);
+    
+    GLint logLength;
+    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength);
+        glGetShaderInfoLog(FragmentShaderID, logLength, &logLength, log);
+        *error = [NSString stringWithFormat:@"%s", log];
+        free(log);
+        
+        return -1;
+    }
+    
+    GLuint programId = glCreateProgram();
+    glAttachShader(programId, VertexShaderID);
+    glAttachShader(programId, FragmentShaderID);
+    glLinkProgram(programId);
+    
+    glDeleteShader(VertexShaderID);
+    glDeleteShader(FragmentShaderID);
+    
+    glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLength);
+    if (logLength > 0) {
+        GLchar *log = (GLchar *)malloc(logLength);
+        glGetProgramInfoLog(programId, logLength, &logLength, log);
+        *error = [NSString stringWithFormat:@"%s", log];
+        free(log);
+        
+        return -1;
+    }
+
+    return (int)programId;
+}
+
+- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
+    _shaderPass = shaderPass;
     
     NSString *VertexShaderCode;
     
@@ -139,9 +185,6 @@ const GLubyte Indices[] = {
         VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
     }
     
-    char const * VertexSourcePointer = [VertexShaderCode UTF8String];
-    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-    glCompileShader(VertexShaderID);
     
     NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
     
@@ -176,38 +219,11 @@ const GLubyte Indices[] = {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
     }
     
-    char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
-    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-    glCompileShader(FragmentShaderID);
-    
-    GLint logLength;
-    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetShaderInfoLog(FragmentShaderID, logLength, &logLength, log);
-        *error = [NSString stringWithFormat:@"%s", log];
-        free(log);
-        
+    int programId = [self compileShader:VertexShaderCode fragmentShaderCode:FragmentShaderCode theError:error];
+    if( programId < 0 ) {
         return NO;
     }
-    
-    _programId = glCreateProgram();
-    glAttachShader(_programId, VertexShaderID);
-    glAttachShader(_programId, FragmentShaderID);
-    glLinkProgram(_programId);
-    
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
-    
-    glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(_programId, logLength, &logLength, log);
-        *error = [NSString stringWithFormat:@"%s", log];
-        free(log);
-        
-        return NO;
-    }
+    _programId = programId;
     
     [self findUniforms];
     
@@ -322,6 +338,10 @@ const GLubyte Indices[] = {
         
         [_shaderInputs addObject:inputController];
     }
+}
+
+- (NSNumber *) getOutputId {
+    return ((APIShaderPassOutput *)[_shaderPass.outputs objectAtIndex:0]).outputId;
 }
 
 - (void)allocChannels {

@@ -302,15 +302,18 @@
     if(_isBuffer) {
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
         
-        int index = (int)[_shaderPassInput.inputId intValue]-257;
-        if([shaderPasses objectAtIndex:index]) {
-            glBindTexture(GL_TEXTURE_2D, [((ShaderPassRenderer *)[shaderPasses objectAtIndex:index]) getCurrentTexId]);
-            if( _filterMode == NEAREST ) {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            } else {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        NSNumber *inputId = _shaderPassInput.inputId;
+        
+        for( ShaderPassRenderer *shaderPass in shaderPasses ) {
+            if( [inputId integerValue] == [[shaderPass getOutputId] integerValue] ) {
+                glBindTexture(GL_TEXTURE_2D, [shaderPass getCurrentTexId]);
+                if( _filterMode == NEAREST ) {
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                } else {
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                }
             }
         }
     }

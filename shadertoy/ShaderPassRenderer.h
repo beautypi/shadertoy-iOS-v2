@@ -33,6 +33,7 @@
 - (void) resumeInputs;
 - (void) rewind;
 
+- (NSNumber *) getOutputId;
 - (GLuint) getCurrentTexId;
 
 @end

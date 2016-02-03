@@ -28,7 +28,7 @@
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
-@property (nonatomic, strong) NSString *inputId;
+@property (nonatomic, strong) NSNumber *inputId;
 @property (nonatomic, strong) NSString *src;
 @property (nonatomic, strong) NSString *ctype;
 @property (nonatomic, strong) NSNumber *channel;
@@ -36,6 +36,17 @@
 
 @end
 
+
+@interface APIShaderPassOutput : NSObject
+
+- (APIShaderPassOutput *) updateWithDict:(NSDictionary *) dict;
+- (void)encodeWithCoder:(NSCoder *)coder;
+- (id)initWithCoder:(NSCoder *)coder;
+
+@property (nonatomic, strong) NSNumber *outputId;
+@property (nonatomic, strong) NSNumber *channel;
+
+@end
 
 
 @interface APIShaderPass : NSObject
@@ -45,11 +56,11 @@
 - (id)initWithCoder:(NSCoder *)coder;
 
 @property (nonatomic, strong) NSMutableArray *inputs;
+@property (nonatomic, strong) NSMutableArray *outputs;
 @property (nonatomic, strong) NSString *code;
 @property (nonatomic, strong) NSString *type;
 
 @end
-
 
 
 @interface APIShaderObject : NSObject
@@ -83,6 +94,7 @@
 
 - (BOOL) useMouse;
 - (BOOL) vrImplemented;
+- (BOOL) useMultiPass;
 - (NSString *) getHeaderComments;
 
 @end

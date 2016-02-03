@@ -44,9 +44,7 @@
     self.ctype = [dict objectForKey:@"ctype"];
     self.channel = [dict objectForKey:@"channel"];
     NSDictionary* d = [dict objectForKey:@"sampler"];
-    if( d ) {  // backward compatibility
-        self.sampler = [[[APIShaderPassInputSampler alloc] init] updateWithDict:d];
-    }
+    self.sampler = [[[APIShaderPassInputSampler alloc] init] updateWithDict:d];
     return self;
 }
 - (void)encodeWithCoder:(NSCoder *)coder {
@@ -54,9 +52,7 @@
     [coder encodeObject:self.src forKey:@"src"];
     [coder encodeObject:self.ctype forKey:@"ctype"];
     [coder encodeObject:self.channel forKey:@"channel"];
-    if( self.sampler ) {  // backward compatibility
-        [coder encodeObject:self.sampler forKey:@"sampler"];
-    }
+    [coder encodeObject:self.sampler forKey:@"sampler"];
 }
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
@@ -65,22 +61,47 @@
         self.src = [coder decodeObjectForKey:@"src"];
         self.ctype = [coder decodeObjectForKey:@"ctype"];
         self.channel = [coder decodeObjectForKey:@"channel"];
-        if( [coder containsValueForKey:@"sampler"] ) { // backward compatibility
-            self.sampler = [coder decodeObjectForKey:@"sampler"];
-        }
+        self.sampler = [coder decodeObjectForKey:@"sampler"];
     }
     return self;
 }
 @end
+
+
+@implementation APIShaderPassOutput : NSObject
+- (APIShaderPassOutput *) updateWithDict:(NSDictionary *) dict {
+    self.outputId = [dict objectForKey:@"id"];
+    self.channel = [dict objectForKey:@"channel"];
+    return self;
+}
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:self.outputId forKey:@"outputId"];
+    [coder encodeObject:self.channel forKey:@"channel"];
+}
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self != nil) {
+        self.outputId = [coder decodeObjectForKey:@"outputId"];
+        self.channel = [coder decodeObjectForKey:@"channel"];
+    }
+    return self;
+}
+@end
+
 
 @implementation APIShaderPass : NSObject
 - (APIShaderPass *) updateWithDict:(NSDictionary *) dict {
     self.code = [dict objectForKey:@"code"];
     self.type = [dict objectForKey:@"type"];
     self.inputs = [[NSMutableArray alloc] init];
+    self.outputs = [[NSMutableArray alloc] init];
     NSArray* inputs = [dict objectForKey:@"inputs"];
     for( NSDictionary* d in inputs) {
         [self.inputs addObject:[[[APIShaderPassInput alloc] init] updateWithDict:d]];
+    }
+    NSArray* outputs = [dict objectForKey:@"outputs"];
+    for( NSDictionary* d in outputs) {
+        [self.outputs addObject:[[[APIShaderPassOutput alloc] init] updateWithDict:d]];
     }
     return self;
 }
@@ -88,6 +109,7 @@
     [coder encodeObject:self.code forKey:@"code"];
     [coder encodeObject:self.type forKey:@"type"];
     [coder encodeObject:self.inputs forKey:@"inputs"];
+    [coder encodeObject:self.outputs forKey:@"outputs"];
 }
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
@@ -95,6 +117,7 @@
         self.code = [coder decodeObjectForKey:@"code"];
         self.type = [coder decodeObjectForKey:@"type"];
         self.inputs = [coder decodeObjectForKey:@"inputs"];
+        self.outputs = [coder decodeObjectForKey:@"outputs"];
     }
     return self;
 }
@@ -231,6 +254,10 @@
 
 - (NSString *) getHeaderComments {
     return [self.imagePass getHeaderComments];
+}
+
+- (BOOL) useMultiPass {
+    return [self.bufferPasses count] > 0;
 }
 
 @end

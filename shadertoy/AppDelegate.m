@@ -28,9 +28,9 @@
     [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    if( [[LocalCache sharedLocalCache] getVersion] < [NSNumber numberWithInt:1]) {
+    if( [[LocalCache sharedLocalCache] getVersion] < [NSNumber numberWithInt:3]) {
         [[LocalCache sharedLocalCache] clear];
-        [[LocalCache sharedLocalCache] setVersion:[NSNumber numberWithInt:1]];
+        [[LocalCache sharedLocalCache] setVersion:[NSNumber numberWithInt:3]];
     }
         
     if( ![GoogleAnalyticsKey isEqualToString:@""] ) {

@@ -354,6 +354,13 @@
     [_imageShaderViewController pause];
     [self playSoundSyncedWithShader];
     
+    if( [_shader useMultiPass] ) {
+        NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
+        NSURL *url = [_shader getShaderUrl];
+        [self shareText:text andImage:NULL andUrl:url];
+        return;
+    }
+    
     _exporting = YES;
     
     UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook."];
