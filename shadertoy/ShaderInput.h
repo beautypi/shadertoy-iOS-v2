@@ -38,6 +38,7 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
 
 - (void) pause;
 - (void) play;
+- (void) stop;
 - (void) rewindTo:(double)time;
 - (void) mute;
 

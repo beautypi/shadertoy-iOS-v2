@@ -35,6 +35,8 @@ typedef NS_ENUM(NSUInteger, ShaderViewMode) {
 @property (strong, nonatomic) IBOutlet UIView *shaderPlayerContainer;
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *shaderShareButton;
+@property (strong, nonatomic) IBOutlet UIView *shaderInputButtonView;
+@property (strong, nonatomic) IBOutlet UIView *shaderInputSpaceview;
 
 - (void) setShaderObject:(APIShaderObject *)shader;
 - (void) setVRSettings:(VRSettings *)vrSettings;

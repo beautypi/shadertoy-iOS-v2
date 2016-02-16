@@ -62,6 +62,9 @@
     [_shaderCompiling setTextColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
+    [self.shaderInputButtonView setHidden:YES];
+    [self.shaderInputSpaceview setHidden:YES];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
@@ -99,20 +102,32 @@
     CGRect frame;
     
     if( landscape ) {
-        if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
-            [[self.tabBarController tabBar] setHidden:YES];
-        }
-        [[self navigationController] setNavigationBarHidden:YES animated:YES];
         frame = CGRectMake( 0, _shaderImageView.frame.origin.y, [[UIScreen mainScreen] bounds].size.width, landscape?[[UIScreen mainScreen] bounds].size.height:[[UIScreen mainScreen] bounds].size.width/16.f*9.f);
     } else {
-        [[self navigationController] setNavigationBarHidden:NO animated:YES];
-        [[self.tabBarController tabBar] setHidden:NO];
         frame = _shaderImageView.frame;
     }
     
-    if( !_exporting && !CGRectEqualToRect( frame, _imageShaderView.frame) ) {
-        [_imageShaderView setFrame:frame];
-        [_imageShaderViewController forceDraw];
+    if( !CGRectEqualToRect( frame, _imageShaderView.frame) ) {
+        if( landscape ) {
+            if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
+                [[self.tabBarController tabBar] setHidden:YES];
+            }
+            [[self navigationController] setNavigationBarHidden:YES animated:YES];
+            
+            bool keyboard = [_shader useKeyboard];
+            [self.shaderInputButtonView setHidden:!keyboard];
+            [self.shaderInputSpaceview setHidden:!keyboard];
+        } else {
+            [[self navigationController] setNavigationBarHidden:NO animated:YES];
+            [[self.tabBarController tabBar] setHidden:NO];
+            
+            [self.shaderInputButtonView setHidden:YES];
+            [self.shaderInputSpaceview setHidden:YES];
+        }
+        if( !_exporting ) {
+            [_imageShaderView setFrame:frame];
+            [_imageShaderViewController forceDraw];
+        }
     }
 }
 
@@ -243,11 +258,13 @@
                     [_shaderCompileInfoButton setHidden:NO];
                 }
                 if( [_shader vrImplemented] && !_vrSettings ) {
-//                    [_shaderVRButton setHidden:NO];
+                    //                    [_shaderVRButton setHidden:NO];
                 }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
                 [weakSelf.view bringSubviewToFront:_imageShaderView];
+                [weakSelf.view bringSubviewToFront:weakSelf.shaderInputButtonView];
+                [weakSelf.view bringSubviewToFront:weakSelf.shaderInputSpaceview];
                 [weakSelf.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
                 
                 _compiled = YES;

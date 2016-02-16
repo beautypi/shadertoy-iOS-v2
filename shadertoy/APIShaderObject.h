@@ -95,6 +95,7 @@
 - (BOOL) useMouse;
 - (BOOL) vrImplemented;
 - (BOOL) useMultiPass;
+- (BOOL) useKeyboard;
 - (NSString *) getHeaderComments;
 
 @end

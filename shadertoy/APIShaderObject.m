@@ -260,4 +260,16 @@
     return [self.bufferPasses count] > 0;
 }
 
+- (BOOL) useKeyboard {
+    for( APIShaderPass *pass in self.bufferPasses ) {
+        for( APIShaderPassInput *input in pass.inputs ) {
+            if( [input.ctype isEqualToString:@"keyboard"] ) return true;
+        }
+    }
+    for( APIShaderPassInput *input in self.imagePass.inputs ) {
+        if( [input.ctype isEqualToString:@"keyboard"] ) return true;
+    }
+    return false;
+}
+
 @end

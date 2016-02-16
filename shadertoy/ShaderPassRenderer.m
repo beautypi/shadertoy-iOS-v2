@@ -82,7 +82,6 @@ const GLubyte Indices[] = {
 
 @implementation ShaderPassRenderer
 
-
 - (id) init {
     self = [super init];
     [self allocChannels];
@@ -428,7 +427,6 @@ const GLubyte Indices[] = {
     glDeleteProgram(_programId);
     glDeleteProgram(_programId);
     
-    
     if( _renderToBuffer ) {
         glDeleteTextures(1, &_copyRenderTexture);
         glDeleteProgram(_copyProgramId);
@@ -437,6 +435,11 @@ const GLubyte Indices[] = {
         glDeleteTextures(1, &_renderTexture0);
         glDeleteTextures(1, &_renderTexture1);
     }
+    
+    for( ShaderInput* shaderInput in _shaderInputs ) {
+        [shaderInput stop];
+    }
+    [_shaderInputs removeAllObjects];
 }
 
 - (void)start {

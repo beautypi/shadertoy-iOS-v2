@@ -67,9 +67,8 @@
         input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
         input.ctype = @"texture";
     }
-    NSLog(@"type: %@\n", input.ctype);
     
-    if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"] || [input.ctype isEqualToString:@"webcam"] || [input.ctype isEqualToString:@"keyboard"] ) {
+    if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"] || [input.ctype isEqualToString:@"webcam"] ) {
         
         if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"]) {
             options.enableVolumeMixer = false;
@@ -85,13 +84,8 @@
             [self setupFFT];
             [_audioPlayer appendFrameFilterWithName:@"STKSpectrumAnalyzerFilter" block:^(UInt32 channelsPerFrame, UInt32 bytesPerFrame, UInt32 frameCount, void* frames) {
                 
-                
                 int log2n = log2f(frameCount);
                 frameCount = 1 << log2n;
-                //                 int nOver2 = frameCount / 2;
-                
-                //              NSLog(@"frame count:%d, %d\n", (unsigned int)frameCount, log2n);
-                
                 
                 SInt16* samples16 = (SInt16*)frames;
                 SInt32* samples32 = (SInt32*)frames;
@@ -113,11 +107,8 @@
                 
                 vDSP_ctoz((COMPLEX*)originalReal, 2, &fftInput, 1, frameCount);
                 
-                
                 const float one = 1;
-                
                 float scale = (float)1.0 / (2 * frameCount);
-                
                 
                 //Take the fft and scale appropriately
                 vDSP_fft_zrip(setupReal, &fftInput, 1, log2n, FFT_FORWARD);
@@ -155,18 +146,14 @@
                 vDSP_vsmul(originalReal, 1, &scale, originalReal, 1, MIN(256,frameCount/2));
                 vDSP_vclip(originalReal, 1, &vmin, &vmax, originalReal, 1,  MIN(256,frameCount/2));
                 vDSP_vfixu8(originalReal, 1, &buffer[256], 1, MIN(256,frameCount/2));
-                
-                
             }];
-            
-            
             
             if( [input.ctype isEqualToString:@"musicstream"] ) {
                 APISoundCloud* soundCloud = [[APISoundCloud alloc] init];
                 [soundCloud resolve:input.src success:^(NSDictionary *resultDict) {
                     NSString* url = [resultDict objectForKey:@"stream_url"];
                     url = [url stringByAppendingString:@"?client_id=64a52bb31abd2ec73f8adda86358cfbf"];
-                    NSLog(@"%@\n", url );
+                    
                     [_audioPlayer play:url];
                     for( int i=0; i<100; i++ ) {
                         [_audioPlayer queue:url];
@@ -176,7 +163,6 @@
                 NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
                 [_audioPlayer play:url];
             }
-            
             
         } else {
             input.src = [[@"/presets/" stringByAppendingString:input.ctype] stringByAppendingString:@".png"];
@@ -318,16 +304,6 @@
         }
     }
 }
-/*
- glGenTextures(1, &n_tex_surface);
- glBindTexture(GL_TEXTURE_2D, n_tex_surface);
- glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
- glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
- 
- glBindTexture(GL_TEXTURE_2D, n_tex_surface);
- glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, datawidth, dataheight, 0, GL_RED, GL_FLOAT, checkImage);
- */
-
 
 - (void) mute {
     
@@ -351,6 +327,14 @@
     }
 }
 
+- (void) stop {
+    if( _audioPlayer ) {
+        [_audioPlayer removeFrameFilterWithName:@"STKSpectrumAnalyzerFilter"];
+        [_audioPlayer stop];
+        [_audioPlayer dispose];
+    }
+}
+
 - (void) dealloc {
     if( _textureInfo ) {
         GLuint name = _textureInfo.name;
@@ -361,16 +345,13 @@
         [_audioPlayer stop];
         [_audioPlayer dispose];
         _audioPlayer = nil;
-    }
-    
+    }    
 }
 
 - (void) setupFFT {
     int maxSamples = 4096;
     int log2n = log2f(maxSamples);
     int n = 1 << log2n;
-    
-    NSLog(@"N = %d\n",n);
     
     fftStride = 1;
     int nOver2 = maxSamples / 2;

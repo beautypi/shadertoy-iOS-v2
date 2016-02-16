@@ -166,7 +166,6 @@
     }
 }
 
-
 - (void) pauseInputs {
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass pauseInputs];
@@ -261,12 +260,9 @@
         [pass setFrame:(_frame>0?_frame:0)];
         [pass setTimeDelta:deltaTime];
         [pass render:_shaderPasses];
-    }
-    
-    for (ShaderPassRenderer* pass in _shaderPasses) {
+        
         [pass nextFrame];
-    }
-    
+    }    
     _frame++;
     _renderDate = now;
 }

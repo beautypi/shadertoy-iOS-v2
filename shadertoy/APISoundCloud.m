@@ -8,9 +8,6 @@
 
 #import "APISoundCloud.h"
 
-
-
-
 @interface APISoundCloud () {
     AFHTTPRequestOperationManager *_requestManager;
 }
@@ -35,10 +32,9 @@
     return self;
 }
 
-
 - (AFHTTPRequestOperation *) resolve:(NSString *)url success:(void (^)(NSDictionary *resultDict))success {
     NSDictionary *params = @{
-                             @"client_id": @"64a52bb31abd2ec73f8adda86358cfbf",
+                             @"client_id": @"b1275b704badf79d972d51aa4b92ea15",
                              @"url": url
                              };
     
