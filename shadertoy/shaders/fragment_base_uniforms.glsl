@@ -14,3 +14,5 @@ uniform vec3      iChannelResolution[4];        // channel resolution (in pixels
 uniform float     iChannelTime[4];              // channel playback time (in sec)
 
 uniform vec2      ifFragCoordOffsetUniform;     // used for tiled based hq rendering
+uniform float     iTimeDelta;                   // render time (in seconds)
+uniform int       iFrame;                       // shader playback frame

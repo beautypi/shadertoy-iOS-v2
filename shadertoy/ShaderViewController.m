@@ -63,6 +63,10 @@
     [_shaderPlayerPlay setTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    
+    [self.shaderInputButtonView setHidden:YES];
+    [self.shaderInputSpaceview setHidden:YES];
+    [self initButtonEvents];
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
@@ -70,6 +74,7 @@
         // viewController is visible
         [_imageShaderViewController forceDraw];
         [self playSoundSyncedWithShader];
+        [_imageShaderViewController resumeInputs];
     }
 }
 
@@ -89,6 +94,7 @@
 
 - (void) viewWillDisappear:(BOOL)animated {
     [_soundPassPlayer stop];
+    [_imageShaderViewController pauseInputs];
     [super viewWillDisappear:animated];
 }
 
@@ -97,20 +103,32 @@
     CGRect frame;
     
     if( landscape ) {
-        if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
-            [[self.tabBarController tabBar] setHidden:YES];
-        }
-        [[self navigationController] setNavigationBarHidden:YES animated:YES];
         frame = CGRectMake( 0, _shaderImageView.frame.origin.y, [[UIScreen mainScreen] bounds].size.width, landscape?[[UIScreen mainScreen] bounds].size.height:[[UIScreen mainScreen] bounds].size.width/16.f*9.f);
     } else {
-        [[self navigationController] setNavigationBarHidden:NO animated:YES];
-        [[self.tabBarController tabBar] setHidden:NO];
         frame = _shaderImageView.frame;
     }
     
-    if( !_exporting && !CGRectEqualToRect( frame, _imageShaderView.frame) ) {
-        [_imageShaderView setFrame:frame];
-        [_imageShaderViewController forceDraw];
+    if( !CGRectEqualToRect( frame, _imageShaderView.frame) ) {
+        if( landscape ) {
+            if( _viewMode == VIEW_FULLSCREEN_IF_LANDSCAPE ) {
+                [[self.tabBarController tabBar] setHidden:YES];
+            }
+            [[self navigationController] setNavigationBarHidden:YES animated:YES];
+            
+            bool keyboard = [_shader useKeyboard];
+            [self.shaderInputButtonView setHidden:!keyboard];
+            [self.shaderInputSpaceview setHidden:!keyboard];
+        } else {
+            [[self navigationController] setNavigationBarHidden:NO animated:YES];
+            [[self.tabBarController tabBar] setHidden:NO];
+            
+            [self.shaderInputButtonView setHidden:YES];
+            [self.shaderInputSpaceview setHidden:YES];
+        }
+        if( !_exporting ) {
+            [_imageShaderView setFrame:frame];
+            [_imageShaderViewController forceDraw];
+        }
     }
 }
 
@@ -128,6 +146,7 @@
         }
     } else {
         [self playSoundSyncedWithShader];
+        [_imageShaderViewController resumeInputs];
     }
     
     trackScreen(@"Shader");
@@ -190,11 +209,11 @@
     [self layoutCanvasView];
 }
 
-- (void) compileShaderPass:(APIShaderPass *)shaderPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
+- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
     [self bk_performBlock:^(id obj) {
         NSString *error;
         
-        if( [shaderViewController compileShaderPass:shaderPass theError:&error] ) {
+        if( [shaderViewController compileShader:_shader soundPass:soundPass theError:&error] ) {
             [self bk_performBlock:^(id obj) {
                 success();
             } afterDelay:0.05f];
@@ -217,7 +236,7 @@
     
     __weak typeof (self) weakSelf = self;
     
-    [self compileShaderPass:_shader.imagePass vc:_imageShaderViewController success:^{
+    [self compileShader:false vc:_imageShaderViewController success:^{
         [_imageShaderViewController start];
         [weakSelf playSoundSyncedWithShader];
         [_imageShaderView setHidden:NO];
@@ -240,11 +259,13 @@
                     [_shaderCompileInfoButton setHidden:NO];
                 }
                 if( [_shader vrImplemented] && !_vrSettings ) {
-//                    [_shaderVRButton setHidden:NO];
+                    //                    [_shaderVRButton setHidden:NO];
                 }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
                 [weakSelf.view bringSubviewToFront:_imageShaderView];
+                [weakSelf.view bringSubviewToFront:weakSelf.shaderInputButtonView];
+                [weakSelf.view bringSubviewToFront:weakSelf.shaderInputSpaceview];
                 [weakSelf.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
                 
                 _compiled = YES;
@@ -268,7 +289,7 @@
     _soundPassPlayer = [[SoundPassPlayer alloc] init];
     
     __weak typeof (self) weakSelf = self;
-    [self compileShaderPass:_shader.soundPass vc:_soundShaderViewController success:^{
+    [self compileShader:true vc:_soundShaderViewController success:^{
         [_soundShaderViewController setDefaultCanvasScaleFactor];
         [weakSelf renderSoundShaderFrame:0 complete:^{
             [_soundPassPlayer prepareToPlay];
@@ -350,6 +371,13 @@
     [_shaderPlayerPlay setSelected:YES];
     [_imageShaderViewController pause];
     [self playSoundSyncedWithShader];
+    
+    if( [_shader useMultiPass] ) {
+        NSString *text = [[[[@"Check out this \"" stringByAppendingString:_shader.shaderName] stringByAppendingString:@"\" shader by "] stringByAppendingString:_shader.username] stringByAppendingString:@" on @Shadertoy"];
+        NSURL *url = [_shader getShaderUrl];
+        [self shareText:text andImage:NULL andUrl:url];
+        return;
+    }
     
     _exporting = YES;
     
@@ -534,6 +562,65 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     [self presentViewController:activityController animated:YES completion:^{}];
     
     _exporting = NO;
+}
+
+#pragma mark - Keyboard input
+
+- (void)initButtonEvents {
+    [self.keyboardDownButton setTag:1];
+    [self.keyboardDownButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
+    [self.keyboardDownButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
+
+    [self.keyboardUpButton setTag:2];
+    [self.keyboardUpButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
+    [self.keyboardUpButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
+
+    [self.keyboardLeftButton setTag:3];
+    [self.keyboardLeftButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
+    [self.keyboardLeftButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
+
+    [self.keyboardRightButton setTag:4];
+    [self.keyboardRightButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
+    [self.keyboardRightButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
+
+    [self.keyboardSpaceButton setTag:5];
+    [self.keyboardSpaceButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
+    [self.keyboardSpaceButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
+}
+
+- (void)keydown:(id) button {
+    /*
+    const float KEY_W		= 87.5/256.0;
+    const float KEY_A		= 65.5/256.0;
+    const float KEY_S		= 83.5/256.0;
+    const float KEY_D		= 68.5/256.0;
+    const float KEY_LEFT  = 37.5/256.0;
+    const float KEY_UP    = 38.5/256.0;
+    const float KEY_RIGHT = 39.5/256.0;
+    const float KEY_DOWN  = 40.5/256.0;
+    const float KEY_SPACE	= 32.5/256.0;
+    */
+    if( [button tag] == 1 ) [_imageShaderViewController updateKeyboardBufferDown: 83 ];
+    if( [button tag] == 1 ) [_imageShaderViewController updateKeyboardBufferDown: 40 ];
+    if( [button tag] == 2 ) [_imageShaderViewController updateKeyboardBufferDown: 87 ];
+    if( [button tag] == 2 ) [_imageShaderViewController updateKeyboardBufferDown: 38 ];
+    if( [button tag] == 3 ) [_imageShaderViewController updateKeyboardBufferDown: 65 ];
+    if( [button tag] == 3 ) [_imageShaderViewController updateKeyboardBufferDown: 37 ];
+    if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferDown: 68 ];
+    if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferDown: 39 ];
+    if( [button tag] == 5 ) [_imageShaderViewController updateKeyboardBufferDown: 32 ];
+}
+
+- (void)keyup:(id) button {
+    if( [button tag] == 1 ) [_imageShaderViewController updateKeyboardBufferUp: 83 ];
+    if( [button tag] == 1 ) [_imageShaderViewController updateKeyboardBufferUp: 40 ];
+    if( [button tag] == 2 ) [_imageShaderViewController updateKeyboardBufferUp: 87 ];
+    if( [button tag] == 2 ) [_imageShaderViewController updateKeyboardBufferUp: 38 ];
+    if( [button tag] == 3 ) [_imageShaderViewController updateKeyboardBufferUp: 65 ];
+    if( [button tag] == 3 ) [_imageShaderViewController updateKeyboardBufferUp: 37 ];
+    if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferUp: 68 ];
+    if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferUp: 39 ];
+    if( [button tag] == 5 ) [_imageShaderViewController updateKeyboardBufferUp: 32 ];
 }
 
 @end
