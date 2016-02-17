@@ -10,21 +10,10 @@
 #import "APIShaderObject.h"
 #import "VRSettings.h"
 
-typedef NS_ENUM(NSUInteger, ShaderInputFilterMode) {
-    NEAREST,
-    MIPMAP,
-    LINEAR
-};
-
-typedef NS_ENUM(NSUInteger, ShaderInputWrapMode) {
-    CLAMP,
-    REPEAT
-};
-
 @interface ShaderCanvasViewController : GLKViewController
 
 - (void) setVRSettings:(VRSettings *)vrSettings;
-- (BOOL) compileShaderPass:(APIShaderPass *)shader theError:(NSString **)error;
+- (BOOL) compileShader:(APIShaderObject *)shader soundPass:(bool)soundPass theError:(NSString **)error;
 
 - (void) start;
 - (void) pause;
@@ -40,5 +29,11 @@ typedef NS_ENUM(NSUInteger, ShaderInputWrapMode) {
 - (void) renderOneFrame:(float)globalTime success:(void (^)(UIImage *image))success;
 - (void) setCanvasScaleFactor:(float)scaleFactor;
 - (void) setDefaultCanvasScaleFactor;
+
+- (void) pauseInputs;
+- (void) resumeInputs;
+
+- (void)updateKeyboardBufferDown:(int)v;
+- (void)updateKeyboardBufferUp:(int)v;
 
 @end

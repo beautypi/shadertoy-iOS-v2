@@ -13,9 +13,10 @@
 #import <Crashlytics/Crashlytics.h>
 
 #import "defines.h"
+#import "LocalCache.h"
 
-@interface AppDelegate ()
-
+@interface AppDelegate () {
+}
 @end
 
 @implementation AppDelegate
@@ -27,6 +28,11 @@
     [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
+    if( [[LocalCache sharedLocalCache] getVersion] < [NSNumber numberWithInt:3]) {
+        [[LocalCache sharedLocalCache] clear];
+        [[LocalCache sharedLocalCache] setVersion:[NSNumber numberWithInt:3]];
+    }
+        
     if( ![GoogleAnalyticsKey isEqualToString:@""] ) {
         [GAI sharedInstance].trackUncaughtExceptions = YES;
         [[GAI sharedInstance] trackerWithTrackingId:GoogleAnalyticsKey];
@@ -34,7 +40,6 @@
     }
     
     [Fabric with:@[CrashlyticsKit]];
-    
     return YES;
 }
 

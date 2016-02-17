@@ -1,3 +1,4 @@
+
 vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
 vec4 iLeftEyeDegrees = vec4( -45., 45.*9./16., 45., -45.*9./16.);
 vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
