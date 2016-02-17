@@ -483,7 +483,7 @@ const GLubyte Indices[] = {
     _currentRenderTexture = !_currentRenderTexture;
 }
 
-- (void) render:(NSMutableArray *)shaderPasses {
+- (void) render:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
     if( !_programId ) return;
     
     GLint drawFboId = 0;
@@ -505,7 +505,7 @@ const GLubyte Indices[] = {
     [self bindUniforms];
     
     for( ShaderInput* shaderInput in _shaderInputs ) {
-        [shaderInput bindTexture:shaderPasses];
+        [shaderInput bindTexture:shaderPasses keyboardBuffer:keyboardBuffer];
     }
     
     glEnableVertexAttribArray(_positionSlot);

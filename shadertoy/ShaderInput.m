@@ -62,6 +62,13 @@
     _isBuffer = [input.ctype isEqualToString:@"buffer"];
     
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
+    if( [input.ctype isEqualToString:@"keyboard"] ) {
+        glGenTextures(1, &texId);
+        glBindTexture(GL_TEXTURE_2D, texId);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
+    
     if( [input.ctype isEqualToString:@"video"] ) {
         input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
         input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
@@ -235,7 +242,7 @@
     }
 }
 
-- (void) bindTexture:(NSMutableArray *)shaderPasses {
+- (void) bindTexture:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
     if( _textureInfo ) {
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
         glBindTexture(_textureInfo.target, _textureInfo.name );
@@ -264,7 +271,12 @@
     if( texId < 99  ) {
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
         glBindTexture(GL_TEXTURE_2D, texId);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, buffer);
+        
+        if( _isBuffer ) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, buffer);
+        } else {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, keyboardBuffer);
+        }
         
         if( _wrapMode == REPEAT ) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

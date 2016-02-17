@@ -35,6 +35,7 @@
     NSDate* _renderDate;
     
     void (^_grabImageCallBack)(UIImage *image);
+    unsigned char _keyboardBuffer[256*2];
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -47,6 +48,7 @@
     [super viewDidLoad];
     
     _shaderPasses = [[NSMutableArray alloc] init];
+    memset( &_keyboardBuffer[0], 0, sizeof(unsigned char)*256*2 );
 }
 
 - (void)dealloc {
@@ -259,7 +261,7 @@
         [pass setDate:date];
         [pass setFrame:(_frame>0?_frame:0)];
         [pass setTimeDelta:deltaTime];
-        [pass render:_shaderPasses];
+        [pass render:_shaderPasses keyboardBuffer:&_keyboardBuffer[0]];
         
         [pass nextFrame];
     }    
@@ -321,5 +323,17 @@
     _mouse.z = -fabsf(_mouse.z);
     _mouse.w = -fabsf(_mouse.w);
 }
+
+#pragma mark - Keyboard input
+
+- (void)updateKeyboardBufferDown:(int)v {
+    _keyboardBuffer[v] = 255;
+    _keyboardBuffer[v+256] = 255 - _keyboardBuffer[v+256];
+}
+
+- (void)updateKeyboardBufferUp:(int)v {
+    _keyboardBuffer[v] = 0;
+}
+
 
 @end

@@ -38,6 +38,12 @@ typedef NS_ENUM(NSUInteger, ShaderViewMode) {
 @property (strong, nonatomic) IBOutlet UIView *shaderInputButtonView;
 @property (strong, nonatomic) IBOutlet UIView *shaderInputSpaceview;
 
+@property (strong, nonatomic) IBOutlet UIButton *keyboardSpaceButton;
+@property (strong, nonatomic) IBOutlet UIButton *keyboardLeftButton;
+@property (strong, nonatomic) IBOutlet UIButton *keyboardUpButton;
+@property (strong, nonatomic) IBOutlet UIButton *keyboardDownButton;
+@property (strong, nonatomic) IBOutlet UIButton *keyboardRightButton;
+
 - (void) setShaderObject:(APIShaderObject *)shader;
 - (void) setVRSettings:(VRSettings *)vrSettings;
 

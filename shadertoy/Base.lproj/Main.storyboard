@@ -286,7 +286,7 @@
                             <view opaque="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tic-YR-pBl">
                                 <rect key="frame" x="372" y="456" width="208" height="136"/>
                                 <subviews>
-                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ILd-bx-KV1">
+                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" restorationIdentifier="4" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ILd-bx-KV1">
                                         <rect key="frame" x="144" y="72" width="64" height="64"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="64" id="74U-PL-eBh"/>
@@ -294,7 +294,7 @@
                                         </constraints>
                                         <state key="normal" title="Button" image="arrow-right"/>
                                     </button>
-                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0OC-jb-zRe">
+                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" restorationIdentifier="3" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0OC-jb-zRe">
                                         <rect key="frame" x="72" y="72" width="64" height="64"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="64" id="08F-5Z-jZl"/>
@@ -304,7 +304,7 @@
                                         </constraints>
                                         <state key="normal" title="Button" image="arrow-down"/>
                                     </button>
-                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZBS-BR-gHp">
+                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" restorationIdentifier="1" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZBS-BR-gHp">
                                         <rect key="frame" x="0.0" y="72" width="64" height="64"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="64" id="7OL-EF-xhE"/>
@@ -314,7 +314,7 @@
                                         </constraints>
                                         <state key="normal" title="Button" image="arrow-left"/>
                                     </button>
-                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T2P-cs-aC3">
+                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" restorationIdentifier="2" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T2P-cs-aC3">
                                         <rect key="frame" x="72" y="0.0" width="64" height="64"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="64" id="Gqv-60-eNJ"/>
@@ -352,7 +352,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eZy-XE-iPn">
                                 <rect key="frame" x="20" y="528" width="64" height="64"/>
                                 <subviews>
-                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ctY-ea-wdF">
+                                    <button opaque="NO" alpha="0.75" contentMode="scaleToFill" restorationIdentifier="0" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ctY-ea-wdF">
                                         <rect key="frame" x="0.0" y="0.0" width="64" height="64"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="64" id="3u5-MB-JYf"/>
@@ -434,6 +434,11 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="keyboardDownButton" destination="0OC-jb-zRe" id="8Gn-ge-Ihi"/>
+                        <outlet property="keyboardLeftButton" destination="ZBS-BR-gHp" id="0zL-Hg-B1j"/>
+                        <outlet property="keyboardRightButton" destination="ILd-bx-KV1" id="7RJ-p0-c4e"/>
+                        <outlet property="keyboardSpaceButton" destination="ctY-ea-wdF" id="Spd-l9-eSX"/>
+                        <outlet property="keyboardUpButton" destination="T2P-cs-aC3" id="BbP-M2-BDo"/>
                         <outlet property="shaderCompileInfoButton" destination="CFC-rn-Geo" id="4hI-NS-Vkt"/>
                         <outlet property="shaderCompiling" destination="z3Z-zp-Yvy" id="KdN-Fo-i9v"/>
                         <outlet property="shaderDescription" destination="Ey0-HH-by2" id="kfv-cH-oKq"/>

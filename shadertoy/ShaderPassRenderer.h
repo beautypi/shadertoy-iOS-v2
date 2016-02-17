@@ -25,7 +25,7 @@
 - (void) setFrame:(int) frame;
 - (void) setTimeDelta:(float)deltaTime;
 
-- (void) render:(NSMutableArray *)shaderPasses;
+- (void) render:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer;
 - (void) nextFrame;
 
 - (void) start;
