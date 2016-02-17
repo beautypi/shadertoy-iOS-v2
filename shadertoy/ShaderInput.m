@@ -59,8 +59,9 @@
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input {
     _shaderPassInput = input;
     texId = 99;
+    buffer = NULL;
     _isBuffer = [input.ctype isEqualToString:@"buffer"];
-    
+
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
     if( [input.ctype isEqualToString:@"keyboard"] ) {
         glGenTextures(1, &texId);
@@ -272,7 +273,7 @@
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
         glBindTexture(GL_TEXTURE_2D, texId);
         
-        if( _isBuffer ) {
+        if( buffer != NULL ) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, buffer);
         } else {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, keyboardBuffer);
