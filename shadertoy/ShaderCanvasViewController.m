@@ -120,7 +120,7 @@
         [_shaderPasses addObject:passRenderer];
     }
     
-    self.preferredFramesPerSecond = ([shader.bufferPasses count] || [shader vrImplemented])?60.:20.;
+    self.preferredFramesPerSecond = ([shader.bufferPasses count] || _vrSettings)?60.:20.;
     _running = NO;
     _frame = 0;
     
@@ -215,7 +215,7 @@
     if( _soundPass ) {
         return 1.f;
     } else if( _vrSettings ) {
-        return _vrSettings.highQuality?2.f:1.f;
+        return _vrSettings.highQuality?2.f:3.f/4.f;
     } else {
         // todo: scale factor depending on GPU type?
         return 3.f/4.f;

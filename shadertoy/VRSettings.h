@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <GLKit/GLKit.h>
 
 typedef NS_ENUM(NSUInteger, VRSettingsRenderMode) {
     VR_FULL_SCREEN,
@@ -68,5 +69,8 @@ typedef NS_ENUM(NSUInteger, VRSettingsInput) {
 
 -(NSString *) getVertexShaderCode;
 -(NSString *) getFragmentShaderCode;
+
+-(GLKVector3) getDeviceRotation;
+-(GLKMatrix3) getDeviceRotationMatrix;
 
 @end

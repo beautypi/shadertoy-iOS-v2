@@ -39,6 +39,7 @@ const GLubyte Indices[] = {
     GLuint _dateUniform;
     GLuint _timeDeltaUniform;            // render time (in seconds)
     GLuint _frameUniform;                // shader playback frame
+    GLuint _deviceRotationUniform;
     
     GLuint _sampleRateUniform;
     float _iSampleRate;
@@ -252,7 +253,7 @@ const GLubyte Indices[] = {
     _timeDeltaUniform = glGetUniformLocation(_programId, "iTimeDelta");
     _frameUniform = glGetUniformLocation(_programId, "iFrame");
     _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
-    
+    _deviceRotationUniform = glGetUniformLocation(_programId, "iDeviceRotationUniform");
     
     for (APIShaderPassInput* input in _shaderPass.inputs) {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
@@ -394,6 +395,13 @@ const GLubyte Indices[] = {
     glUniform1i(_frameUniform, _frame);
     glUniform1f(_timeDeltaUniform, _deltaTime);
     
+    if( _deviceRotationUniform > 0 && _vrSettings ) {
+//        GLKVector3 attitude = [_vrSettings getDeviceRotation];
+//        glUniform3fv( _deviceRotationUniform, 1, &attitude.x );
+        GLKMatrix3 mat = [_vrSettings getDeviceRotationMatrix];
+        glUniformMatrix3fv(_deviceRotationUniform, 1, false, &mat.m00);
+    }
+   
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:_date];
     double seconds = [_date timeIntervalSince1970];
     glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second + (seconds - floor(seconds)) );

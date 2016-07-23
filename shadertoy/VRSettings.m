@@ -8,6 +8,7 @@
 
 #import "VRSettings.h"
 #import "Utils.h"
+#import <CoreMotion/CoreMotion.h>
 
 @implementation VRSettings
 
@@ -18,6 +19,24 @@
     if(self){
     }
     return self;
+}
+
++ (CMMotionManager*)sharedMotionManager{
+    
+    static CMMotionManager *_sharedMotionManagerInstance;
+    if(!_sharedMotionManagerInstance) {
+        static dispatch_once_t oncePredicate;
+        dispatch_once(&oncePredicate, ^{
+            _sharedMotionManagerInstance = [[CMMotionManager alloc] init];
+            if (_sharedMotionManagerInstance.deviceMotionAvailable) {
+                _sharedMotionManagerInstance.deviceMotionUpdateInterval = 1.0/60.0;
+                [_sharedMotionManagerInstance startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXArbitraryZVertical];
+//                [_sharedMotionManagerInstance startDeviceMotionUpdates];
+            }
+        });
+    }
+    
+    return _sharedMotionManagerInstance;
 }
 
 -(NSString *) getVertexShaderCode {
@@ -51,6 +70,17 @@
     return fragmentShaderCode;
 }
 
+-(GLKVector3) getDeviceRotation {
+   
+   CMAttitude * attitude = [[[VRSettings sharedMotionManager] deviceMotion] attitude];
+    
+    return GLKVector3Make(attitude.pitch, attitude.yaw, attitude.roll);
+}
 
+
+-(GLKMatrix3) getDeviceRotationMatrix {
+    CMRotationMatrix m = [[[[VRSettings sharedMotionManager] deviceMotion] attitude] rotationMatrix];
+    return GLKMatrix3Multiply( GLKMatrix3Make(-1,0,0,    0,0,-1,    0,1,0 ), GLKMatrix3Make(m.m11, m.m12, m.m13, m.m21, m.m22, m.m23, m.m31, m.m32, m.m33 ) );
+}
 
 @end

@@ -1,5 +1,8 @@
 
 
+uniform mat3 iDeviceRotationUniform;
+
+
 #ifdef VR_SETTINGS_FULLSCREEN
 vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
 vec4 iLeftEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
@@ -15,13 +18,13 @@ vec3 iRightEyeRotation = vec3( 0., 0., 0. );
 
 #ifdef VR_SETTINGS_CARDBOARD
     vec4 iLeftEyeRect = vec4( 0., 0., .5, 1.);
-    vec4 iLeftEyeDegrees = vec4(-2.050303841579292,2.050303841579292,2.050303841579292,-2.050303841579292); //  tan( vec4( -64., 64., 64., -64.) * (2. * 3.1415925 / 360. ) );
-    vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
+    vec4 iLeftEyeDegrees = vec4( -0.946, 1.0, 0.946, -1.0); //  tan( vec4( -64., 64., 64., -64.) * (2. * 3.1415925 / 360. ) );
+    vec3 iLeftEyeTranslation = vec3( -0.032, 0., 0. );
     vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
 
     vec4 iRightEyeRect = vec4( 0.5, 0., 1., 1.);
-    vec4 iRightEyeDegrees = vec4(-2.050303841579292,2.050303841579292,2.050303841579292,-2.050303841579292); //  tan( vec4( -64., 64., 64., -64.) * (2. * 3.1415925 / 360. ) );
-    vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
+    vec4 iRightEyeDegrees = vec4( -0.946, 1.0, 0.946, -1.0); //  tan( vec4( -64., 64., 64., -64.) * (2. * 3.1415925 / 360. ) );
+    vec3 iRightEyeTranslation = vec3( 0.032, 0., 0. );
     vec3 iRightEyeRotation = vec3( 0., 0., 0. );
 #endif
 
@@ -81,7 +84,9 @@ void main()  {
 
 #ifdef VR_SETTINGS_CARDBOARD
     float r = dot( uv - .5, uv - .5 );
-    uv = uv * ( 1. + .51 * r + .16 * r * r);
+    uv = uv * ( 1. + 0.33582564 * r + 0.55348791
+               
+ * r * r);
 #endif
     
     
@@ -92,11 +97,16 @@ void main()  {
     
     eyeRotation.yx = .5*mix( vec2(-3.1415926), vec2(3.1415926), abs(iMouse.xy) / iResolution.xy ) * vec2(1.,-1.);
     
-    mat3 rotation = iVrMatRotate( eyeRotation );
-    rd = rotation * rd;
-    ro = rotation * ro;
+ //   eyeRotation = vec3(-1.5707963267949-iDeviceRotationUniform.z, iDeviceRotationUniform.y, -iDeviceRotationUniform.x);
     
-    mainVR( gl_FragColor, uv * iResolution.xy, ro, rd );
+    mat3 rotation = iVrMatRotate( eyeRotation );
+    
+    rotation = iDeviceRotationUniform;
+    
+    rd = rotation * vec3(rd.y, -rd.x, rd.z);
+    ro = rotation * vec3(ro.y, -ro.x, ro.z);
+    
+    mainVR( gl_FragColor, uv * iResolution.xy, vec3(-ro.x, ro.yz), vec3(-rd.x, rd.yz) );
 
 #ifdef VR_SETTINGS_RED_CYAN
     gl_FragColor.xyz *= vec3( eyeID, 1.0-eyeID, 1.0-eyeID );
