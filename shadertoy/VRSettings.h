@@ -64,6 +64,8 @@ typedef NS_ENUM(NSUInteger, VRSettingsInput) {
 @property (atomic) VRSettingsRenderMode renderMode;
 @property (atomic) VRSettingsInput inputMode;
 
+@property (atomic) bool highQuality;
+
 -(NSString *) getVertexShaderCode;
 -(NSString *) getFragmentShaderCode;
 

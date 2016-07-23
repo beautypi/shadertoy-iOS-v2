@@ -1,13 +1,55 @@
 
+
+#ifdef VR_SETTINGS_FULLSCREEN
 vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
-vec4 iLeftEyeDegrees = vec4( -45., 45.*9./16., 45., -45.*9./16.);
-vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
+vec4 iLeftEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
+vec3 iLeftEyeTranslation = vec3( 0., 0., 0. );
 vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
 
-vec4 iRightEyeRect = vec4( 0., 0., 1., 1.);
-vec4 iRightEyeDegrees = vec4( -45., 45.*9./16., 45., -45.*9./16.);
-vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
+vec4 iRightEyeRect = vec4( 0., 0., 0., 0.);
+vec4 iRightEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
+vec3 iRightEyeTranslation = vec3( 0., 0., 0. );
 vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+#endif
+
+
+#ifdef VR_SETTINGS_CARDBOARD
+    vec4 iLeftEyeRect = vec4( 0., 0., .5, 1.);
+    vec4 iLeftEyeDegrees = vec4(-2.050303841579292,2.050303841579292,2.050303841579292,-2.050303841579292); //  tan( vec4( -64., 64., 64., -64.) * (2. * 3.1415925 / 360. ) );
+    vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
+    vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+
+    vec4 iRightEyeRect = vec4( 0.5, 0., 1., 1.);
+    vec4 iRightEyeDegrees = vec4(-2.050303841579292,2.050303841579292,2.050303841579292,-2.050303841579292); //  tan( vec4( -64., 64., 64., -64.) * (2. * 3.1415925 / 360. ) );
+    vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
+    vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+#endif
+
+
+#ifdef VR_SETTINGS_CROSS_EYE
+    vec4 iLeftEyeRect = vec4( 0.5, 0., 1., 1.);
+    vec4 iLeftEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
+    vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
+    vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+
+    vec4 iRightEyeRect = vec4( 0., 0., .5, 1.);
+    vec4 iRightEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
+    vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
+    vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+#endif
+
+
+#ifdef VR_SETTINGS_RED_CYAN
+    vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
+    vec4 iLeftEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
+    vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
+    vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+
+    vec4 iRightEyeRect = vec4( 0., 0., 1., 1.);
+    vec4 iRightEyeDegrees = vec4( -1., 0.472964775891327, 1., -0.472964775891327);
+    vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
+    vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+#endif
 
 mat3 iVrMatRotate( in vec3 xyz ) {
     vec3 si = sin(xyz);
@@ -24,20 +66,27 @@ void main()  {
     bool leftEye  = all( greaterThanEqual( fragCoordScaled.xy, iLeftEyeRect.xy ) ) && all( lessThanEqual( fragCoordScaled.xy, iLeftEyeRect.zw ) );
     
     vec2 fragCoord = (gl_FragCoord.xy + ifFragCoordOffsetUniform.xy);
+    
+#ifdef VR_SETTINGS_RED_CYAN
     float eyeID = mod(fragCoord.x + mod(fragCoord.y,2.0),2.0);
     leftEye = eyeID > 0.;
+#endif
     
     vec4 eyeRect        = leftEye ? iLeftEyeRect : iRightEyeRect;
     vec3 eyeRotation    = leftEye ? iLeftEyeRotation : iRightEyeRotation;
-    vec4 eyeDegrees     = (leftEye ? iLeftEyeDegrees : iRightEyeDegrees) * (2. * 3.1415925 / 360. );
+    vec4 eyeDegrees     = (leftEye ? iLeftEyeDegrees : iRightEyeDegrees);
     vec3 eyeTranslation = leftEye ? iLeftEyeTranslation : iRightEyeTranslation;
     
     vec2 uv = (fragCoordScaled-eyeRect.xy)/(eyeRect.zw-eyeRect.xy);
 
-//    eyeDegrees.xz *= .5;
+#ifdef VR_SETTINGS_CARDBOARD
+    float r = dot( uv - .5, uv - .5 );
+    uv = uv * ( 1. + .51 * r + .16 * r * r);
+#endif
     
-    vec3 rd = normalize( vec3( mix( tan( eyeDegrees.x ), tan( eyeDegrees.z ), uv.x ),
-                               -mix( tan( eyeDegrees.y ), tan( eyeDegrees.w ), uv.y ),
+    
+    vec3 rd = normalize( vec3( mix( eyeDegrees.x, eyeDegrees.z, uv.x ),
+                               -mix( eyeDegrees.y, eyeDegrees.w, uv.y ),
                                -1. ) );
     vec3 ro = eyeTranslation;
     
@@ -48,8 +97,10 @@ void main()  {
     ro = rotation * ro;
     
     mainVR( gl_FragColor, uv * iResolution.xy, ro, rd );
-    
+
+#ifdef VR_SETTINGS_RED_CYAN
     gl_FragColor.xyz *= vec3( eyeID, 1.0-eyeID, 1.0-eyeID );
+#endif
     
     gl_FragColor.w = 1.;
 }

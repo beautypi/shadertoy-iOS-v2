@@ -33,6 +33,7 @@
     int _frame;
     
     NSDate* _renderDate;
+    VRSettings *_vrSettings;
     
     void (^_grabImageCallBack)(UIImage *image);
     unsigned char _keyboardBuffer[256*2];
@@ -71,9 +72,7 @@
 #pragma mark - VR
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
-    for (ShaderPassRenderer* pass in _shaderPasses) {
-        [pass setVRSettings:vrSettings];
-    }
+    _vrSettings = vrSettings;
 }
 
 #pragma mark - ShaderCanvasViewController
@@ -102,6 +101,8 @@
     } else {
         for (APIShaderPass* pass in shader.bufferPasses) {
             ShaderPassRenderer* bufferPassRenderer = [[ShaderPassRenderer alloc] init];
+            [bufferPassRenderer setVRSettings:_vrSettings];
+
             if( ![bufferPassRenderer createShaderProgram:pass theError:error] ) {
                 [self tearDownGL];
                 return NO;
@@ -110,6 +111,8 @@
         }
         
         ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
+        [passRenderer setVRSettings:_vrSettings];
+        
         if( ![passRenderer createShaderProgram:shader.imagePass theError:error] ) {
             [self tearDownGL];
             return NO;
@@ -211,6 +214,8 @@
 - (float) getDefaultCanvasScaleFactor {
     if( _soundPass ) {
         return 1.f;
+    } else if( _vrSettings ) {
+        return _vrSettings.highQuality?2.f:1.f;
     } else {
         // todo: scale factor depending on GPU type?
         return 3.f/4.f;

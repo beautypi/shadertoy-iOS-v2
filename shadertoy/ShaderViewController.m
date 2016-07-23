@@ -259,7 +259,7 @@
                     [_shaderCompileInfoButton setHidden:NO];
                 }
                 if( [_shader vrImplemented] && !_vrSettings ) {
-                    //                    [_shaderVRButton setHidden:NO];
+                    [_shaderVRButton setHidden:NO];
                 }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
@@ -339,6 +339,46 @@
 - (IBAction)shaderVRClick:(id)sender {
     VRSettings *vrSettings = [[VRSettings alloc] init];
     
+    [self vrChooseRenderMode:vrSettings];
+}
+
+- (void) vrChooseRenderMode:(VRSettings *)vrSettings {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render mode:"];
+    [alert bk_addButtonWithTitle:@"Card board" handler:^{
+        vrSettings.renderMode = VR_SPLIT_SCREEN;
+        [self vrChooseQuality:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Cross eye" handler:^{
+        vrSettings.renderMode = VR_CROSS_EYE;
+        [self vrChooseQuality:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Cyan / red" handler:^{
+        vrSettings.renderMode = VR_CYAN_RED;
+        [self vrChooseQuality:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Fullscreen" handler:^{
+        vrSettings.renderMode = VR_FULL_SCREEN;
+        [self vrChooseQuality:vrSettings];
+    }];
+    
+    [alert show];
+}
+
+- (void) vrChooseQuality:(VRSettings *)vrSettings {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render quality:"];
+    [alert bk_addButtonWithTitle:@"High Quality" handler:^{
+        vrSettings.highQuality = true;
+        [self vrStart:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Low Quality" handler:^{
+        vrSettings.highQuality = false;
+        [self vrStart:vrSettings];
+    }];
+    
+    [alert show];
+}
+
+- (void) vrStart:(VRSettings *)vrSettings {
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
     
