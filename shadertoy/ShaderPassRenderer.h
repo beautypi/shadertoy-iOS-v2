@@ -36,4 +36,7 @@
 - (NSNumber *) getOutputId;
 - (GLuint) getCurrentTexId;
 
+- (float) getWidth;
+- (float) getHeight;
+
 @end
