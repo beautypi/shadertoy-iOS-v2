@@ -344,20 +344,37 @@
 
 - (void) vrChooseRenderMode:(VRSettings *)vrSettings {
     UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render mode:"];
-    [alert bk_addButtonWithTitle:@"Card board" handler:^{
+    [alert bk_addButtonWithTitle:@"Cardboard" handler:^{
         vrSettings.renderMode = VR_SPLIT_SCREEN;
-        [self vrChooseQuality:vrSettings];
+        // always use device rotation as input for cardboard
+        // [self vrChooseInput:vrSettings];
+        vrSettings.inputMode = VR_INPUT_DEVICE;
+        [self vrChooseQuality:vrSettings];        
     }];
-    [alert bk_addButtonWithTitle:@"Cross eye" handler:^{
+    [alert bk_addButtonWithTitle:@"Cross-eyed stereo" handler:^{
         vrSettings.renderMode = VR_CROSS_EYE;
-        [self vrChooseQuality:vrSettings];
+        [self vrChooseInput:vrSettings];
     }];
-    [alert bk_addButtonWithTitle:@"Cyan / red" handler:^{
+    [alert bk_addButtonWithTitle:@"Anaglyph (cyan/red)" handler:^{
         vrSettings.renderMode = VR_CYAN_RED;
-        [self vrChooseQuality:vrSettings];
+        [self vrChooseInput:vrSettings];
     }];
     [alert bk_addButtonWithTitle:@"Fullscreen" handler:^{
         vrSettings.renderMode = VR_FULL_SCREEN;
+        [self vrChooseInput:vrSettings];
+    }];
+    
+    [alert show];
+}
+
+- (void) vrChooseInput:(VRSettings *)vrSettings {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose input:"];
+    [alert bk_addButtonWithTitle:@"Touch" handler:^{
+        vrSettings.inputMode = VR_INPUT_TOUCH;
+        [self vrChooseQuality:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Device rotation" handler:^{
+        vrSettings.inputMode = VR_INPUT_DEVICE;
         [self vrChooseQuality:vrSettings];
     }];
     
@@ -367,14 +384,17 @@
 - (void) vrChooseQuality:(VRSettings *)vrSettings {
     UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render quality:"];
     [alert bk_addButtonWithTitle:@"High Quality" handler:^{
-        vrSettings.highQuality = true;
+        vrSettings.quality = VR_QUALITY_HIGH;
+        [self vrStart:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Normal Quality" handler:^{
+        vrSettings.quality = VR_QUALITY_NORMAL;
         [self vrStart:vrSettings];
     }];
     [alert bk_addButtonWithTitle:@"Low Quality" handler:^{
-        vrSettings.highQuality = false;
+        vrSettings.quality = VR_QUALITY_LOW;
         [self vrStart:vrSettings];
     }];
-    
     [alert show];
 }
 

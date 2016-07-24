@@ -21,56 +21,25 @@ typedef NS_ENUM(NSUInteger, VRSettingsInput) {
     VR_INPUT_DEVICE,
     VR_INPUT_TOUCH
 };
-
-@interface VRFieldOfViewInit : NSObject
-
-@property (atomic) float upDegrees;
-@property (atomic) float rightDegrees;
-@property (atomic) float downDegrees;
-@property (atomic) float leftDegrees;
-
-@end
-
-
-
-@interface VREyeParameters : NSObject {
-@public
-    float eyeTranslation[3];
-}
-
-@property (nonatomic, strong) VRFieldOfViewInit *currentFieldOfView;
-@property (atomic) CGRect renderRect;
-
-@end
-
-
-
-@interface VRPositionState : NSObject {
-@public
-    float orientation[4];
-}
-
--(void) setRotation:(float)roll pitch:(float)pitch yaw:(float)yaw;
--(void) updateRotationFromDeviceMotion;
-
-@end
-
+typedef NS_ENUM(NSUInteger, VRSettingsQuality) {
+    VR_QUALITY_LOW,
+    VR_QUALITY_NORMAL,
+    VR_QUALITY_HIGH
+};
 
 
 @interface VRSettings : NSObject
 
-@property (nonatomic, strong) VREyeParameters *leftEyeParams;
-@property (nonatomic, strong) VREyeParameters *rightEyeParams;
-@property (nonatomic, strong) VRPositionState *positionState;
 @property (atomic) VRSettingsRenderMode renderMode;
 @property (atomic) VRSettingsInput inputMode;
-
-@property (atomic) bool highQuality;
+@property (atomic) VRSettingsQuality quality;
 
 -(NSString *) getVertexShaderCode;
 -(NSString *) getFragmentShaderCode;
 
 -(GLKVector3) getDeviceRotation;
 -(GLKMatrix3) getDeviceRotationMatrix;
+
+-(void) setInputActive:(bool)active;
 
 @end

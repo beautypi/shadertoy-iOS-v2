@@ -10,13 +10,20 @@
 #import "Utils.h"
 #import <CoreMotion/CoreMotion.h>
 
+@interface VRSettings() {
+    GLKMatrix3 deviceRotationMatrix;
+    bool inputActive;
+}
+@end;
+
 @implementation VRSettings
 
-@synthesize renderMode, rightEyeParams, leftEyeParams, inputMode, positionState;
+@synthesize renderMode, inputMode;
 
 - (id)init {
     self = [super init];
     if(self){
+        self.inputActive = true;
     }
     return self;
 }
@@ -63,6 +70,10 @@
             break;
     }
     
+    if( inputMode == VR_INPUT_DEVICE ) {
+        fragmentShaderCode = [fragmentShaderCode stringByAppendingString:@"#define VR_SETTINGS_DEVICE_ORIENTATION 1\n\n"];        
+    }
+    
     fragmentShaderCode = [fragmentShaderCode stringByAppendingString:@"\n\n"];
     
     fragmentShaderCode = [fragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_vr" ofType:@"glsl"]];
@@ -79,8 +90,31 @@
 
 
 -(GLKMatrix3) getDeviceRotationMatrix {
+    if(!inputActive) {
+        return deviceRotationMatrix;
+    }
+    
     CMRotationMatrix m = [[[[VRSettings sharedMotionManager] deviceMotion] attitude] rotationMatrix];
-    return GLKMatrix3Multiply( GLKMatrix3Make(-1,0,0,    0,0,-1,    0,1,0 ), GLKMatrix3Make(m.m11, m.m12, m.m13, m.m21, m.m22, m.m23, m.m31, m.m32, m.m33 ) );
+    GLKMatrix3 glkm = GLKMatrix3Make(m.m11, m.m12, m.m13, m.m21, m.m22, m.m23, m.m31, m.m32, m.m33 );
+    
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    if(orientation == UIInterfaceOrientationPortrait) {
+        deviceRotationMatrix = GLKMatrix3Multiply( GLKMatrix3Multiply( GLKMatrix3Make(1,0,0,    0,0,-1,    0,1,0 ), glkm ),  GLKMatrix3Make(0,1,0,    -1,0,0,    0,0,1 ) );
+    }
+    else if(orientation == UIInterfaceOrientationLandscapeLeft) {
+        deviceRotationMatrix = GLKMatrix3Multiply( GLKMatrix3Multiply( GLKMatrix3Make(1,0,0,    0,0,-1,    0,1,0 ), glkm ),  GLKMatrix3Make(-1,0,0,    0,-1,0,    0,0,1 ) );
+    }
+    else if(orientation == UIInterfaceOrientationLandscapeRight) {
+        deviceRotationMatrix = GLKMatrix3Multiply( GLKMatrix3Make(1,0,0,    0,0,-1,    0,1,0 ), glkm );
+    } else {
+        deviceRotationMatrix = GLKMatrix3Multiply( GLKMatrix3Make(1,0,0,    0,0,-1,    0,1,0 ), glkm );
+    }
+    
+    return deviceRotationMatrix;
 }
 
+-(void) setInputActive:(bool)active {
+    inputActive = active;
+}
 @end

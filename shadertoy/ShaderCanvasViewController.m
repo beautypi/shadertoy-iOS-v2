@@ -143,6 +143,9 @@
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass start];
     }
+    if( _vrSettings ) {
+        [_vrSettings setInputActive:true];
+    }
 }
 
 - (void)pause {
@@ -151,6 +154,9 @@
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass pauseInputs];
     }
+    if( _vrSettings ) {
+        [_vrSettings setInputActive:false];
+    }
 }
 
 - (void)play {
@@ -158,6 +164,9 @@
     _startTime = [NSDate date];
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass resumeInputs];
+    }
+    if( _vrSettings ) {
+        [_vrSettings setInputActive:true];
     }
 }
 
@@ -215,7 +224,7 @@
     if( _soundPass ) {
         return 1.f;
     } else if( _vrSettings ) {
-        return _vrSettings.highQuality?2.f:3.f/4.f;
+        return _vrSettings.quality==VR_QUALITY_HIGH?2.f:_vrSettings.quality==VR_QUALITY_NORMAL?1.f:.5f;
     } else {
         // todo: scale factor depending on GPU type?
         return 3.f/4.f;
