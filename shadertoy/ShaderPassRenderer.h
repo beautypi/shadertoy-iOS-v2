@@ -11,12 +11,14 @@
 
 #import "APIShaderObject.h"
 #import "VRSettings.h"
+#import "ShaderSettings.h"
 
 @interface ShaderPassRenderer : NSObject
 
 - (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error;
 
 - (void) setVRSettings:(VRSettings *)vrSettings;
+- (void) setShaderSettings:(ShaderSettings *)shaderSettings;
 - (void) setFragCoordScale:(float)scale andXOffset:(float)xOffset andYOffset:(float)yOffset;
 - (void) setResolution:(float)x y:(float)y;
 - (void) setIGlobalTime:(float)iGlobalTime;
@@ -35,5 +37,8 @@
 
 - (NSNumber *) getOutputId;
 - (GLuint) getCurrentTexId;
+
+- (float) getWidth;
+- (float) getHeight;
 
 @end

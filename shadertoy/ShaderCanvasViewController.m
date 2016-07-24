@@ -33,6 +33,8 @@
     int _frame;
     
     NSDate* _renderDate;
+    VRSettings *_vrSettings;
+    ShaderSettings * _shaderSettings;
     
     void (^_grabImageCallBack)(UIImage *image);
     unsigned char _keyboardBuffer[256*2];
@@ -71,8 +73,16 @@
 #pragma mark - VR
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
-    for (ShaderPassRenderer* pass in _shaderPasses) {
-        [pass setVRSettings:vrSettings];
+    _vrSettings = vrSettings;
+}
+
+#pragma mark - Settings
+
+- (void) setShaderSettings:(ShaderSettings *)shaderSettings {
+    _shaderSettings = shaderSettings;
+    [self setDefaultCanvasScaleFactor];
+    if( [_shaderPasses count] > 1 ) {
+        [self rewind];
     }
 }
 
@@ -102,6 +112,8 @@
     } else {
         for (APIShaderPass* pass in shader.bufferPasses) {
             ShaderPassRenderer* bufferPassRenderer = [[ShaderPassRenderer alloc] init];
+            [bufferPassRenderer setVRSettings:_vrSettings];
+
             if( ![bufferPassRenderer createShaderProgram:pass theError:error] ) {
                 [self tearDownGL];
                 return NO;
@@ -110,6 +122,8 @@
         }
         
         ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
+        [passRenderer setVRSettings:_vrSettings];
+        
         if( ![passRenderer createShaderProgram:shader.imagePass theError:error] ) {
             [self tearDownGL];
             return NO;
@@ -117,7 +131,13 @@
         [_shaderPasses addObject:passRenderer];
     }
     
-    self.preferredFramesPerSecond = ([shader.bufferPasses count] || [shader vrImplemented])?60.:20.;
+    if([shader.bufferPasses count]) {
+        self.preferredFramesPerSecond = [shader useKeyboard]?60.:20.;
+    } else if(_vrSettings && _vrSettings.inputMode == VR_INPUT_DEVICE) {
+        self.preferredFramesPerSecond = 60.;
+    } else {
+        self.preferredFramesPerSecond = 20.;
+    }
     _running = NO;
     _frame = 0;
     
@@ -140,6 +160,9 @@
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass start];
     }
+    if( _vrSettings ) {
+        [_vrSettings setInputActive:true];
+    }
 }
 
 - (void)pause {
@@ -148,6 +171,9 @@
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass pauseInputs];
     }
+    if( _vrSettings ) {
+        [_vrSettings setInputActive:false];
+    }
 }
 
 - (void)play {
@@ -155,6 +181,9 @@
     _startTime = [NSDate date];
     for (ShaderPassRenderer* pass in _shaderPasses) {
         [pass resumeInputs];
+    }
+    if( _vrSettings ) {
+        [_vrSettings setInputActive:true];
     }
 }
 
@@ -211,6 +240,10 @@
 - (float) getDefaultCanvasScaleFactor {
     if( _soundPass ) {
         return 1.f;
+    } else if( _vrSettings ) {
+        return _vrSettings.quality==VR_QUALITY_HIGH?2.f:_vrSettings.quality==VR_QUALITY_NORMAL?1.f:.5f;
+    } else if( _shaderSettings && _shaderSettings.quality == SHADER_QUALITY_HIGH ) {
+        return 2.f;
     } else {
         // todo: scale factor depending on GPU type?
         return 3.f/4.f;
