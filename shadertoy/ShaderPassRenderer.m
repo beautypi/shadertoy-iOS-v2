@@ -28,6 +28,7 @@ const GLubyte Indices[] = {
 
 @interface ShaderPassRenderer () {
     VRSettings* _vrSettings;
+    ShaderSettings* _shaderSettings;
     APIShaderPass* _shaderPass;
     
     GLuint _programId;
@@ -97,6 +98,12 @@ const GLubyte Indices[] = {
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
     _vrSettings = vrSettings;
+}
+
+#pragma mark - Settings
+
+- (void) setShaderSettings:(ShaderSettings *)shaderSettings {
+    _shaderSettings = shaderSettings;
 }
 
 - (void) initVertexBuffer {
