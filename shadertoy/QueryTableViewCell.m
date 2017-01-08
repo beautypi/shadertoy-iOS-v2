@@ -38,6 +38,7 @@
 @implementation QueryTableViewCell
 
 - (void)awakeFromNib {
+    [super awakeFromNib];
     [_shaderTitle setText:@""];
     _firstUpdate = YES;
 }

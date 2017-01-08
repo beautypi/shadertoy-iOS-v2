@@ -12,7 +12,7 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
-#import <AVFoundation/AVAudioPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 #import <StreamingKit/STKAudioPlayer.h>
 
 #include <Accelerate/Accelerate.h>

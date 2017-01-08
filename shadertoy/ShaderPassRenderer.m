@@ -394,9 +394,14 @@ const GLubyte Indices[] = {
         _channelResolution[ [shaderInput getChannel]*3 + 1 ] = [shaderInput getResolutionHeight];
     }
     
+    for( int i=0; i<4; i++) {
+        _channelTime[i] = [self getIGlobalTime];
+    }
+    
     glUniform3fv(_resolutionUniform, 1, &_resolution.x );
     glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
     glUniform4f(_mouseUniform, _mouse.x * _resolution.x, _mouse.y * _resolution.y, _mouse.z * _resolution.x, _mouse.w * _resolution.y);
+    glUniform1fv(_channelTimeUniform, 4, _channelTime );
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
     glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
     glUniform1i(_frameUniform, _frame);

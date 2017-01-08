@@ -7,7 +7,7 @@
 //
 
 #import "SoundPassPlayer.h"
-#import <AVFoundation/AVAudioPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
 const int bufferBlockSize = 256*256*4;
