@@ -17,6 +17,7 @@
 		4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B51B8C7B6900928AD5 /* AboutViewController.m */; };
 		4B8610BA1B94590E00928AD5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B91B94590E00928AD5 /* Utils.m */; };
 		4B8610BE1B947F9600928AD5 /* SoundPassPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */; };
+		4B8D55071D44F6B300EAE5F7 /* ShaderSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */; };
 		4BF1F1991C54093E00D50CBE /* ShaderPassRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF1F1981C54093E00D50CBE /* ShaderPassRenderer.m */; };
 		4BF748CA1B84852A00E2F772 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748C91B84852A00E2F772 /* main.m */; };
 		4BF748CD1B84852A00E2F772 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748CC1B84852A00E2F772 /* AppDelegate.m */; };
@@ -57,6 +58,8 @@
 		4B8610BB1B94592000928AD5 /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		4B8610BC1B947F9600928AD5 /* SoundPassPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundPassPlayer.h; sourceTree = "<group>"; };
 		4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundPassPlayer.m; sourceTree = "<group>"; };
+		4B8D55051D44F6B300EAE5F7 /* ShaderSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderSettings.h; sourceTree = "<group>"; };
+		4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderSettings.m; sourceTree = "<group>"; };
 		4B9563C61BA6C23D00BAD34D /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		4BF1F1971C54093E00D50CBE /* ShaderPassRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderPassRenderer.h; sourceTree = "<group>"; };
 		4BF1F1981C54093E00D50CBE /* ShaderPassRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderPassRenderer.m; sourceTree = "<group>"; };
@@ -168,6 +171,8 @@
 				4B8610B91B94590E00928AD5 /* Utils.m */,
 				4B759EDC1BADDF93001563AA /* VRSettings.h */,
 				4B759EDD1BADDF93001563AA /* VRSettings.m */,
+				4B8D55051D44F6B300EAE5F7 /* ShaderSettings.h */,
+				4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -358,6 +363,7 @@
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
 				4B321C5C1C14362100EA227E /* ShaderInput.m in Sources */,
+				4B8D55071D44F6B300EAE5F7 /* ShaderSettings.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

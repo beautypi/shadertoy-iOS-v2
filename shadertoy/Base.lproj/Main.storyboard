@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="49e-Tb-3d3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="49e-Tb-3d3">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
@@ -227,6 +227,23 @@
                                             <action selector="shaderVRClick:" destination="1Yc-aP-wtt" eventType="touchUpInside" id="4Ls-oU-cAJ"/>
                                         </connections>
                                     </button>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mPF-mR-p92" userLabel="SettingsHD Button">
+                                        <rect key="frame" x="520" y="6" width="22" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="22" id="cFk-sb-GM8"/>
+                                            <constraint firstAttribute="width" constant="22" id="hzw-kX-7FE"/>
+                                        </constraints>
+                                        <state key="normal" image="hd"/>
+                                        <variation key="default">
+                                            <mask key="constraints">
+                                                <exclude reference="hzw-kX-7FE"/>
+                                                <exclude reference="cFk-sb-GM8"/>
+                                            </mask>
+                                        </variation>
+                                        <connections>
+                                            <action selector="shaderHDClick:" destination="1Yc-aP-wtt" eventType="touchUpInside" id="yXB-T9-GbW"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -237,6 +254,8 @@
                                     <constraint firstItem="bUS-Rc-1Hg" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="6" id="KJG-r9-PX4"/>
                                     <constraint firstItem="z3Z-zp-Yvy" firstAttribute="leading" secondItem="jCD-UI-gmR" secondAttribute="leading" constant="18" id="TfJ-qQ-kqw"/>
                                     <constraint firstAttribute="height" constant="34" id="Tsi-Lh-voH"/>
+                                    <constraint firstItem="CFC-rn-Geo" firstAttribute="leading" secondItem="mPF-mR-p92" secondAttribute="trailing" constant="16" id="ZZ2-rg-kDJ"/>
+                                    <constraint firstItem="mPF-mR-p92" firstAttribute="top" secondItem="jCD-UI-gmR" secondAttribute="top" constant="6" id="fye-ZY-azP"/>
                                     <constraint firstAttribute="bottom" secondItem="CFC-rn-Geo" secondAttribute="bottom" constant="6" id="j0S-oG-tBN"/>
                                     <constraint firstAttribute="bottom" secondItem="z3Z-zp-Yvy" secondAttribute="bottom" constant="5" id="kMg-JF-e8W"/>
                                 </constraints>
@@ -442,6 +461,7 @@
                         <outlet property="shaderCompileInfoButton" destination="CFC-rn-Geo" id="4hI-NS-Vkt"/>
                         <outlet property="shaderCompiling" destination="z3Z-zp-Yvy" id="KdN-Fo-i9v"/>
                         <outlet property="shaderDescription" destination="Ey0-HH-by2" id="kfv-cH-oKq"/>
+                        <outlet property="shaderHDButton" destination="mPF-mR-p92" id="nNG-yV-kMN"/>
                         <outlet property="shaderImageView" destination="2hd-ey-DP7" id="tpd-eb-MbB"/>
                         <outlet property="shaderInputButtonView" destination="Tic-YR-pBl" id="fTy-gc-Htd"/>
                         <outlet property="shaderInputSpaceview" destination="eZy-XE-iPn" id="q8I-ct-Ilh"/>
@@ -503,6 +523,7 @@
         <image name="arrow-left" width="256" height="256"/>
         <image name="arrow-right" width="256" height="256"/>
         <image name="arrow-up" width="256" height="256"/>
+        <image name="hd" width="22" height="22"/>
         <image name="pause" width="22" height="22"/>
         <image name="play" width="22" height="22"/>
         <image name="rewind" width="22" height="22"/>

@@ -9,10 +9,12 @@
 #import <GLKit/GLKit.h>
 #import "APIShaderObject.h"
 #import "VRSettings.h"
+#import "ShaderSettings.h"
 
 @interface ShaderCanvasViewController : GLKViewController
 
 - (void) setVRSettings:(VRSettings *)vrSettings;
+- (void) setShaderSettings:(ShaderSettings *)shaderSettings;
 - (BOOL) compileShader:(APIShaderObject *)shader soundPass:(bool)soundPass theError:(NSString **)error;
 
 - (void) start;
