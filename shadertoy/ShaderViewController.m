@@ -27,6 +27,7 @@
     APIShaderObject* _shader;
     SoundPassPlayer* _soundPassPlayer;
     VRSettings* _vrSettings;
+    ShaderSettings* _shaderSettings;
     
     UIView* _imageShaderView;
     ShaderCanvasViewController* _imageShaderViewController;
@@ -259,7 +260,9 @@
                     [_shaderCompileInfoButton setHidden:NO];
                 }
                 if( [_shader vrImplemented] && !_vrSettings ) {
-                    //                    [_shaderVRButton setHidden:NO];
+                    [_shaderVRButton setHidden:NO];
+                } else if( !_shaderSettings || (_shaderSettings && _shaderSettings.quality != SHADER_QUALITY_HIGH)) {
+                    [_shaderHDButton setHidden:NO];
                 }
             } completion:^(BOOL finished) {
                 [_shaderImageView setHidden:YES];
@@ -329,6 +332,37 @@
     }
 }
 
+#pragma mark - Settings
+
+- (void) setShaderSettings:(ShaderSettings *)shaderSettings {
+    _shaderSettings = shaderSettings;
+    [_imageShaderViewController setShaderSettings:_shaderSettings];
+}
+
+- (IBAction)shaderHDClick:(id)sender {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Quality Settings" message:@"You can run this shader in HD.\n\nWarning: most likely the shader will run very slow and running the shader in HD will drain the battery fast."];
+    [alert bk_addButtonWithTitle:@"High Quality" handler:^{
+        [self startHD];
+    }];
+    [alert bk_setCancelButtonWithTitle:@"Cancel" handler:^{
+        
+    }];
+    
+    [alert show];
+}
+
+- (void)startHD {
+    ShaderSettings * shaderSettings = [[ShaderSettings alloc] init];
+    shaderSettings.quality = SHADER_QUALITY_HIGH;
+    
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+    UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
+    
+    [((ShaderViewController *)viewController) setShaderObject:_shader];
+    [((ShaderViewController *)viewController) setShaderSettings:shaderSettings];
+    [self.navigationController pushViewController:viewController animated:YES];
+}
+
 #pragma mark - VR
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
@@ -339,6 +373,66 @@
 - (IBAction)shaderVRClick:(id)sender {
     VRSettings *vrSettings = [[VRSettings alloc] init];
     
+    [self vrChooseRenderMode:vrSettings];
+}
+
+- (void) vrChooseRenderMode:(VRSettings *)vrSettings {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render mode:"];
+    [alert bk_addButtonWithTitle:@"Cardboard" handler:^{
+        vrSettings.renderMode = VR_SPLIT_SCREEN;
+        // always use device rotation as input for cardboard
+        // [self vrChooseInput:vrSettings];
+        vrSettings.inputMode = VR_INPUT_DEVICE;
+        [self vrChooseQuality:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Cross-eyed stereo" handler:^{
+        vrSettings.renderMode = VR_CROSS_EYE;
+        [self vrChooseInput:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Anaglyph (cyan/red)" handler:^{
+        vrSettings.renderMode = VR_CYAN_RED;
+        [self vrChooseInput:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Fullscreen" handler:^{
+        vrSettings.renderMode = VR_FULL_SCREEN;
+        [self vrChooseInput:vrSettings];
+    }];
+    
+    [alert show];
+}
+
+- (void) vrChooseInput:(VRSettings *)vrSettings {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose input:"];
+    [alert bk_addButtonWithTitle:@"Touch" handler:^{
+        vrSettings.inputMode = VR_INPUT_TOUCH;
+        [self vrChooseQuality:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Device rotation" handler:^{
+        vrSettings.inputMode = VR_INPUT_DEVICE;
+        [self vrChooseQuality:vrSettings];
+    }];
+    
+    [alert show];
+}
+
+- (void) vrChooseQuality:(VRSettings *)vrSettings {
+    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render quality:"];
+    [alert bk_addButtonWithTitle:@"High Quality" handler:^{
+        vrSettings.quality = VR_QUALITY_HIGH;
+        [self vrStart:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Normal Quality" handler:^{
+        vrSettings.quality = VR_QUALITY_NORMAL;
+        [self vrStart:vrSettings];
+    }];
+    [alert bk_addButtonWithTitle:@"Low Quality" handler:^{
+        vrSettings.quality = VR_QUALITY_LOW;
+        [self vrStart:vrSettings];
+    }];
+    [alert show];
+}
+
+- (void) vrStart:(VRSettings *)vrSettings {
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
     
@@ -570,19 +664,19 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     [self.keyboardDownButton setTag:1];
     [self.keyboardDownButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
     [self.keyboardDownButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
-
+    
     [self.keyboardUpButton setTag:2];
     [self.keyboardUpButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
     [self.keyboardUpButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
-
+    
     [self.keyboardLeftButton setTag:3];
     [self.keyboardLeftButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
     [self.keyboardLeftButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
-
+    
     [self.keyboardRightButton setTag:4];
     [self.keyboardRightButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
     [self.keyboardRightButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
-
+    
     [self.keyboardSpaceButton setTag:5];
     [self.keyboardSpaceButton addTarget:self action:@selector(keydown:) forControlEvents:UIControlEventTouchDown];
     [self.keyboardSpaceButton addTarget:self action:@selector(keyup:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchCancel | UIControlEventTouchUpOutside];
@@ -590,16 +684,17 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
 
 - (void)keydown:(id) button {
     /*
-    const float KEY_W		= 87.5/256.0;
-    const float KEY_A		= 65.5/256.0;
-    const float KEY_S		= 83.5/256.0;
-    const float KEY_D		= 68.5/256.0;
-    const float KEY_LEFT  = 37.5/256.0;
-    const float KEY_UP    = 38.5/256.0;
-    const float KEY_RIGHT = 39.5/256.0;
-    const float KEY_DOWN  = 40.5/256.0;
-    const float KEY_SPACE	= 32.5/256.0;
-    */
+     const float KEY_W		= 87.5/256.0;
+     const float KEY_A		= 65.5/256.0;
+     const float KEY_S		= 83.5/256.0;
+     const float KEY_D		= 68.5/256.0;
+     const float KEY_LEFT  = 37.5/256.0;
+     const float KEY_UP    = 38.5/256.0;
+     const float KEY_RIGHT = 39.5/256.0;
+     const float KEY_DOWN  = 40.5/256.0;
+     const float KEY_SPACE	= 32.5/256.0;
+     const float KEY_ENTER = 13.5/256.0;
+     */
     if( [button tag] == 1 ) [_imageShaderViewController updateKeyboardBufferDown: 83 ];
     if( [button tag] == 1 ) [_imageShaderViewController updateKeyboardBufferDown: 40 ];
     if( [button tag] == 2 ) [_imageShaderViewController updateKeyboardBufferDown: 87 ];
@@ -609,6 +704,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferDown: 68 ];
     if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferDown: 39 ];
     if( [button tag] == 5 ) [_imageShaderViewController updateKeyboardBufferDown: 32 ];
+    if( [button tag] == 5 ) [_imageShaderViewController updateKeyboardBufferDown: 13 ];
 }
 
 - (void)keyup:(id) button {
@@ -621,6 +717,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferUp: 68 ];
     if( [button tag] == 4 ) [_imageShaderViewController updateKeyboardBufferUp: 39 ];
     if( [button tag] == 5 ) [_imageShaderViewController updateKeyboardBufferUp: 32 ];
+    if( [button tag] == 5 ) [_imageShaderViewController updateKeyboardBufferUp: 13 ];
 }
 
 @end

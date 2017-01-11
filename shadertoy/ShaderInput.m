@@ -12,7 +12,7 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
-#import <AVFoundation/AVAudioPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 #import <StreamingKit/STKAudioPlayer.h>
 
 #include <Accelerate/Accelerate.h>
@@ -268,6 +268,9 @@
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             }
         }
+        
+        _iChannelResolutionWidth = _textureInfo.width;
+        _iChannelResolutionHeight = _textureInfo.height;
     }
     if( texId < 99  ) {
         glActiveTexture(GL_TEXTURE0 + _channelSlot);
@@ -313,6 +316,10 @@
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 }
+                
+                _iChannelResolutionWidth = [shaderPass getWidth];
+                _iChannelResolutionHeight = [shaderPass getHeight];
+
             }
         }
     }
@@ -386,5 +393,19 @@
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
+
+
+- (float) getResolutionWidth {
+    return _iChannelResolutionWidth;
+}
+
+- (float) getResolutionHeight {
+    return _iChannelResolutionHeight;
+}
+
+- (int) getChannel {
+    return [[_shaderPassInput channel] intValue];
+}
+
 
 @end

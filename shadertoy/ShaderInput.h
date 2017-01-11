@@ -42,4 +42,8 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
 - (void) rewindTo:(double)time;
 - (void) mute;
 
+- (float) getResolutionWidth;
+- (float) getResolutionHeight;
+- (int) getChannel;
+
 @end

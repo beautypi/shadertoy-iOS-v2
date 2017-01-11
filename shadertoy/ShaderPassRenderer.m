@@ -28,6 +28,7 @@ const GLubyte Indices[] = {
 
 @interface ShaderPassRenderer () {
     VRSettings* _vrSettings;
+    ShaderSettings* _shaderSettings;
     APIShaderPass* _shaderPass;
     
     GLuint _programId;
@@ -39,6 +40,7 @@ const GLubyte Indices[] = {
     GLuint _dateUniform;
     GLuint _timeDeltaUniform;            // render time (in seconds)
     GLuint _frameUniform;                // shader playback frame
+    GLuint _deviceRotationUniform;
     
     GLuint _sampleRateUniform;
     float _iSampleRate;
@@ -96,6 +98,12 @@ const GLubyte Indices[] = {
 
 - (void) setVRSettings:(VRSettings *)vrSettings {
     _vrSettings = vrSettings;
+}
+
+#pragma mark - Settings
+
+- (void) setShaderSettings:(ShaderSettings *)shaderSettings {
+    _shaderSettings = shaderSettings;
 }
 
 - (void) initVertexBuffer {
@@ -252,7 +260,7 @@ const GLubyte Indices[] = {
     _timeDeltaUniform = glGetUniformLocation(_programId, "iTimeDelta");
     _frameUniform = glGetUniformLocation(_programId, "iFrame");
     _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
-    
+    _deviceRotationUniform = glGetUniformLocation(_programId, "iDeviceRotationUniform");
     
     for (APIShaderPassInput* input in _shaderPass.inputs) {
         NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
@@ -364,6 +372,14 @@ const GLubyte Indices[] = {
     }
 }
 
+- (float) getWidth {
+    return (float) _renderBufferWidth;
+}
+
+- (float) getHeight {
+    return (float) _renderBufferHeight;
+}
+
 - (void) setIGlobalTime:(float)iGlobalTime {
     _iGlobalTime = iGlobalTime;
 }
@@ -373,14 +389,31 @@ const GLubyte Indices[] = {
 }
 
 - (void)bindUniforms {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
+        _channelResolution[ [shaderInput getChannel]*3 + 0 ] = [shaderInput getResolutionWidth];
+        _channelResolution[ [shaderInput getChannel]*3 + 1 ] = [shaderInput getResolutionHeight];
+    }
+    
+    for( int i=0; i<4; i++) {
+        _channelTime[i] = [self getIGlobalTime];
+    }
+    
     glUniform3fv(_resolutionUniform, 1, &_resolution.x );
     glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
     glUniform4f(_mouseUniform, _mouse.x * _resolution.x, _mouse.y * _resolution.y, _mouse.z * _resolution.x, _mouse.w * _resolution.y);
+    glUniform1fv(_channelTimeUniform, 4, _channelTime );
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
     glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
     glUniform1i(_frameUniform, _frame);
     glUniform1f(_timeDeltaUniform, _deltaTime);
     
+    if( _deviceRotationUniform > 0 && _vrSettings ) {
+//        GLKVector3 attitude = [_vrSettings getDeviceRotation];
+//        glUniform3fv( _deviceRotationUniform, 1, &attitude.x );
+        GLKMatrix3 mat = [_vrSettings getDeviceRotationMatrix];
+        glUniformMatrix3fv(_deviceRotationUniform, 1, false, &mat.m00);
+    }
+   
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:_date];
     double seconds = [_date timeIntervalSince1970];
     glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second + (seconds - floor(seconds)) );
@@ -415,9 +448,6 @@ const GLubyte Indices[] = {
     memset (_channelResolution,0,sizeof(float) * 12);
     
     memset (&_channelUniform[0],99,sizeof(GLuint) * 4);
-    
-    free(_channelTime);
-    free(_channelResolution);
 }
 
 - (void) dealloc {
@@ -440,6 +470,9 @@ const GLubyte Indices[] = {
         [shaderInput stop];
     }
     [_shaderInputs removeAllObjects];
+        
+    free(_channelTime);
+    free(_channelResolution);
 }
 
 - (void)start {
@@ -502,11 +535,11 @@ const GLubyte Indices[] = {
     
     glUseProgram(_programId);
     
-    [self bindUniforms];
-    
     for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput bindTexture:shaderPasses keyboardBuffer:keyboardBuffer];
     }
+    
+    [self bindUniforms];
     
     glEnableVertexAttribArray(_positionSlot);
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
