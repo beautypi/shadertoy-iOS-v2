@@ -9,8 +9,8 @@
 #import "ShaderInput.h"
 
 #import <GLKit/GLKit.h>
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
+#include <OpenGLES/ES3/gl.h>
+#include <OpenGLES/ES3/glext.h>
 
 #import <AVFoundation/AVFoundation.h>
 #import <StreamingKit/STKAudioPlayer.h>
@@ -211,6 +211,8 @@
         // load texture to channel
         NSError *theError;
         
+        NSLog(@"%@", input.src);
+        
         NSString* file = [[@"." stringByAppendingString:input.src] stringByReplacingOccurrencesOfString:@".jpg" withString:@".png"];
         file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
         glGetError();
@@ -277,9 +279,9 @@
         glBindTexture(GL_TEXTURE_2D, texId);
         
         if( buffer != NULL ) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, buffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 256, 2, 0, GL_RED, GL_UNSIGNED_BYTE, buffer);
         } else {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, 256, 2, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, keyboardBuffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, 256, 2, 0, GL_RED, GL_UNSIGNED_BYTE, keyboardBuffer);
         }
         
         if( _wrapMode == REPEAT ) {

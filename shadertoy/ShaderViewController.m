@@ -12,7 +12,7 @@
 #import "NSString_stripHtml.h"
 #import "APIShaderRepository.h"
 #import "BlocksKit+UIKit.h"
-#import "UIImageView+WebCache.h"
+#import "UIImageView+AFNetworking.h"
 #import "BlocksKit.h"
 
 #import <ImageIO/ImageIO.h>
@@ -81,7 +81,9 @@
 
 - (void) viewWillAppear:(BOOL)animated {
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
-    [_shaderImageView sd_setImageWithURL:[_shader getPreviewImageUrl]];
+   
+    [_shaderImageView setImageWithURLRequest:[NSURLRequest requestWithURL:[_shader getPreviewImageUrl]] placeholderImage:nil success:nil failure:nil];
+    
     
     [_shaderName setText:_shader.shaderName];
     [_shaderUserName setText:_shader.username];
