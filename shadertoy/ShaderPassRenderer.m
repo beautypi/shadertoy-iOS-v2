@@ -9,8 +9,8 @@
 #import "ShaderPassRenderer.h"
 #import "ShaderInput.h"
 
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
+#import <OpenGLES/ES3/gl.h>
+#import <OpenGLES/ES3/glext.h>
 
 #import "Utils.h"
 
@@ -107,8 +107,8 @@ const GLubyte Indices[] = {
 }
 
 - (void) initVertexBuffer {
-    glGenVertexArraysOES(1, &_vertexArray);
-    glBindVertexArrayOES(_vertexArray);
+    glGenVertexArrays(1, &_vertexArray);
+    glBindVertexArray(_vertexArray);
     
     glGenBuffers(1, &_vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
@@ -118,7 +118,7 @@ const GLubyte Indices[] = {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
     
-    glBindVertexArrayOES(0);
+    glBindVertexArray(0);
 }
 
 - (void) initRenderBuffers {
@@ -327,7 +327,7 @@ const GLubyte Indices[] = {
     glEnableVertexAttribArray(_positionSlot);
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
     
-    glBindVertexArrayOES(_vertexArray);
+    glBindVertexArray(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
     glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
@@ -342,7 +342,7 @@ const GLubyte Indices[] = {
         
         if( oldBufferWidth >= 0 && oldBufferHeight >=0 ) {
             glBindTexture(GL_TEXTURE_2D, _copyRenderTexture);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, oldBufferWidth, oldBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, oldBufferWidth, oldBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -354,7 +354,7 @@ const GLubyte Indices[] = {
         
         [self copyTexture:_renderTexture0 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture0);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -363,7 +363,7 @@ const GLubyte Indices[] = {
         
         [self copyTexture:_renderTexture1 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT_OES, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -453,7 +453,7 @@ const GLubyte Indices[] = {
 - (void) dealloc {
     glDeleteBuffers(1, &_vertexBuffer);
     glDeleteBuffers(1, &_indexBuffer);
-    glDeleteVertexArraysOES(1, &_vertexArray);
+    glDeleteVertexArrays(1, &_vertexArray);
     glDeleteProgram(_programId);
     glDeleteProgram(_programId);
     
@@ -544,7 +544,7 @@ const GLubyte Indices[] = {
     glEnableVertexAttribArray(_positionSlot);
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
     
-    glBindVertexArrayOES(_vertexArray);
+    glBindVertexArray(_vertexArray);
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
     if( _renderToBuffer ) {
