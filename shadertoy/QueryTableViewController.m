@@ -236,6 +236,19 @@
     [self loadNormalData];
 }
 
+-(void) navigateToShader:(NSString *)shaderId {
+    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
+    UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
+    
+    APIShaderObject* shader = [_repository getShader:shaderId success:^(APIShaderObject *shader) {}];
+    [shader cancelShaderRequestOperation];
+    
+    if( shader.imagePass != NULL ) {
+        [((ShaderViewController *)viewController) setShaderObject:shader];
+        [self.navigationController pushViewController:viewController animated:YES];
+    }
+}
+
 #pragma mark - Search functions
 
 - (IBAction) searchButtonClick:(id)sender {
@@ -344,19 +357,9 @@
         [self enableControlsInView:_searchBar];
         return;
     }
-    
+        
     NSString* shaderId = [_data objectAtIndex:indexPath.row];
-    
-    UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
-    UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
-    
-    APIShaderObject* shader = [_repository getShader:shaderId success:^(APIShaderObject *shader) {}];
-    [shader cancelShaderRequestOperation];
-    
-    if( shader.imagePass != NULL ) {
-        [((ShaderViewController *)viewController) setShaderObject:shader];
-        [self.navigationController pushViewController:viewController animated:YES];
-    }
+    [self navigateToShader:shaderId];
 }
 
 @end

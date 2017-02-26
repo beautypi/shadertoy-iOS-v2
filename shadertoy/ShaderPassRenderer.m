@@ -205,7 +205,7 @@ const GLubyte Indices[] = {
     for( APIShaderPassInput* input in shaderPass.inputs )  {
         channelsUsed[[input.channel intValue]] = true;
         if( [input.ctype isEqualToString:@"cubemap"] ) {
-            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform highp samplerCube iChannel%@;\n", input.channel];
+            FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform mediump samplerCube iChannel%@;\n", input.channel];
         } else {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform highp sampler2D iChannel%@;\n", input.channel];
         }

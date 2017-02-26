@@ -15,13 +15,17 @@
 #import "defines.h"
 #import "LocalCache.h"
 
+#import "MainTabBarController.h"
+#import "QueryTableViewController.h"
+#import "APIShaderRepository.h"
+
 @interface AppDelegate () {
 }
 @end
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+- (void)initApp {
     // ff8020
     self.window.tintColor = [UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f];
     [[UITabBar appearance] setBarTintColor:[UIColor darkGrayColor]];
@@ -32,7 +36,7 @@
         [[LocalCache sharedLocalCache] clear];
         [[LocalCache sharedLocalCache] setVersion:[NSNumber numberWithInt:4]];
     }
-        
+    
     if( ![GoogleAnalyticsKey isEqualToString:@""] ) {
         [GAI sharedInstance].trackUncaughtExceptions = YES;
         [[GAI sharedInstance] trackerWithTrackingId:GoogleAnalyticsKey];
@@ -40,6 +44,40 @@
     }
     
     [Fabric with:@[CrashlyticsKit]];
+}
+
+- (void)handleURL:(NSURL *)url {
+    if( url ) {
+        NSArray<NSString *> *pathComponents = [url pathComponents];
+        if( [pathComponents count] >= 3 ) {
+            NSString* shaderId = [pathComponents objectAtIndex:2];
+            
+            MainTabBarController* mainTabBarController = (MainTabBarController *)self.window.rootViewController;
+            [mainTabBarController setSelectedIndex:0];
+            
+            UINavigationController* navigationController = [mainTabBarController.viewControllers objectAtIndex:0];
+            [navigationController popToRootViewControllerAnimated:NO];
+            
+            QueryTableViewController* queryTableViewController = [navigationController.childViewControllers objectAtIndex:0];
+            
+            [[[APIShaderRepository alloc] init] getShader:shaderId success:^(APIShaderObject *shader) {
+                [queryTableViewController navigateToShader:shaderId];
+            }];
+        }
+    }
+}
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [self initApp];
+    [self handleURL:[launchOptions objectForKey:@"url"]];
+    
+    return YES;
+}
+
+
+-(BOOL) application:(UIApplication * )application openURL:(NSURL * )url sourceApplication:(NSString * )sourceApplication annotation:(id)annotation {
+    [self handleURL:url];
+    
     return YES;
 }
 
