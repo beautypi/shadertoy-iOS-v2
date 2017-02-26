@@ -16,5 +16,5 @@ void main()  {
     if( fragCoordScaled.x >= 1. || fragCoordScaled.y >= 1. ) discard;
     
     // gl_FragColor = vec4( fragCoordScaled, 0,1); //
-    glFragColor = texture2D( sourceTexture, fragCoordScaled );
+    glFragColor = texture( sourceTexture, fragCoordScaled );
 }

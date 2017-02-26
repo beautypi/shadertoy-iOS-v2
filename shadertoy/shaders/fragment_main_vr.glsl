@@ -4,57 +4,57 @@ uniform mat3 iDeviceRotationUniform;
 
 
 #ifdef VR_SETTINGS_FULLSCREEN
-    const vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
-    const vec4 iLeftEyeDegrees = vec4( -.84, 0.47, .84, -0.47);
-    const vec3 iLeftEyeTranslation = vec3( 0., 0., 0. );
-    const vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+    #define iLeftEyeRect vec4( 0., 0., 1., 1.)
+    #define iLeftEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iLeftEyeTranslation vec3( 0., 0., 0. )
+    #define iLeftEyeRotation vec3( 0., 0., 0. )
 
-    const vec4 iRightEyeRect = vec4( 0., 0., 0., 0.);
-    const vec4 iRightEyeDegrees = vec4( -.84, 0.47, .84, -0.47);
-    const vec3 iRightEyeTranslation = vec3( 0., 0., 0. );
-    const vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+    #define iRightEyeRect vec4( 0., 0., 0., 0.)
+    #define iRightEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iRightEyeTranslation vec3( 0., 0., 0. )
+    #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
 
 
 #ifdef VR_SETTINGS_CARDBOARD
-    const vec4 iLeftEyeRect = vec4( 0., 0., .5, 1.);
-    const vec4 iLeftEyeDegrees = vec4( -.8, 0.84, .8, -0.84);
-    const vec3 iLeftEyeTranslation = vec3( -0.032, 0., 0. );
-    const vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+    #define iLeftEyeRect vec4( 0., 0., .5, 1.)
+    #define iLeftEyeDegrees vec4( -.8, 0.84, .8, -0.84)
+    #define iLeftEyeTranslation vec3( -0.032, 0., 0. )
+    #define iLeftEyeRotation vec3( 0., 0., 0. )
 
-    const vec4 iRightEyeRect = vec4( 0.5, 0., 1., 1.);
-    const vec4 iRightEyeDegrees = vec4( -.8, 0.84, .8, -0.84);
-    const vec3 iRightEyeTranslation = vec3( 0.032, 0., 0. );
-    const vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+    #define iRightEyeRect vec4( 0.5, 0., 1., 1.)
+    #define iRightEyeDegrees vec4( -.8, 0.84, .8, -0.84)
+    #define iRightEyeTranslation vec3( 0.032, 0., 0. )
+    #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
 
 
 #ifdef VR_SETTINGS_CROSS_EYE
-    const vec4 iLeftEyeRect = vec4( 0.5, 0., 1., 1.);
-    const vec4 iLeftEyeDegrees = vec4( -.84, 0.47, .84, -0.47);
-    const vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
-    const vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+    #define iLeftEyeRect vec4( 0.5, 0., 1., 1.)
+    #define iLeftEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iLeftEyeTranslation vec3( -0.063, 0., 0. )
+    #define iLeftEyeRotation vec3( 0., 0., 0. )
 
-    const vec4 iRightEyeRect = vec4( 0., 0., .5, 1.);
-    const vec4 iRightEyeDegrees = vec4( -.84, 0.47, .84, -0.47);
-    const vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
-    const vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+    #define iRightEyeRect vec4( 0., 0., .5, 1.)
+    #define iRightEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iRightEyeTranslation vec3( 0.063, 0., 0. )
+    #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
 
 
 #ifdef VR_SETTINGS_RED_CYAN
-    vec4 iLeftEyeRect = vec4( 0., 0., 1., 1.);
-    vec4 iLeftEyeDegrees = vec4( -.84, 0.47, .84, -0.47);
-    vec3 iLeftEyeTranslation = vec3( -0.063, 0., 0. );
-    vec3 iLeftEyeRotation = vec3( 0., 0., 0. );
+    #define iLeftEyeRect vec4( 0., 0., 1., 1.)
+    #define iLeftEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iLeftEyeTranslation vec3( -0.063, 0., 0. )
+    #define iLeftEyeRotation vec3( 0., 0., 0. )
 
-    vec4 iRightEyeRect = vec4( 0., 0., 1., 1.);
-    vec4 iRightEyeDegrees = vec4( -.84, 0.47, .84, -0.47);
-    vec3 iRightEyeTranslation = vec3( 0.063, 0., 0. );
-    vec3 iRightEyeRotation = vec3( 0., 0., 0. );
+    #define iRightEyeRect vec4( 0., 0., 1., 1.)
+    #define iRightEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iRightEyeTranslation vec3( 0.063, 0., 0. )
+    #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
 
-mat3 iVrMatRotate( in vec3 xyz ) {
+mat3 iVrMatRotate( vec3 xyz ) {
     vec3 si = sin(xyz);
     vec3 co = cos(xyz);
     

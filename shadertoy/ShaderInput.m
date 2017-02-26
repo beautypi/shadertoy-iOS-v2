@@ -103,14 +103,6 @@
                               
                               };
     
-    bool downloadneeded = false;
-    
-    if( [mapping objectForKey:input.src] ) {
-        input.src = mapping[input.src];
-    } else {
-        downloadneeded = true;
-    }
-    
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
     if( [input.ctype isEqualToString:@"keyboard"] ) {
         glGenTextures(1, &texId);
@@ -262,21 +254,21 @@
         GLKTextureInfo *spriteTexture;
         glGetError();
         
-        if(downloadneeded) {
-            NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
-            // TODO: use caching
-            spriteTexture = [GLKTextureLoader textureWithContentsOfURL:[NSURL URLWithString:file] options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:(_filterMode == MIPMAP)],
-                                                                                                            GLKTextureLoaderOriginBottomLeft: [NSNumber numberWithBool:vflip],
-                                                                                                            GLKTextureLoaderSRGB: [NSNumber numberWithBool:srgb]
-                                                                                                            } error:&theError];
-        } else {
-            NSString* file = [@"./presets/" stringByAppendingString:input.src];
+        if( [mapping objectForKey:input.src] ) {
+            NSString* file = [@"./presets/" stringByAppendingString:mapping[input.src]];
             file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
             
             spriteTexture = [GLKTextureLoader textureWithContentsOfFile:file options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:(_filterMode == MIPMAP)],
                                                                                        GLKTextureLoaderOriginBottomLeft: [NSNumber numberWithBool:vflip],
                                                                                        GLKTextureLoaderSRGB: [NSNumber numberWithBool:srgb]
                                                                                        } error:&theError];
+        } else {
+            NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
+            // TODO: use caching
+            spriteTexture = [GLKTextureLoader textureWithContentsOfURL:[NSURL URLWithString:file] options:@{GLKTextureLoaderGenerateMipmaps: [NSNumber numberWithBool:(_filterMode == MIPMAP)],
+                                                                                                            GLKTextureLoaderOriginBottomLeft: [NSNumber numberWithBool:vflip],
+                                                                                                            GLKTextureLoaderSRGB: [NSNumber numberWithBool:srgb]
+                                                                                                            } error:&theError];
         }
         
         _textureInfo = spriteTexture;
@@ -287,7 +279,7 @@
         // load texture to channel
         NSError *theError;
         
-        NSString* file = [@"./presets/" stringByAppendingString:input.src];
+        NSString* file = [@"./presets/" stringByAppendingString:mapping[input.src]];
         file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
         glGetError();
         
