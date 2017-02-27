@@ -9,20 +9,20 @@
 #import "QueryTableViewCell.h"
 #import "AFNetworking.h"
 #import "APIShadertoy.h"
-#import "UIImageView+WebCache.h"
+#import "UIImageView+AFNetworking.h"
 
 @implementation UIImageView (AFNetworkingFadeInAdditions)
 
 - (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholderImage fadeInWithDuration:(CGFloat)duration {
     __weak typeof (self) weakSelf = self;
-    [self sd_setImageWithURL:url
-            placeholderImage:nil
-                   completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                       if ( cacheType == SDImageCacheTypeNone ) // image was not cached
-                           [UIView transitionWithView:weakSelf duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-                               [weakSelf setImage:image];
-                           } completion:nil];
-                   }];
+
+    [self setImageWithURLRequest:[NSURLRequest requestWithURL:url] placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+        [UIView transitionWithView:weakSelf duration:duration options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+            [weakSelf setImage:image];
+        } completion:nil];
+    } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+        
+    }];
 }
 
 @end
@@ -67,7 +67,7 @@
     [super willMoveToSuperview:newSuperview];
     if(!newSuperview) {
         // cancel timers
-        [_shaderImageView sd_cancelCurrentImageLoad];
+        [_shaderImageView cancelImageRequestOperation];
         [_shader cancelShaderRequestOperation];
     }
 }
