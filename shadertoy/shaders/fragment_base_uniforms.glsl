@@ -1,9 +1,8 @@
-#extension GL_EXT_shader_texture_lod : enable
-#extension GL_OES_standard_derivatives : enable
+#version 300 es
 
 precision highp float;
 precision highp int;
-precision mediump sampler2D;
+precision highp sampler2D;
 
 uniform vec3      iResolution;                  // viewport resolution (in pixels)
 uniform float     iGlobalTime;                  // shader playback time (in seconds)

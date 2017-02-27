@@ -1,4 +1,5 @@
+out vec4 glFragColor;
 
 void main()  {
-    mainImage(gl_FragColor, gl_FragCoord.xy + ifFragCoordOffsetUniform );
+    mainImage(glFragColor, gl_FragCoord.xy + ifFragCoordOffsetUniform );
 }

@@ -17,5 +17,6 @@ typedef NS_ENUM(NSUInteger, QueryTableMode) {
 
 - (void) setSortBy:(NSString *)sortBy;
 - (void) reloadData;
+- (void) navigateToShader:(NSString *)shaderId;
 
 @end
