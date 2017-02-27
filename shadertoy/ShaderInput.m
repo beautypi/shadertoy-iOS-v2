@@ -99,7 +99,10 @@
                               @"/media/a/c3a071ecf273428bc72fc72b2dd972671de8da420a2d4f917b75d20e1c24b34c.ogv": @"vid00.png",
                               @"/media/a/e81e818ac76a8983d746784b423178ee9f6cdcdf7f8e8d719341a6fe2d2ab303.webm": @"vid01.png",
                               @"/media/a/3405e48f74815c7baa49133bdc835142948381fbe003ad2f12f5087715731153.ogv": @"vid02.png",
-                              @"/media/a/35c87bcb8d7af24c54d41122dadb619dd920646a0bd0e477e7bdc6d12876df17.webm": @"vid03.png"
+                              @"/media/a/35c87bcb8d7af24c54d41122dadb619dd920646a0bd0e477e7bdc6d12876df17.webm": @"vid03.png",
+                              
+                              @"webcam": @"webcam.png",
+                              @"music": @"music.png"
                               
                               };
     
@@ -112,8 +115,8 @@
     }
     
     if( [input.ctype isEqualToString:@"video"] ) {
-        input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
-        input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
+   //     input.src = [input.src stringByReplacingOccurrencesOfString:@".webm" withString:@".png"];
+   //     input.src = [input.src stringByReplacingOccurrencesOfString:@".ogv" withString:@".png"];
         input.ctype = @"texture";
     }
     
@@ -214,7 +217,7 @@
             }
             
         } else {
-            input.src = [[@"/presets/" stringByAppendingString:input.ctype] stringByAppendingString:@".png"];
+            input.src = input.ctype;
             input.ctype = @"texture";
         }
     }
