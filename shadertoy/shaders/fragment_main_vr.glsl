@@ -66,6 +66,9 @@ mat3 iVrMatRotate( vec3 xyz ) {
 out vec4 glFragColor;
 
 void main()  {
+    glFragColor.w = 1.;
+
+    
     vec2 fragCoordScaled = (gl_FragCoord.xy + ifFragCoordOffsetUniform.xy) / iResolution.xy;
     
     bool leftEye  = all( greaterThanEqual( fragCoordScaled.xy, iLeftEyeRect.xy ) ) && all( lessThanEqual( fragCoordScaled.xy, iLeftEyeRect.zw ) );
@@ -114,6 +117,4 @@ void main()  {
 #ifdef VR_SETTINGS_RED_CYAN
     glFragColor.xyz *= vec3( eyeID, 1.0-eyeID, 1.0-eyeID );
 #endif
-    
-    glFragColor.w = 1.;
 }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3022F184A64286F3C387256E /* Pods_Shadertoy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 358EDFF278A0EE9996A0232F /* Pods_Shadertoy.framework */; };
+		4B1C95BD1ED6DC4400FC91D1 /* TextureHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */; };
 		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; };
 		4B321C5C1C14362100EA227E /* ShaderInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C5B1C14362100EA227E /* ShaderInput.m */; };
 		4B321C5E1C14B2DD00EA227E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B321C5D1C14B2DD00EA227E /* Accelerate.framework */; };
@@ -43,6 +44,8 @@
 		2800C908504AD9E3F8AB4736 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		358EDFF278A0EE9996A0232F /* Pods_Shadertoy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shadertoy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4874C87E02ECA6C569F740F2 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B1C95BB1ED6DC4400FC91D1 /* TextureHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureHelper.h; sourceTree = "<group>"; };
+		4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureHelper.m; sourceTree = "<group>"; };
 		4B2FD9E21BC16FC20026F317 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = shaders; sourceTree = "<group>"; };
 		4B321C5A1C14362100EA227E /* ShaderInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderInput.h; sourceTree = "<group>"; };
 		4B321C5B1C14362100EA227E /* ShaderInput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderInput.m; sourceTree = "<group>"; };
@@ -52,6 +55,7 @@
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
+		4B745CA51ED20F5700A9FDD8 /* stb_image.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		4B759EDC1BADDF93001563AA /* VRSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRSettings.h; sourceTree = "<group>"; };
 		4B759EDD1BADDF93001563AA /* VRSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VRSettings.m; sourceTree = "<group>"; };
 		4B8610B41B8C7B6900928AD5 /* AboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
@@ -176,6 +180,9 @@
 				4B759EDD1BADDF93001563AA /* VRSettings.m */,
 				4B8D55051D44F6B300EAE5F7 /* ShaderSettings.h */,
 				4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */,
+				4B745CA51ED20F5700A9FDD8 /* stb_image.h */,
+				4B1C95BB1ED6DC4400FC91D1 /* TextureHelper.h */,
+				4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -367,6 +374,7 @@
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
 				4B321C611C15952A00EA227E /* APISoundCloud.m in Sources */,
 				4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */,
+				4B1C95BD1ED6DC4400FC91D1 /* TextureHelper.m in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
 				4B321C5C1C14362100EA227E /* ShaderInput.m in Sources */,
@@ -492,6 +500,7 @@
 				DEVELOPMENT_TEAM = 98UZZR2W46;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -512,6 +521,7 @@
 				DEVELOPMENT_TEAM = 98UZZR2W46;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
