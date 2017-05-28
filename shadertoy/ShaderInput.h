@@ -28,7 +28,8 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
     WEBCAM,
     MUSIC,
     MICROPHONE,
-    SOUNDCLOUD
+    SOUNDCLOUD,
+    BUFFER
 };
 
 @interface ShaderInput : NSObject

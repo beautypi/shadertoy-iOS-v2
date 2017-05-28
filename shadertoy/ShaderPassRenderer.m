@@ -135,7 +135,7 @@ const GLubyte Indices[] = {
         glGenTextures(1, &_renderTexture0);
         glGenTextures(1, &_renderTexture1);
         glGenTextures(1, &_copyRenderTexture);
-        
+                
         glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     }
 }
@@ -408,8 +408,6 @@ const GLubyte Indices[] = {
     glUniform1f(_timeDeltaUniform, _deltaTime);
     
     if( _deviceRotationUniform > 0 && _vrSettings ) {
-//        GLKVector3 attitude = [_vrSettings getDeviceRotation];
-//        glUniform3fv( _deviceRotationUniform, 1, &attitude.x );
         GLKMatrix3 mat = [_vrSettings getDeviceRotationMatrix];
         glUniformMatrix3fv(_deviceRotationUniform, 1, false, &mat.m00);
     }
