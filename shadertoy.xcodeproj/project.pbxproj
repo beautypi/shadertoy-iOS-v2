@@ -500,7 +500,7 @@
 				DEVELOPMENT_TEAM = 98UZZR2W46;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -521,7 +521,7 @@
 				DEVELOPMENT_TEAM = 98UZZR2W46;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = shadertoy/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";

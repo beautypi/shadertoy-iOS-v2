@@ -36,6 +36,7 @@ const GLubyte Indices[] = {
     GLuint _positionSlot;
     GLuint _resolutionUniform;
     GLuint _globalTimeUniform;
+    GLuint _timeUniform;
     GLuint _mouseUniform;
     GLuint _dateUniform;
     GLuint _timeDeltaUniform;            // render time (in seconds)
@@ -252,6 +253,7 @@ const GLubyte Indices[] = {
     // Frag Shader uniforms
     _resolutionUniform = glGetUniformLocation(_programId, "iResolution");
     _globalTimeUniform = glGetUniformLocation(_programId, "iGlobalTime");
+    _timeUniform = glGetUniformLocation(_programId, "iTime");
     _mouseUniform = glGetUniformLocation(_programId, "iMouse");
     _dateUniform = glGetUniformLocation(_programId, "iDate");
     _sampleRateUniform = glGetUniformLocation(_programId, "iSampleRate");
@@ -400,6 +402,7 @@ const GLubyte Indices[] = {
     
     glUniform3fv(_resolutionUniform, 1, &_resolution.x );
     glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
+    glUniform1f(_timeUniform, [self getIGlobalTime] );
     glUniform4f(_mouseUniform, _mouse.x * _resolution.x, _mouse.y * _resolution.y, _mouse.z * _resolution.x, _mouse.w * _resolution.y);
     glUniform1fv(_channelTimeUniform, 4, _channelTime );
     glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
