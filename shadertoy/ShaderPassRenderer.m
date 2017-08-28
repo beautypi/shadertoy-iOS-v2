@@ -528,8 +528,8 @@ const GLubyte Indices[] = {
     }
     
     glViewport(0, 0, _resolution.x, _resolution.y);
-    
-    if( !_renderToBuffer ) {
+
+    if( !_renderToBuffer || _frame == 0 ) {
         glClearColor(0.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT);
     }

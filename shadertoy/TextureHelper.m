@@ -51,8 +51,7 @@
         
         // create opengl es texture
         glGenTextures(1, &_texId);
-        glBindTexture(GL_TEXTURE_2D, _texId);
-        
+
         _isInitialised = NO;
     }
     return self;
@@ -80,7 +79,6 @@
     }
     
     free(data);
-    
 }
 
 - (void) loadFromURL:(NSString *)url {
@@ -125,7 +123,6 @@
                         _newDataLoaded = true;
                     }
                 }] resume];
-    
 }
 
 - (void) loadData:(unsigned char *)data width:(int)width height:(int)height channels:(int)channels {
@@ -136,13 +133,11 @@
     GLenum format=GL_RGBA;
     GLenum sourceFormat=GL_RGBA;
     
-    if (channels==3)
-    {
+    if (channels == 3) {
         format=GL_RGB;
         sourceFormat=GL_RGB;
     }
-    if (channels==1)
-    {
+    if (channels == 1) {
         format=GL_R8;
         sourceFormat=GL_RED;
     }

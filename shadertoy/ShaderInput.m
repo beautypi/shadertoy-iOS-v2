@@ -215,6 +215,7 @@
             }];
             
             if( [input.ctype isEqualToString:@"musicstream"] ) {
+                _type = SOUNDCLOUD;
                 APISoundCloud* soundCloud = [[APISoundCloud alloc] init];
                 [soundCloud resolve:input.src success:^(NSDictionary *resultDict) {
                     NSString* url = [resultDict objectForKey:@"stream_url"];
@@ -226,6 +227,7 @@
                     }
                 }];
             } else {
+                _type = MUSIC;
                 NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
                 [_audioPlayer play:url];
             }
@@ -256,9 +258,11 @@
 }
 
 - (void) bindTexture:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
+    // NSLog(@"Bind input %s to %d", [_shaderPassInput.src cStringUsingEncoding:NSUTF8StringEncoding], _channelSlot );
+    
+    glActiveTexture(GL_TEXTURE0 + _channelSlot);
+    
     if( _type == BUFFER ) {
-        glActiveTexture(GL_TEXTURE0 + _channelSlot);
-        
         NSNumber *inputId = _shaderPassInput.inputId;
         
         for( ShaderPassRenderer *shaderPass in shaderPasses ) {
