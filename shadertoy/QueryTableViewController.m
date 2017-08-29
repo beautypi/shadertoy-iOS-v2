@@ -24,7 +24,7 @@
     NSString* _sortBy;
     NSArray* _data;
     
-    AFHTTPRequestOperation* _currentAFRequestOperation;
+    NSURLSessionDataTask*  _currentAFRequestOperation;
     
     UISearchBar*            _searchBar;
     NSString*               _searchQuery;
