@@ -43,6 +43,35 @@ const GLubyte Indices[] = {
     GLuint _frameUniform;                // shader playback frame
     GLuint _deviceRotationUniform;
     
+//    
+//    this.mRenderer.SetShaderConstant1FV( "iChannelTime", times );              // OBSOLETE
+//    this.mRenderer.SetShaderConstant4FV( "iDate", dates );
+//    this.mRenderer.SetShaderConstant3FV( "iChannelResolution", resos );        // OBSOLETE
+//    this.mRenderer.SetShaderConstant1F(  "iSampleRate", this.mSampleRate);
+//    this.mRenderer.SetShaderTextureUnit( "iChannel0", 0 );
+//    this.mRenderer.SetShaderTextureUnit( "iChannel1", 1 );
+//    this.mRenderer.SetShaderTextureUnit( "iChannel2", 2 );
+//    this.mRenderer.SetShaderTextureUnit( "iChannel3", 3 );
+//    this.mRenderer.SetShaderConstant1I(  "iFrame", this.mFrame );
+//    this.mRenderer.SetShaderConstant1F(  "iTimeDelta", dtime);
+//    this.mRenderer.SetShaderConstant1F(  "iFrameRate", fps );
+//    
+//    this.mRenderer.SetShaderConstant1F(  "iChannel[0].time",       times[0] );
+//    this.mRenderer.SetShaderConstant1F(  "iChannel[1].time",       times[1] );
+//    this.mRenderer.SetShaderConstant1F(  "iChannel[2].time",       times[2] );
+//    this.mRenderer.SetShaderConstant1F(  "iChannel[3].time",       times[3] );
+//    this.mRenderer.SetShaderConstant3F(  "iChannel[0].resolution", resos[0], resos[ 1], resos[ 2] );
+//    this.mRenderer.SetShaderConstant3F(  "iChannel[1].resolution", resos[3], resos[ 4], resos[ 5] );
+//    this.mRenderer.SetShaderConstant3F(  "iChannel[2].resolution", resos[6], resos[ 7], resos[ 8] );
+//    this.mRenderer.SetShaderConstant3F(  "iChannel[3].resolution", resos[9], resos[10], resos[11] );
+
+//    header += "struct Channel\n";
+//    header += "{\n";
+//    header += "    vec3  resolution;\n";
+//    header += "    float time;\n";
+//    header += "};\n";
+//    header += "uniform Channel iChannel[4];\n";
+    
     GLuint _sampleRateUniform;
     float _iSampleRate;
     GLuint _channelResolutionUniform;
