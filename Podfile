@@ -5,12 +5,11 @@ platform :ios, '9.0'
 def pods
 pod 'AFNetworking'
 pod 'GoogleAnalytics'
-pod 'NSString_stripHtml', '~> 0.1'
+pod 'NSString_stripHtml'
 pod 'BlocksKit'
-pod 'NSString-UrlEncode', '~> 2.0'
+pod 'NSString-UrlEncode'
 pod 'Fabric'
 pod 'Crashlytics'
-pod 'StreamingKit'
 end
 
 target 'Shadertoy' do

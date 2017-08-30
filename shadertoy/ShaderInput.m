@@ -12,8 +12,6 @@
 #include <OpenGLES/ES3/glext.h>
 
 #import <AVFoundation/AVFoundation.h>
-#import <StreamingKit/STKAudioPlayer.h>
-
 #include <Accelerate/Accelerate.h>
 
 #import "Utils.h"
@@ -22,32 +20,179 @@
 #import "ShaderPassRenderer.h"
 #include "TextureHelper.h"
 
+#pragma mark - TapContext
+
+typedef struct TapContext {
+    void *audioTap;
+    Float64 sampleRate;
+    UInt32 numSamples;
+    FFTSetup fftSetup;
+    COMPLEX_SPLIT split;
+    float *window;
+    float *inReal;
+    
+    float * tempBuffer;
+    unsigned char * output;    
+} TapContext;
+
+
+#pragma mark - AudioTap Callbacks
+
+static void TapInit(MTAudioProcessingTapRef tap, void *clientInfo, void **tapStorageOut)
+{
+    TapContext *context = calloc(1, sizeof(TapContext));
+    context->audioTap = clientInfo;
+    context->sampleRate = NAN;
+    context->numSamples = 4096;
+    
+    vDSP_Length log2n = log2f((float)context->numSamples);
+    
+    int nOver2 = context->numSamples/2;
+    
+    context->inReal = (float *) malloc(context->numSamples * sizeof(float));
+    context->split.realp = (float *) malloc(nOver2*sizeof(float));
+    context->split.imagp = (float *) malloc(nOver2*sizeof(float));
+    
+    context->tempBuffer =(float *) malloc(context->numSamples * sizeof(float));
+    context->output = (unsigned char *) malloc(512 * sizeof(unsigned char));
+    
+    context->fftSetup = vDSP_create_fftsetup(log2n, FFT_RADIX2);
+    
+    context->window = (float *) malloc(context->numSamples * sizeof(float));
+    vDSP_hann_window(context->window, context->numSamples, vDSP_HANN_DENORM);
+    
+    *tapStorageOut = context;
+}
+
+static void TapPrepare(MTAudioProcessingTapRef tap, CMItemCount numberFrames, const AudioStreamBasicDescription *format)
+{
+    TapContext *context = (TapContext *)MTAudioProcessingTapGetStorage(tap);
+    context->sampleRate = format->mSampleRate;
+    
+    if (format->mFormatFlags & kAudioFormatFlagIsNonInterleaved) {
+        NSLog(@"is Non Interleaved");
+    }
+    
+    if (format->mFormatFlags & kAudioFormatFlagIsSignedInteger) {
+        NSLog(@"dealing with integers");
+    }
+}
+
+
+static  void TapProcess(MTAudioProcessingTapRef tap, CMItemCount numberFrames, MTAudioProcessingTapFlags flags,
+                        AudioBufferList *bufferListInOut, CMItemCount *numberFramesOut, MTAudioProcessingTapFlags *flagsOut)
+{
+    OSStatus status;
+    
+    status = MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, NULL, numberFramesOut);
+    if (status != noErr) {
+        NSLog(@"MTAudioProcessingTapGetSourceAudio: %d", (int)status);
+        return;
+    }
+    
+    //UInt32 bufferCount = bufferListInOut->mNumberBuffers;
+    
+    AudioBuffer *firstBuffer = &bufferListInOut->mBuffers[1];
+    
+    float *bufferData = firstBuffer->mData;
+    //UInt32 dataSize = firstBuffer->mDataByteSize;
+    //printf(": %li", dataSize);
+    
+    
+    TapContext *context = (TapContext *)MTAudioProcessingTapGetStorage(tap);
+    
+    vDSP_vmul(bufferData, 1, context->window, 1, context->inReal, 1, context->numSamples);
+    
+    vDSP_ctoz((COMPLEX *)context->inReal, 2, &context->split, 1, context->numSamples/2);
+    
+    
+    vDSP_Length log2n = log2f((float)context->numSamples);
+    vDSP_fft_zrip(context->fftSetup, &context->split, 1, log2n, FFT_FORWARD);
+    context->split.imagp[0] = 0.0;
+    
+    const float one = 1;
+    float scale = (float)1.0 / (2 * context->numSamples);
+    
+    
+    vDSP_vsmul(context->split.realp, 1, &scale, context->split.realp, 1, context->numSamples/2);
+    vDSP_vsmul(context->split.imagp, 1, &scale, context->split.imagp, 1, context->numSamples/2);
+    
+    //Zero out the nyquist value
+    context->split.imagp[0] = 0.0;
+    
+    //Convert the fft data to dB
+    vDSP_zvmags(&context->split, 1, context->tempBuffer, 1, context->numSamples/2);
+    
+    
+    //In order to avoid taking log10 of zero, an adjusting factor is added in to make the minimum value equal -128dB
+    //      vDSP_vsadd(obtainedReal, 1, &kAdjust0DB, obtainedReal, 1, frameCount/2);
+    vDSP_vdbcon(context->tempBuffer, 1, &one, context->tempBuffer, 1, context->numSamples/2, 0);
+    
+    // min decibels is set to -100
+    // max decibels is set to -30
+    // calculated range is -128 to 0, so adjust:
+    float addvalue = 74;
+    vDSP_vsadd(context->tempBuffer, 1, &addvalue, context->tempBuffer, 1, context->numSamples/2);
+    scale = 5.f; //256.f / frameCount;
+    vDSP_vsmul(context->tempBuffer, 1, &scale, context->tempBuffer, 1, context->numSamples/2);
+    
+    float vmin = 0;
+    float vmax = 255;
+    
+    vDSP_vclip(context->tempBuffer, 1, &vmin, &vmax, context->tempBuffer, 1, context->numSamples/2);
+    vDSP_vfixu8(context->tempBuffer, 1, context->output, 1, MIN(256,context->numSamples/2));
+    
+    memcpy(context->tempBuffer, bufferData, context->numSamples * sizeof(float));
+
+    addvalue = 1.;
+    vDSP_vsadd(context->tempBuffer, 1, &addvalue, context->tempBuffer, 1, MIN(256,context->numSamples/2));
+    scale = 128.f;
+    vDSP_vsmul(context->tempBuffer, 1, &scale, context->tempBuffer, 1, MIN(256,context->numSamples/2));
+    vDSP_vclip(context->tempBuffer, 1, &vmin, &vmax, context->tempBuffer, 1,  MIN(256,context->numSamples/2));
+    vDSP_vfixu8(context->tempBuffer, 1, &context->output[256], 1, MIN(256,context->numSamples/2));
+    
+    ShaderInput *audioTap = (__bridge ShaderInput *)context->audioTap;
+    [audioTap updateSpectrum:context->output];
+}
+
+static void TapUnprepare(MTAudioProcessingTapRef tap)
+{
+    
+}
+
+static void TapFinalize(MTAudioProcessingTapRef tap)
+{
+    TapContext *context = (TapContext *)MTAudioProcessingTapGetStorage(tap);
+    
+    free(context->split.realp);
+    free(context->split.imagp);
+    free(context->inReal);
+    free(context->window);
+    
+    free(context->tempBuffer);
+    free(context->output);
+    
+    context->fftSetup = nil;
+    context->audioTap = nil;
+    free(context);
+}
+
 @interface ShaderInput () {
     APIShaderPassInput *_shaderPassInput;
-
+    
     ShaderInputType _type;
     ShaderInputFilterMode _filterMode;
     ShaderInputWrapMode _wrapMode;
     
     TextureHelper *_textureHelper;
     
-    STKAudioPlayer *_audioPlayer;
-    
     float _iChannelTime;
     float _iChannelResolutionWidth;
     float _iChannelResolutionHeight;
     int _channelSlot;
     
-    float* window;
-    float* obtainedReal;
-    float* originalReal;
-    unsigned char* _buffer;
-    int fftStride;
-    
-    FFTSetup setupReal;
-    DSPSplitComplex fftInput;
-    
-    STKAudioPlayerOptions options;
+    unsigned char *_buffer;
+    AVPlayer* _avplayer;
 }
 @end
 
@@ -58,7 +203,7 @@
     _shaderPassInput = input;
     _buffer = NULL;
     _channelSlot = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
-
+    
     bool vflip = NO;
     bool srgb = NO;
     
@@ -135,109 +280,25 @@
     }
     
     if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"] || [input.ctype isEqualToString:@"webcam"] ) {
-        
         if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"]) {
-            options.enableVolumeMixer = false;
-            memset(options.equalizerBandFrequencies,0,4);
-            options.flushQueueOnSeek = false;
-            options.gracePeriodAfterSeekInSeconds = 0.25f;
-            options.readBufferSize = 2048;
-            options.secondsRequiredToStartPlaying = 0.25f;
-            options.secondsRequiredToStartPlayingAfterBufferUnderun = 0;
-            
-            _audioPlayer = [[STKAudioPlayer alloc] initWithOptions:options];
-            
-            [self setupFFT];
-            [_audioPlayer appendFrameFilterWithName:@"STKSpectrumAnalyzerFilter" block:^(UInt32 channelsPerFrame, UInt32 bytesPerFrame, UInt32 frameCount, void* frames) {
-                
-                int log2n = log2f(frameCount);
-                frameCount = 1 << log2n;
-                
-                SInt16* samples16 = (SInt16*)frames;
-                SInt32* samples32 = (SInt32*)frames;
-                
-                if (bytesPerFrame / channelsPerFrame == 2)
-                {
-                    for (int i = 0, j = 0; i < frameCount * channelsPerFrame; i+= channelsPerFrame, j++)
-                    {
-                        originalReal[j] = samples16[i] / 32768.0;
-                    }
-                }
-                else if (bytesPerFrame / channelsPerFrame == 4)
-                {
-                    for (int i = 0, j = 0; i < frameCount * channelsPerFrame; i+= channelsPerFrame, j++)
-                    {
-                        originalReal[j] = samples32[i] / 32768.0;
-                    }
-                }
-                
-                vDSP_ctoz((COMPLEX*)originalReal, 2, &fftInput, 1, frameCount);
-                
-                const float one = 1;
-                float scale = (float)1.0 / (2 * frameCount);
-                
-                //Take the fft and scale appropriately
-                vDSP_fft_zrip(setupReal, &fftInput, 1, log2n, FFT_FORWARD);
-                vDSP_vsmul(fftInput.realp, 1, &scale, fftInput.realp, 1, frameCount/2);
-                vDSP_vsmul(fftInput.imagp, 1, &scale, fftInput.imagp, 1, frameCount/2);
-                
-                //Zero out the nyquist value
-                fftInput.imagp[0] = 0.0;
-                
-                //Convert the fft data to dB
-                vDSP_zvmags(&fftInput, 1, obtainedReal, 1, frameCount/2);
-                
-                
-                //In order to avoid taking log10 of zero, an adjusting factor is added in to make the minimum value equal -128dB
-                //      vDSP_vsadd(obtainedReal, 1, &kAdjust0DB, obtainedReal, 1, frameCount/2);
-                vDSP_vdbcon(obtainedReal, 1, &one, obtainedReal, 1, frameCount/2, 0);
-                
-                // min decibels is set to -100
-                // max decibels is set to -30
-                // calculated range is -128 to 0, so adjust:
-                float addvalue = 70;
-                vDSP_vsadd(obtainedReal, 1, &addvalue, obtainedReal, 1, frameCount/2);
-                scale = 5.f; //256.f / frameCount;
-                vDSP_vsmul(obtainedReal, 1, &scale, obtainedReal, 1, frameCount/2);
-                
-                float vmin = 0;
-                float vmax = 255;
-                
-                vDSP_vclip(obtainedReal, 1, &vmin, &vmax, obtainedReal, 1, frameCount/2);
-                vDSP_vfixu8(obtainedReal, 1, _buffer, 1, MIN(256,frameCount/2));
-                
-                addvalue = 1.;
-                vDSP_vsadd(originalReal, 1, &addvalue, originalReal, 1, MIN(256,frameCount/2));
-                scale = 128.f;
-                vDSP_vsmul(originalReal, 1, &scale, originalReal, 1, MIN(256,frameCount/2));
-                vDSP_vclip(originalReal, 1, &vmin, &vmax, originalReal, 1,  MIN(256,frameCount/2));
-                vDSP_vfixu8(originalReal, 1, &_buffer[256], 1, MIN(256,frameCount/2));
-            }];
-            
             if( [input.ctype isEqualToString:@"musicstream"] ) {
                 _type = SOUNDCLOUD;
                 APISoundCloud* soundCloud = [[APISoundCloud alloc] init];
                 [soundCloud resolve:input.src success:^(NSDictionary *resultDict) {
                     NSString* url = [resultDict objectForKey:@"stream_url"];
                     url = [url stringByAppendingString:@"?client_id=64a52bb31abd2ec73f8adda86358cfbf"];
-                    
-                    [_audioPlayer play:url];
-                    for( int i=0; i<100; i++ ) {
-                        [_audioPlayer queue:url];
-                    }
+                    [self playUrl:url];
                 }];
             } else {
                 _type = MUSIC;
                 NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
-                [_audioPlayer play:url];
+                [self playUrl:url];
             }
-            
             _textureHelper = [[TextureHelper alloc] initWithType:MUSIC vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
         } else {
             _type = TEXTURE2D;
         }
     }
-    
     
     if( _type == TEXTURE2D || [input.ctype isEqualToString:@"texture"] || [input.ctype isEqualToString:@"cubemap"] ) {
         _type = [input.ctype isEqualToString:@"cubemap"] ? TEXTURECUBE : TEXTURE2D;
@@ -250,7 +311,7 @@
             [_textureHelper loadFromFile:file];
         } else {
             NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
-         
+            
             _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
             [_textureHelper loadFromURL:file];
         }
@@ -296,33 +357,70 @@
     }
 }
 
+- (void) playUrl:(NSString*) url {
+    NSError *sessionError = nil;
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&sessionError];
+    [[AVAudioSession sharedInstance] setActive:YES error:nil];
+    AVPlayerItem* item = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
+    
+    AVMutableAudioMixInputParameters *inputParams = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:item.asset.tracks[0]];
+    
+    //MTAudioProcessingTap
+    MTAudioProcessingTapCallbacks callbacks;
+    
+    callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
+    
+    callbacks.init = TapInit;
+    callbacks.prepare = TapPrepare;
+    callbacks.process = TapProcess;
+    callbacks.unprepare = TapUnprepare;
+    callbacks.finalize = TapFinalize;
+    callbacks.clientInfo = (__bridge void *)self;
+    
+    MTAudioProcessingTapRef tapRef;
+    OSStatus err = MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks,
+                                              kMTAudioProcessingTapCreationFlag_PostEffects, &tapRef);
+    
+    if (err || !tapRef) {
+        NSLog(@"Unable to create AudioProcessingTap.");
+        return;
+    }
+    
+    
+    inputParams.audioTapProcessor = tapRef;
+    
+    // Create a new AVAudioMix and assign it to our AVPlayerItem
+    AVMutableAudioMix *audioMix = [AVMutableAudioMix audioMix];
+    audioMix.inputParameters = @[inputParams];
+    item.audioMix = audioMix;
+    
+    _avplayer = [AVPlayer playerWithPlayerItem:item];
+    [_avplayer play];
+}
+
+- (void) updateSpectrum:(unsigned char *)data {
+    _buffer = data;
+}
+
 - (void) mute {
     
 }
 
 - (void) pause {
-    if( _audioPlayer ) {
-        [_audioPlayer pause];
+    if( _avplayer ) {
+        [_avplayer pause];
     }
 }
 
 - (void) play {
-    if( _audioPlayer ) {
-        [_audioPlayer resume];
+    if( _avplayer ) {
+        [_avplayer play];
     }
 }
 
 - (void) rewindTo:(double)time {
-    if( _audioPlayer ) {
-        [_audioPlayer seekToTime:time];
-    }
-}
-
-- (void) stop {
-    if( _audioPlayer ) {
-        [_audioPlayer removeFrameFilterWithName:@"STKSpectrumAnalyzerFilter"];
-        [_audioPlayer stop];
-        [_audioPlayer dispose];
+    if( _avplayer ) {
+        [_avplayer seekToTime:CMTimeMakeWithSeconds(time,120)];
     }
 }
 
@@ -330,34 +428,14 @@
     if( _textureHelper ) {
         _textureHelper = nil;
     }
-    if( _audioPlayer ) {
-        [_audioPlayer stop];
-        [_audioPlayer dispose];
-        _audioPlayer = nil;
+    if( _avplayer ) {
+        AVMutableAudioMixInputParameters *params = (AVMutableAudioMixInputParameters *) _avplayer.currentItem.audioMix.inputParameters[0];
+        MTAudioProcessingTapRef tap = params.audioTapProcessor;
+        _avplayer.currentItem.audioMix = nil;
+        _avplayer = nil;
+        CFRelease(tap);
     }
 }
-
-- (void) setupFFT {
-    int maxSamples = 4096;
-    int log2n = log2f(maxSamples);
-    int n = 1 << log2n;
-    
-    fftStride = 1;
-    int nOver2 = maxSamples / 2;
-    
-    fftInput.realp = (float*)calloc(nOver2, sizeof(float));
-    fftInput.imagp =(float*)calloc(nOver2, sizeof(float));
-    
-    obtainedReal = (float*)calloc(n, sizeof(float));
-    originalReal = (float*)calloc(n, sizeof(float));
-    window = (float*)calloc(maxSamples, sizeof(float));
-    _buffer = (unsigned char*)calloc(n, sizeof(unsigned char));
-    
-    vDSP_blkman_window(window, maxSamples, 0);
-    
-    setupReal = vDSP_create_fftsetup(log2n, FFT_RADIX2);
-}
-
 
 - (float) getResolutionWidth {
     return _iChannelResolutionWidth;
@@ -370,6 +448,5 @@
 - (int) getChannel {
     return [[_shaderPassInput channel] intValue];
 }
-
 
 @end

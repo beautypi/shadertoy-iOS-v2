@@ -236,7 +236,6 @@
                 [myAlertController addAction: [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                                {
                                                    [myAlertController dismissViewControllerAnimated:YES completion:nil];
-                                                   
                                                }]];
                 [self presentViewController:myAlertController animated:YES completion:nil];
             } forControlEvents:UIControlEventTouchDown];
@@ -264,7 +263,7 @@
                                                    [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                                    
                                                }]];
-                [self presentViewController:myAlertController animated:YES completion:nil];
+                [weakSelf presentViewController:myAlertController animated:YES completion:nil];
             } forControlEvents:UIControlEventTouchDown];
             
             [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
@@ -357,10 +356,12 @@
 }
 
 - (IBAction)shaderHDClick:(id)sender {
+    __weak typeof (self) weakSelf = self;
+    
     UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Quality Settings" message:@"You can run this shader in HD.\n\nWarning: most likely the shader will run very slow and running the shader in HD will drain the battery fast." preferredStyle:UIAlertControllerStyleAlert ];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"High Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
-                                       [self startHD];
+                                       [weakSelf startHD];
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        
                                    }]];
@@ -398,6 +399,8 @@
 }
 
 - (void) vrChooseRenderMode:(VRSettings *)vrSettings {
+    __weak typeof (self) weakSelf = self;
+    
     UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"VR Settings" message:@"Choose render mode:" preferredStyle:UIAlertControllerStyleAlert ];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cardboard" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
@@ -405,73 +408,77 @@
                                        // always use device rotation as input for cardboard
                                        // [self vrChooseInput:vrSettings];
                                        vrSettings.inputMode = VR_INPUT_DEVICE;
-                                       [self vrChooseQuality:vrSettings];
+                                       [weakSelf vrChooseQuality:vrSettings];
                                        
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cross-eyed stereo" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.renderMode = VR_CROSS_EYE;
-                                       [self vrChooseInput:vrSettings];
+                                       [weakSelf vrChooseInput:vrSettings];
                                        
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Anaglyph (cyan/red)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.renderMode = VR_CYAN_RED;
-                                       [self vrChooseInput:vrSettings];
+                                       [weakSelf vrChooseInput:vrSettings];
                                        
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Fullscreen" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.renderMode = VR_FULL_SCREEN;
-                                       [self vrChooseInput:vrSettings];
+                                       [weakSelf vrChooseInput:vrSettings];
                                        
                                    }]];
     [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 - (void) vrChooseInput:(VRSettings *)vrSettings {
+    __weak typeof (self) weakSelf = self;
+    
     UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"VR Settings" message:@"Choose input:" preferredStyle:UIAlertControllerStyleAlert ];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Touch" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.inputMode = VR_INPUT_TOUCH;
-                                       [self vrChooseQuality:vrSettings];
+                                       [weakSelf vrChooseQuality:vrSettings];
                                        
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.inputMode = VR_INPUT_DEVICE;
-                                       [self vrChooseQuality:vrSettings];
+                                       [weakSelf vrChooseQuality:vrSettings];
                                        
                                    }]];
     [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 - (void) vrChooseQuality:(VRSettings *)vrSettings {
+    __weak typeof (self) weakSelf = self;
+    
     UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"VR Settings" message:@"Choose render quality:" preferredStyle:UIAlertControllerStyleAlert ];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"High Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.quality = VR_QUALITY_HIGH;
-                                       [self vrStart:vrSettings];
+                                       [weakSelf vrStart:vrSettings];
                                        
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Normal Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.quality = VR_QUALITY_NORMAL;
-                                       [self vrStart:vrSettings];
+                                       [weakSelf vrStart:vrSettings];
                                        
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Low Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        vrSettings.quality = VR_QUALITY_LOW;
-                                       [self vrStart:vrSettings];
+                                       [weakSelf vrStart:vrSettings];
                                        
                                    }]];
     [self presentViewController:myAlertController animated:YES completion:nil];

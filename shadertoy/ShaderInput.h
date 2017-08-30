@@ -39,12 +39,13 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
 
 - (void) pause;
 - (void) play;
-- (void) stop;
 - (void) rewindTo:(double)time;
 - (void) mute;
 
 - (float) getResolutionWidth;
 - (float) getResolutionHeight;
 - (int) getChannel;
+
+- (void) updateSpectrum:(unsigned char *)data;
 
 @end

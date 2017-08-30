@@ -496,8 +496,8 @@ const GLubyte Indices[] = {
         glDeleteTextures(1, &_renderTexture1);
     }
     
-    for( ShaderInput* shaderInput in _shaderInputs ) {
-        [shaderInput stop];
+    for( __strong ShaderInput* shaderInput in _shaderInputs ) {
+        shaderInput = nil;
     }
     [_shaderInputs removeAllObjects];
         
