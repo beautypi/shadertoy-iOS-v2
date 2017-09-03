@@ -25,8 +25,9 @@
     bool _sRGB;
     
     float _iChannelTime;
-    float _iChannelResolutionWidth;
-    float _iChannelResolutionHeight;
+    float _iChannelWidth;
+    float _iChannelHeight;
+    float _iChannelDepth;
     
     int _channelSlot;
     
@@ -48,10 +49,11 @@
         _wrapMode = wrapMode;
         _vFlip = vFlip;
         _sRGB = sRGB;
+        _iChannelDepth = 1.f;
         
         // create opengl es texture
         glGenTextures(1, &_texId);
-
+        
         _isInitialised = NO;
     }
     return self;
@@ -152,18 +154,22 @@
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     
-    _iChannelResolutionWidth = (float)width;
-    _iChannelResolutionHeight = (float)height;
+    _iChannelWidth = (float)width;
+    _iChannelHeight = (float)height;
     
     _isInitialised = YES;
 }
 
 - (float) getWidth {
-    return _iChannelResolutionWidth;
+    return _iChannelWidth;
 }
 
 - (float) getHeight {
-    return _iChannelResolutionHeight;
+    return _iChannelHeight;
+}
+
+- (float) getDepth {
+    return _iChannelDepth;
 }
 
 - (ShaderInputType) getType {

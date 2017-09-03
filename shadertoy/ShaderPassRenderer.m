@@ -30,71 +30,28 @@ const GLubyte Indices[] = {
     VRSettings* _vrSettings;
     ShaderSettings* _shaderSettings;
     APIShaderPass* _shaderPass;
+    NSMutableArray *_shaderInputs;
     
     GLuint _programId;
-    
     GLuint _positionSlot;
-    GLuint _resolutionUniform;
-    GLuint _globalTimeUniform;
-    GLuint _timeUniform;
-    GLuint _mouseUniform;
-    GLuint _dateUniform;
-    GLuint _timeDeltaUniform;            // render time (in seconds)
-    GLuint _frameUniform;                // shader playback frame
-    GLuint _deviceRotationUniform;
-    
-//    
-//    this.mRenderer.SetShaderConstant1FV( "iChannelTime", times );              // OBSOLETE
-//    this.mRenderer.SetShaderConstant4FV( "iDate", dates );
-//    this.mRenderer.SetShaderConstant3FV( "iChannelResolution", resos );        // OBSOLETE
-//    this.mRenderer.SetShaderConstant1F(  "iSampleRate", this.mSampleRate);
-//    this.mRenderer.SetShaderTextureUnit( "iChannel0", 0 );
-//    this.mRenderer.SetShaderTextureUnit( "iChannel1", 1 );
-//    this.mRenderer.SetShaderTextureUnit( "iChannel2", 2 );
-//    this.mRenderer.SetShaderTextureUnit( "iChannel3", 3 );
-//    this.mRenderer.SetShaderConstant1I(  "iFrame", this.mFrame );
-//    this.mRenderer.SetShaderConstant1F(  "iTimeDelta", dtime);
-//    this.mRenderer.SetShaderConstant1F(  "iFrameRate", fps );
-//    
-//    this.mRenderer.SetShaderConstant1F(  "iChannel[0].time",       times[0] );
-//    this.mRenderer.SetShaderConstant1F(  "iChannel[1].time",       times[1] );
-//    this.mRenderer.SetShaderConstant1F(  "iChannel[2].time",       times[2] );
-//    this.mRenderer.SetShaderConstant1F(  "iChannel[3].time",       times[3] );
-//    this.mRenderer.SetShaderConstant3F(  "iChannel[0].resolution", resos[0], resos[ 1], resos[ 2] );
-//    this.mRenderer.SetShaderConstant3F(  "iChannel[1].resolution", resos[3], resos[ 4], resos[ 5] );
-//    this.mRenderer.SetShaderConstant3F(  "iChannel[2].resolution", resos[6], resos[ 7], resos[ 8] );
-//    this.mRenderer.SetShaderConstant3F(  "iChannel[3].resolution", resos[9], resos[10], resos[11] );
-
-//    header += "struct Channel\n";
-//    header += "{\n";
-//    header += "    vec3  resolution;\n";
-//    header += "    float time;\n";
-//    header += "};\n";
-//    header += "uniform Channel iChannel[4];\n";
-    
-    GLuint _sampleRateUniform;
-    float _iSampleRate;
-    GLuint _channelResolutionUniform;
-    float *_channelResolution;
-    GLuint _channelTimeUniform;
-    float *_channelTime;
-    GLuint _channelUniform[4];
-    
-    NSMutableArray *_shaderInputs;
-    GLuint _ifFragCoordOffsetUniform;
     
     GLuint _vertexBuffer;
     GLuint _indexBuffer;
     GLuint _vertexArray;
     
+    
+    float _iSampleRate;
+    float *_channelResolution;
+    float *_channelTime;
     GLKVector3 _resolution;
-    float _iGlobalTime;
+    float _time;
     NSDate *_date;
     GLKVector4 _mouse;
-    float _ifFragCoordScale;
-    float _ifFragCoordOffsetXY[2];
     int _frame;
     float _deltaTime;
+    
+    float _ifFragCoordScale;
+    float _ifFragCoordOffsetXY[2];
     
     GLuint _frameBuffer;
     GLuint _renderTexture0, _renderTexture1;
@@ -165,7 +122,7 @@ const GLubyte Indices[] = {
         glGenTextures(1, &_renderTexture0);
         glGenTextures(1, &_renderTexture1);
         glGenTextures(1, &_copyRenderTexture);
-                
+        
         glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     }
 }
@@ -225,7 +182,6 @@ const GLubyte Indices[] = {
         VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
     }
     
-    
     NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
     
     bool channelsUsed[4];
@@ -265,7 +221,7 @@ const GLubyte Indices[] = {
     }
     _programId = programId;
     
-    [self findUniforms];
+    _positionSlot = glGetAttribLocation(_programId, "position");
     
     [self initVertexBuffer];
     [self initShaderPassInputs];
@@ -275,29 +231,9 @@ const GLubyte Indices[] = {
     return YES;
 }
 
-- (void)findUniforms {
-    // Position uniform
-    _positionSlot = glGetAttribLocation(_programId, "position");
-    
-    // Frag Shader uniforms
-    _resolutionUniform = glGetUniformLocation(_programId, "iResolution");
-    _globalTimeUniform = glGetUniformLocation(_programId, "iGlobalTime");
-    _timeUniform = glGetUniformLocation(_programId, "iTime");
-    _mouseUniform = glGetUniformLocation(_programId, "iMouse");
-    _dateUniform = glGetUniformLocation(_programId, "iDate");
-    _sampleRateUniform = glGetUniformLocation(_programId, "iSampleRate");
-    _channelTimeUniform = glGetUniformLocation(_programId, "iChannelTime");
-    _channelResolutionUniform = glGetUniformLocation(_programId, "iChannelResolution");
-    _timeDeltaUniform = glGetUniformLocation(_programId, "iTimeDelta");
-    _frameUniform = glGetUniformLocation(_programId, "iFrame");
-    _ifFragCoordOffsetUniform = glGetUniformLocation(_programId, "ifFragCoordOffsetUniform");
-    _deviceRotationUniform = glGetUniformLocation(_programId, "iDeviceRotationUniform");
-    
-    for (APIShaderPassInput* input in _shaderPass.inputs) {
-        NSString* channel = [NSString stringWithFormat:@"iChannel%@", input.channel];
-        int c = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
-        _channelUniform[ c ] = glGetUniformLocation(_programId, channel.UTF8String );
-    }
+- (GLuint) getLoc:(NSString *)key program:(GLuint)program {
+   // NSLog(@"%@ %d", key, glGetUniformLocation(program, key.UTF8String));
+    return glGetUniformLocation(program, key.UTF8String);
 }
 
 - (void) setFragCoordScale:(float)scale andXOffset:(float)xOffset andYOffset:(float)yOffset {
@@ -411,48 +347,61 @@ const GLubyte Indices[] = {
     return (float) _renderBufferHeight;
 }
 
-- (void) setIGlobalTime:(float)iGlobalTime {
-    _iGlobalTime = iGlobalTime;
+- (float) getDepth {
+    return 1.f;
 }
 
-- (float) getIGlobalTime {
-    return _iGlobalTime;
+- (void) setTime:(float)time {
+    _time = time;
+}
+
+- (float) getTime {
+    return _time;
 }
 
 - (void)bindUniforms {
     for( ShaderInput* shaderInput in _shaderInputs ) {
-        _channelResolution[ [shaderInput getChannel]*3 + 0 ] = [shaderInput getResolutionWidth];
-        _channelResolution[ [shaderInput getChannel]*3 + 1 ] = [shaderInput getResolutionHeight];
+        _channelResolution[ [shaderInput getChannel]*3 + 0 ] = [shaderInput getWidth];
+        _channelResolution[ [shaderInput getChannel]*3 + 1 ] = [shaderInput getHeight];
+        _channelResolution[ [shaderInput getChannel]*3 + 2 ] = [shaderInput getDepth];
+        _channelTime[ [shaderInput getChannel] ] = [shaderInput getTime];
     }
     
-    for( int i=0; i<4; i++) {
-        _channelTime[i] = [self getIGlobalTime];
-    }
+    glUniform3fv( [self getLoc:@"iResolution" program:_programId], 1, &_resolution.x );
+    glUniform1f( [self getLoc:@"iTime" program:_programId], [self getTime] );
+    glUniform1f( [self getLoc:@"iGlobalTime" program:_programId], [self getTime] );
+    glUniform4f( [self getLoc:@"iMouse" program:_programId], _mouse.x * _resolution.x, _mouse.y * _resolution.y, _mouse.z * _resolution.x, _mouse.w * _resolution.y);
+    glUniform1fv( [self getLoc:@"iChannelTime" program:_programId], 4, _channelTime );
+    glUniform3fv( [self getLoc:@"iChannelResolution" program:_programId], 4, _channelResolution);
+    glUniform1i( [self getLoc:@"iFrame" program:_programId], _frame);
+    glUniform1f( [self getLoc:@"iTimeDelta" program:_programId], _deltaTime);
     
-    glUniform3fv(_resolutionUniform, 1, &_resolution.x );
-    glUniform1f(_globalTimeUniform, [self getIGlobalTime] );
-    glUniform1f(_timeUniform, [self getIGlobalTime] );
-    glUniform4f(_mouseUniform, _mouse.x * _resolution.x, _mouse.y * _resolution.y, _mouse.z * _resolution.x, _mouse.w * _resolution.y);
-    glUniform1fv(_channelTimeUniform, 4, _channelTime );
-    glUniform3fv(_channelResolutionUniform, 4, _channelResolution);
-    glUniform2fv(_ifFragCoordOffsetUniform, 1, _ifFragCoordOffsetXY);
-    glUniform1i(_frameUniform, _frame);
-    glUniform1f(_timeDeltaUniform, _deltaTime);
+    glUniform1f( [self getLoc:@"iFrameRate" program:_programId], 1.f/_deltaTime);
+    glUniform1f( [self getLoc:@"iSampleRate" program:_programId], 22000.f);
     
-    if( _deviceRotationUniform > 0 && _vrSettings ) {
+    glUniform2fv( [self getLoc:@"ifFragCoordOffsetUniform" program:_programId], 1, _ifFragCoordOffsetXY);
+    if( _vrSettings ) {
         GLKMatrix3 mat = [_vrSettings getDeviceRotationMatrix];
-        glUniformMatrix3fv(_deviceRotationUniform, 1, false, &mat.m00);
+        glUniformMatrix3fv( [self getLoc:@"iDeviceRotationUniform" program:_programId], 1, false, &mat.m00);
     }
-   
+    
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:_date];
     double seconds = [_date timeIntervalSince1970];
-    glUniform4f(_dateUniform, components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second + (seconds - floor(seconds)) );
+    glUniform4f( [self getLoc:@"iDate" program:_programId], components.year, components.month, components.day, (components.hour * 60 * 60) + (components.minute * 60) + components.second + (seconds - floor(seconds)) );
     
-    for( int i=0; i<4; i++ )  {
-        if( _channelUniform[i] < 99 ) {
-            glUniform1i(_channelUniform[i], i);
-        }
-    }
+    glUniform1i( [self getLoc:@"iChannel0" program:_programId], 0);
+    glUniform1i( [self getLoc:@"iChannel1" program:_programId], 1);
+    glUniform1i( [self getLoc:@"iChannel2" program:_programId], 2);
+    glUniform1i( [self getLoc:@"iChannel3" program:_programId], 3);
+    
+    glUniform1f( [self getLoc:@"iChannel[0].time" program:_programId],       _channelTime[0] );
+    glUniform1f( [self getLoc:@"iChannel[1].time" program:_programId],       _channelTime[1] );
+    glUniform1f( [self getLoc:@"iChannel[2].time" program:_programId],       _channelTime[2] );
+    glUniform1f( [self getLoc:@"iChannel[3].time" program:_programId],       _channelTime[3] );
+    glUniform3f( [self getLoc:@"iChannel[0].resolution" program:_programId], _channelResolution[0], _channelResolution[ 1], _channelResolution[ 2] );
+    glUniform3f( [self getLoc:@"iChannel[1].resolution" program:_programId], _channelResolution[3], _channelResolution[ 4], _channelResolution[ 5] );
+    glUniform3f( [self getLoc:@"iChannel[2].resolution" program:_programId], _channelResolution[6], _channelResolution[ 7], _channelResolution[ 8] );
+    glUniform3f( [self getLoc:@"iChannel[3].resolution" program:_programId], _channelResolution[9], _channelResolution[10], _channelResolution[11] );
 }
 
 - (void) initShaderPassInputs {
@@ -465,7 +414,10 @@ const GLubyte Indices[] = {
 }
 
 - (NSNumber *) getOutputId {
-    return ((APIShaderPassOutput *)[_shaderPass.outputs objectAtIndex:0]).outputId;
+    if(_shaderPass.outputs && [_shaderPass.outputs count] > 0) {
+        return ((APIShaderPassOutput *)[_shaderPass.outputs objectAtIndex:0]).outputId;
+    }
+    return [NSNumber numberWithInteger:0];
 }
 
 - (void)allocChannels {
@@ -476,8 +428,6 @@ const GLubyte Indices[] = {
     
     memset (_channelTime,0,sizeof(float) * 4);
     memset (_channelResolution,0,sizeof(float) * 12);
-    
-    memset (&_channelUniform[0],99,sizeof(GLuint) * 4);
 }
 
 - (void) dealloc {
@@ -500,7 +450,7 @@ const GLubyte Indices[] = {
         shaderInput = nil;
     }
     [_shaderInputs removeAllObjects];
-        
+    
     free(_channelTime);
     free(_channelResolution);
 }
@@ -512,7 +462,7 @@ const GLubyte Indices[] = {
     }
 }
 - (void) pauseInputs {
-    double globalTime = [self getIGlobalTime];
+    double globalTime = [self getTime];
     for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:globalTime];
         [shaderInput pause];
@@ -520,7 +470,7 @@ const GLubyte Indices[] = {
 }
 
 - (void) resumeInputs {
-    double globalTime = [self getIGlobalTime];
+    double globalTime = [self getTime];
     for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:globalTime];
         [shaderInput play];
@@ -528,7 +478,7 @@ const GLubyte Indices[] = {
 }
 
 - (void)rewind {
-    [self setIGlobalTime:0];
+    [self setTime:0];
     for( ShaderInput* shaderInput in _shaderInputs ) {
         [shaderInput rewindTo:0];
     }
@@ -557,7 +507,7 @@ const GLubyte Indices[] = {
     }
     
     glViewport(0, 0, _resolution.x, _resolution.y);
-
+    
     if( !_renderToBuffer || _frame == 0 ) {
         glClearColor(0.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT);

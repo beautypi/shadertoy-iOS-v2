@@ -22,6 +22,8 @@
 
 - (float) getWidth;
 - (float) getHeight;
+- (float) getDepth;
+
 - (ShaderInputType) getType;
 
 @end

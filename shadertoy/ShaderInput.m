@@ -11,171 +11,12 @@
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES3/glext.h>
 
-#import <AVFoundation/AVFoundation.h>
-#include <Accelerate/Accelerate.h>
-
 #import "Utils.h"
 #import "APISoundCloud.h"
 
 #import "ShaderPassRenderer.h"
 #include "TextureHelper.h"
-
-#pragma mark - TapContext
-
-typedef struct TapContext {
-    void *audioTap;
-    Float64 sampleRate;
-    UInt32 numSamples;
-    FFTSetup fftSetup;
-    COMPLEX_SPLIT split;
-    float *window;
-    float *inReal;
-    
-    float * tempBuffer;
-    unsigned char * output;    
-} TapContext;
-
-
-#pragma mark - AudioTap Callbacks
-
-static void TapInit(MTAudioProcessingTapRef tap, void *clientInfo, void **tapStorageOut)
-{
-    TapContext *context = calloc(1, sizeof(TapContext));
-    context->audioTap = clientInfo;
-    context->sampleRate = NAN;
-    context->numSamples = 4096;
-    
-    vDSP_Length log2n = log2f((float)context->numSamples);
-    
-    int nOver2 = context->numSamples/2;
-    
-    context->inReal = (float *) malloc(context->numSamples * sizeof(float));
-    context->split.realp = (float *) malloc(nOver2*sizeof(float));
-    context->split.imagp = (float *) malloc(nOver2*sizeof(float));
-    
-    context->tempBuffer =(float *) malloc(context->numSamples * sizeof(float));
-    context->output = (unsigned char *) malloc(512 * sizeof(unsigned char));
-    
-    context->fftSetup = vDSP_create_fftsetup(log2n, FFT_RADIX2);
-    
-    context->window = (float *) malloc(context->numSamples * sizeof(float));
-    vDSP_hann_window(context->window, context->numSamples, vDSP_HANN_DENORM);
-    
-    *tapStorageOut = context;
-}
-
-static void TapPrepare(MTAudioProcessingTapRef tap, CMItemCount numberFrames, const AudioStreamBasicDescription *format)
-{
-    TapContext *context = (TapContext *)MTAudioProcessingTapGetStorage(tap);
-    context->sampleRate = format->mSampleRate;
-    
-    if (format->mFormatFlags & kAudioFormatFlagIsNonInterleaved) {
-        NSLog(@"is Non Interleaved");
-    }
-    
-    if (format->mFormatFlags & kAudioFormatFlagIsSignedInteger) {
-        NSLog(@"dealing with integers");
-    }
-}
-
-
-static  void TapProcess(MTAudioProcessingTapRef tap, CMItemCount numberFrames, MTAudioProcessingTapFlags flags,
-                        AudioBufferList *bufferListInOut, CMItemCount *numberFramesOut, MTAudioProcessingTapFlags *flagsOut)
-{
-    OSStatus status;
-    
-    status = MTAudioProcessingTapGetSourceAudio(tap, numberFrames, bufferListInOut, flagsOut, NULL, numberFramesOut);
-    if (status != noErr) {
-        NSLog(@"MTAudioProcessingTapGetSourceAudio: %d", (int)status);
-        return;
-    }
-    
-    //UInt32 bufferCount = bufferListInOut->mNumberBuffers;
-    
-    AudioBuffer *firstBuffer = &bufferListInOut->mBuffers[1];
-    
-    float *bufferData = firstBuffer->mData;
-    //UInt32 dataSize = firstBuffer->mDataByteSize;
-    //printf(": %li", dataSize);
-    
-    
-    TapContext *context = (TapContext *)MTAudioProcessingTapGetStorage(tap);
-    
-    vDSP_vmul(bufferData, 1, context->window, 1, context->inReal, 1, context->numSamples);
-    
-    vDSP_ctoz((COMPLEX *)context->inReal, 2, &context->split, 1, context->numSamples/2);
-    
-    
-    vDSP_Length log2n = log2f((float)context->numSamples);
-    vDSP_fft_zrip(context->fftSetup, &context->split, 1, log2n, FFT_FORWARD);
-    context->split.imagp[0] = 0.0;
-    
-    const float one = 1;
-    float scale = (float)1.0 / (2 * context->numSamples);
-    
-    
-    vDSP_vsmul(context->split.realp, 1, &scale, context->split.realp, 1, context->numSamples/2);
-    vDSP_vsmul(context->split.imagp, 1, &scale, context->split.imagp, 1, context->numSamples/2);
-    
-    //Zero out the nyquist value
-    context->split.imagp[0] = 0.0;
-    
-    //Convert the fft data to dB
-    vDSP_zvmags(&context->split, 1, context->tempBuffer, 1, context->numSamples/2);
-    
-    
-    //In order to avoid taking log10 of zero, an adjusting factor is added in to make the minimum value equal -128dB
-    //      vDSP_vsadd(obtainedReal, 1, &kAdjust0DB, obtainedReal, 1, frameCount/2);
-    vDSP_vdbcon(context->tempBuffer, 1, &one, context->tempBuffer, 1, context->numSamples/2, 0);
-    
-    // min decibels is set to -100
-    // max decibels is set to -30
-    // calculated range is -128 to 0, so adjust:
-    float addvalue = 74;
-    vDSP_vsadd(context->tempBuffer, 1, &addvalue, context->tempBuffer, 1, context->numSamples/2);
-    scale = 5.f; //256.f / frameCount;
-    vDSP_vsmul(context->tempBuffer, 1, &scale, context->tempBuffer, 1, context->numSamples/2);
-    
-    float vmin = 0;
-    float vmax = 255;
-    
-    vDSP_vclip(context->tempBuffer, 1, &vmin, &vmax, context->tempBuffer, 1, context->numSamples/2);
-    vDSP_vfixu8(context->tempBuffer, 1, context->output, 1, MIN(256,context->numSamples/2));
-    
-    memcpy(context->tempBuffer, bufferData, context->numSamples * sizeof(float));
-
-    addvalue = 1.;
-    vDSP_vsadd(context->tempBuffer, 1, &addvalue, context->tempBuffer, 1, MIN(256,context->numSamples/2));
-    scale = 128.f;
-    vDSP_vsmul(context->tempBuffer, 1, &scale, context->tempBuffer, 1, MIN(256,context->numSamples/2));
-    vDSP_vclip(context->tempBuffer, 1, &vmin, &vmax, context->tempBuffer, 1,  MIN(256,context->numSamples/2));
-    vDSP_vfixu8(context->tempBuffer, 1, &context->output[256], 1, MIN(256,context->numSamples/2));
-    
-    ShaderInput *audioTap = (__bridge ShaderInput *)context->audioTap;
-    [audioTap updateSpectrum:context->output];
-}
-
-static void TapUnprepare(MTAudioProcessingTapRef tap)
-{
-    
-}
-
-static void TapFinalize(MTAudioProcessingTapRef tap)
-{
-    TapContext *context = (TapContext *)MTAudioProcessingTapGetStorage(tap);
-    
-    free(context->split.realp);
-    free(context->split.imagp);
-    free(context->inReal);
-    free(context->window);
-    
-    free(context->tempBuffer);
-    free(context->output);
-    
-    context->fftSetup = nil;
-    context->audioTap = nil;
-    free(context);
-}
+#include "SoundStreamHelper.h"
 
 @interface ShaderInput () {
     APIShaderPassInput *_shaderPassInput;
@@ -185,14 +26,15 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
     ShaderInputWrapMode _wrapMode;
     
     TextureHelper *_textureHelper;
+    SoundStreamHelper* _soundStreamHelper;
     
     float _iChannelTime;
-    float _iChannelResolutionWidth;
-    float _iChannelResolutionHeight;
+    float _iChannelWidth;
+    float _iChannelHeight;
+    float _iChannelDepth;
     int _channelSlot;
     
     unsigned char *_buffer;
-    AVPlayer* _avplayer;
 }
 @end
 
@@ -201,8 +43,10 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
 
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input {
     _shaderPassInput = input;
-    _buffer = NULL;
     _channelSlot = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
+    
+    _buffer = NULL;
+    _iChannelDepth = 1;
     
     bool vflip = NO;
     bool srgb = NO;
@@ -287,12 +131,16 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
                 [soundCloud resolve:input.src success:^(NSDictionary *resultDict) {
                     NSString* url = [resultDict objectForKey:@"stream_url"];
                     url = [url stringByAppendingString:@"?client_id=64a52bb31abd2ec73f8adda86358cfbf"];
-                    [self playUrl:url];
+                    __weak typeof (self) weakSelf = self;
+                    _soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
+                    [_soundStreamHelper playUrl:url];
                 }];
             } else {
                 _type = MUSIC;
                 NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
-                [self playUrl:url];
+                __weak typeof (self) weakSelf = self;
+                _soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
+                [_soundStreamHelper playUrl:url];
             }
             _textureHelper = [[TextureHelper alloc] initWithType:MUSIC vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
         } else {
@@ -336,9 +184,9 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 }
-                _iChannelResolutionWidth = [shaderPass getWidth];
-                _iChannelResolutionHeight = [shaderPass getHeight];
-                
+                _iChannelWidth = [shaderPass getWidth];
+                _iChannelHeight = [shaderPass getHeight];
+                _iChannelDepth = [shaderPass getDepth];
             }
         }
     }
@@ -352,50 +200,10 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
         
         [_textureHelper bindToChannel:_channelSlot];
         
-        _iChannelResolutionWidth = [_textureHelper getWidth];
-        _iChannelResolutionHeight = [_textureHelper getHeight];
+        _iChannelWidth = [_textureHelper getWidth];
+        _iChannelHeight = [_textureHelper getHeight];
+        _iChannelDepth = [_textureHelper getDepth];
     }
-}
-
-- (void) playUrl:(NSString*) url {
-    NSError *sessionError = nil;
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&sessionError];
-    [[AVAudioSession sharedInstance] setActive:YES error:nil];
-    AVPlayerItem* item = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
-    
-    AVMutableAudioMixInputParameters *inputParams = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:item.asset.tracks[0]];
-    
-    //MTAudioProcessingTap
-    MTAudioProcessingTapCallbacks callbacks;
-    
-    callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
-    
-    callbacks.init = TapInit;
-    callbacks.prepare = TapPrepare;
-    callbacks.process = TapProcess;
-    callbacks.unprepare = TapUnprepare;
-    callbacks.finalize = TapFinalize;
-    callbacks.clientInfo = (__bridge void *)self;
-    
-    MTAudioProcessingTapRef tapRef;
-    OSStatus err = MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks,
-                                              kMTAudioProcessingTapCreationFlag_PostEffects, &tapRef);
-    
-    if (err || !tapRef) {
-        NSLog(@"Unable to create AudioProcessingTap.");
-        return;
-    }
-    
-    
-    inputParams.audioTapProcessor = tapRef;
-    
-    // Create a new AVAudioMix and assign it to our AVPlayerItem
-    AVMutableAudioMix *audioMix = [AVMutableAudioMix audioMix];
-    audioMix.inputParameters = @[inputParams];
-    item.audioMix = audioMix;
-    
-    _avplayer = [AVPlayer playerWithPlayerItem:item];
-    [_avplayer play];
 }
 
 - (void) updateSpectrum:(unsigned char *)data {
@@ -407,20 +215,20 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
 }
 
 - (void) pause {
-    if( _avplayer ) {
-        [_avplayer pause];
+    if( _soundStreamHelper ) {
+        [_soundStreamHelper pause];
     }
 }
 
 - (void) play {
-    if( _avplayer ) {
-        [_avplayer play];
+    if( _soundStreamHelper ) {
+        [_soundStreamHelper play];
     }
 }
 
 - (void) rewindTo:(double)time {
-    if( _avplayer ) {
-        [_avplayer seekToTime:CMTimeMakeWithSeconds(time,120)];
+    if( _soundStreamHelper ) {
+        [_soundStreamHelper rewindTo:time];
     }
 }
 
@@ -428,25 +236,32 @@ static void TapFinalize(MTAudioProcessingTapRef tap)
     if( _textureHelper ) {
         _textureHelper = nil;
     }
-    if( _avplayer ) {
-        AVMutableAudioMixInputParameters *params = (AVMutableAudioMixInputParameters *) _avplayer.currentItem.audioMix.inputParameters[0];
-        MTAudioProcessingTapRef tap = params.audioTapProcessor;
-        _avplayer.currentItem.audioMix = nil;
-        _avplayer = nil;
-        CFRelease(tap);
+    if( _soundStreamHelper ) {
+        _soundStreamHelper = nil;
     }
 }
 
-- (float) getResolutionWidth {
-    return _iChannelResolutionWidth;
+- (float) getWidth {
+    return _iChannelWidth;
 }
 
-- (float) getResolutionHeight {
-    return _iChannelResolutionHeight;
+- (float) getHeight {
+    return _iChannelHeight;
+}
+
+- (float) getDepth {
+    return _iChannelDepth;
+}
+
+- (float) getTime {
+    if( _soundStreamHelper ) {
+        return [_soundStreamHelper getTime];
+    }
+    return _iChannelTime;
 }
 
 - (int) getChannel {
-    return [[_shaderPassInput channel] intValue];
+    return _channelSlot;
 }
 
 @end
