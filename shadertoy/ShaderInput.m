@@ -108,7 +108,7 @@
                               @"webcam": @"webcam.png",
                               @"music": @"music.png"
                               };
-    
+        
     if( [input.ctype isEqualToString:@"buffer"] ) {
         _type = BUFFER;
     }
@@ -121,6 +121,10 @@
     
     if( [input.ctype isEqualToString:@"video"] ) {
         _type = TEXTURE2D;
+    }
+    
+    if( [input.ctype isEqualToString:@"volume"] ) {
+        _type = TEXTURE3D;
     }
     
     if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"] || [input.ctype isEqualToString:@"webcam"] ) {
@@ -164,6 +168,14 @@
             [_textureHelper loadFromURL:file];
         }
     }
+    
+    if( [input.ctype isEqualToString:@"volume"] ) {
+        _type = TEXTURE3D;
+        NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
+        
+        _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
+        [_textureHelper loadFromURL:file];
+    }
 }
 
 - (void) bindTexture:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
@@ -192,10 +204,10 @@
     }
     else if( _textureHelper ) {
         if( [_textureHelper getType] == KEYBOARD ) {
-            [_textureHelper loadData:keyboardBuffer width:256 height:2 channels:1];
+            [_textureHelper loadData:keyboardBuffer width:256 height:2 depth:1 channels:1 isFloat:NO];
         }
         else if( [_textureHelper getType] == MUSIC ) {
-            [_textureHelper loadData:_buffer width:256 height:2 channels:1];
+            [_textureHelper loadData:_buffer width:256 height:2 depth:1 channels:1 isFloat:NO];
         }
         
         [_textureHelper bindToChannel:_channelSlot];

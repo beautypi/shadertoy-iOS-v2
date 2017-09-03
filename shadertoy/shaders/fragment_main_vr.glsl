@@ -1,3 +1,5 @@
+// empty line
+
 #ifdef VR_SETTINGS_DEVICE_ORIENTATION
 uniform mat3 iDeviceRotationUniform;
 #endif
