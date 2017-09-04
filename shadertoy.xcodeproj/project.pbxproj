@@ -508,7 +508,7 @@
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = net.reinder.shadertoy;
+				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -529,7 +529,7 @@
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = net.reinder.shadertoy;
+				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
