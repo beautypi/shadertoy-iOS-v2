@@ -30,7 +30,6 @@
     self.window.tintColor = [UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f];
     [[UITabBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     if( [[LocalCache sharedLocalCache] getVersion] < [NSNumber numberWithInt:4]) {
         [[LocalCache sharedLocalCache] clear];

@@ -35,7 +35,7 @@
 - (void) pauseInputs;
 - (void) resumeInputs;
 
-- (void)updateKeyboardBufferDown:(int)v;
-- (void)updateKeyboardBufferUp:(int)v;
+- (void) updateKeyboardBufferDown:(int)v;
+- (void) updateKeyboardBufferUp:(int)v;
 
 @end

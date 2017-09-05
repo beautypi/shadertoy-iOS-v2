@@ -15,13 +15,15 @@
 
 - (void) loadFromFile:(NSString *)file;
 - (void) loadFromURL:(NSString *)url;
-- (void) loadData:(unsigned char *)data width:(int)width height:(int)height channels:(int)channels cubemapLayer:(int)layer;
-- (void) loadData:(unsigned char *)data width:(int)width height:(int)height channels:(int)channels;
+- (void) loadData:(unsigned char *)data width:(int)width height:(int)height depth:(int)depth channels:(int)channels isFloat:(BOOL)isFloat cubemapLayer:(int)layer;
+- (void) loadData:(unsigned char *)data width:(int)width height:(int)height depth:(int)depth channels:(int)channels isFloat:(BOOL)isFloat;
 
 - (void) bindToChannel:(int)channel;
 
 - (float) getWidth;
 - (float) getHeight;
+- (float) getDepth;
+
 - (ShaderInputType) getType;
 
 @end

@@ -12,7 +12,7 @@
 
 @interface APISoundCloud : NSObject
 
-- (AFHTTPRequestOperation *) resolve:(NSString *)url success:(void (^)(NSDictionary *resultDict))success;
-- (AFHTTPRequestOperation *) track:(NSString *)location success:(void (^)(NSDictionary *resultDict))success;
+- (NSURLSessionDataTask *) resolve:(NSString *)url success:(void (^)(NSDictionary *resultDict))success;
+- (NSURLSessionDataTask *) track:(NSString *)location success:(void (^)(NSDictionary *resultDict))success;
 
 @end

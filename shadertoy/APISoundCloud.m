@@ -9,7 +9,7 @@
 #import "APISoundCloud.h"
 
 @interface APISoundCloud () {
-    AFHTTPRequestOperationManager *_requestManager;
+    AFHTTPSessionManager *_manager;
 }
 @end
 
@@ -18,48 +18,46 @@
 - (id)init {
     self = [super init];
     if(self){
-        _requestManager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://api.soundcloud.com/"]];
+        _manager = [[AFHTTPSessionManager manager] initWithBaseURL:[NSURL URLWithString:@"https://api.soundcloud.com/"]];
         
         AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
         
         NSString *language = [[NSLocale preferredLanguages] firstObject];
         [requestSerializer setValue:language forHTTPHeaderField:@"Accept-Language"];
-        _requestManager.requestSerializer = requestSerializer;
+        _manager.requestSerializer = requestSerializer;
         
-        _requestManager.responseSerializer = [AFJSONResponseSerializer serializer];
-        _requestManager.securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+        _manager.responseSerializer = [AFJSONResponseSerializer serializer];
+        _manager.securityPolicy = [AFSecurityPolicy defaultPolicy];
     }
     return self;
 }
 
-- (AFHTTPRequestOperation *) resolve:(NSString *)url success:(void (^)(NSDictionary *resultDict))success {
+- (NSURLSessionDataTask *) resolve:(NSString *)url success:(void (^)(NSDictionary *resultDict))success {
     NSDictionary *params = @{
                              @"client_id": @"b1275b704badf79d972d51aa4b92ea15",
                              @"url": url
                              };
     
-    return [_requestManager GET:@"resolve.json" parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    return [_manager GET:@"resolve.json" parameters:params progress:nil success:^(NSURLSessionTask *operation, id responseObject) {
         if(![responseObject isKindOfClass:[NSDictionary class]]){
             return;
         }
         success(responseObject);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionTask *operation, NSError *error) {
         
     }];
 }
 
-- (AFHTTPRequestOperation *) track:(NSString *)location success:(void (^)(NSDictionary *resultDict))success {
-    NSDictionary *params = @{
-                             
-                             };
+- (NSURLSessionDataTask *) track:(NSString *)location success:(void (^)(NSDictionary *resultDict))success {
+    NSDictionary *params = @{};
     
-    return [_requestManager GET:location parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    return [_manager GET:location parameters:params progress:nil success:^(NSURLSessionTask *operation, id responseObject) {
         if(![responseObject isKindOfClass:[NSDictionary class]]){
             return;
         }
         NSDictionary *shaderDict = [responseObject objectForKey:@"Shader"];
         success(shaderDict);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionTask *operation, NSError *error) {
         
     }];
 }

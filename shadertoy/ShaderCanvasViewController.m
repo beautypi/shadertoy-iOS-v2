@@ -290,7 +290,7 @@
         [pass setResolution:((float)width / _ifFragCoordScale) y:((float)height / _ifFragCoordScale)];
         [pass setFragCoordScale:_ifFragCoordScale andXOffset:_ifFragCoordOffsetXY[0] andYOffset:_ifFragCoordOffsetXY[1]];
         [pass setMouse:_mouse];
-        [pass setIGlobalTime:[self getIGlobalTime]];
+        [pass setTime:[self getIGlobalTime]];
         [pass setDate:date];
         [pass setFrame:(_frame>0?_frame:0)];
         [pass setTimeDelta:deltaTime];

@@ -20,6 +20,7 @@
 		4B8610BA1B94590E00928AD5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B91B94590E00928AD5 /* Utils.m */; };
 		4B8610BE1B947F9600928AD5 /* SoundPassPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */; };
 		4B8D55071D44F6B300EAE5F7 /* ShaderSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */; };
+		4BBD31F51F5C23F400CEE627 /* SoundStreamHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BBD31F41F5C23F400CEE627 /* SoundStreamHelper.m */; };
 		4BF1F1991C54093E00D50CBE /* ShaderPassRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF1F1981C54093E00D50CBE /* ShaderPassRenderer.m */; };
 		4BF748CA1B84852A00E2F772 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748C91B84852A00E2F772 /* main.m */; };
 		4BF748CD1B84852A00E2F772 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748CC1B84852A00E2F772 /* AppDelegate.m */; };
@@ -67,6 +68,8 @@
 		4B8D55051D44F6B300EAE5F7 /* ShaderSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderSettings.h; sourceTree = "<group>"; };
 		4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderSettings.m; sourceTree = "<group>"; };
 		4B9563C61BA6C23D00BAD34D /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
+		4BBD31F31F5C23F400CEE627 /* SoundStreamHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundStreamHelper.h; sourceTree = "<group>"; };
+		4BBD31F41F5C23F400CEE627 /* SoundStreamHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoundStreamHelper.m; sourceTree = "<group>"; };
 		4BF1F1971C54093E00D50CBE /* ShaderPassRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderPassRenderer.h; sourceTree = "<group>"; };
 		4BF1F1981C54093E00D50CBE /* ShaderPassRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderPassRenderer.m; sourceTree = "<group>"; };
 		4BF748C41B84852A00E2F772 /* Shadertoy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shadertoy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,6 +186,8 @@
 				4B745CA51ED20F5700A9FDD8 /* stb_image.h */,
 				4B1C95BB1ED6DC4400FC91D1 /* TextureHelper.h */,
 				4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */,
+				4BBD31F31F5C23F400CEE627 /* SoundStreamHelper.h */,
+				4BBD31F41F5C23F400CEE627 /* SoundStreamHelper.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -362,6 +367,7 @@
 				4BF1F1991C54093E00D50CBE /* ShaderPassRenderer.m in Sources */,
 				4BF748F21B848AD900E2F772 /* APIShadertoy.m in Sources */,
 				4BF748CD1B84852A00E2F772 /* AppDelegate.m in Sources */,
+				4BBD31F51F5C23F400CEE627 /* SoundStreamHelper.m in Sources */,
 				4BF7490C1B84BD8900E2F772 /* APIShaderRepository.m in Sources */,
 				4B8610BA1B94590E00928AD5 /* Utils.m in Sources */,
 				4B8610BE1B947F9600928AD5 /* SoundPassPlayer.m in Sources */,

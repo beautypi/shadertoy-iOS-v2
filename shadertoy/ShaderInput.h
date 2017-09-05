@@ -22,6 +22,7 @@ typedef NS_ENUM(NSUInteger, ShaderInputWrapMode) {
 
 typedef NS_ENUM(NSUInteger, ShaderInputType) {
     TEXTURE2D,
+    TEXTURE3D,
     TEXTURECUBE,
     KEYBOARD,
     VIDEO,
@@ -39,12 +40,16 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
 
 - (void) pause;
 - (void) play;
-- (void) stop;
 - (void) rewindTo:(double)time;
 - (void) mute;
 
-- (float) getResolutionWidth;
-- (float) getResolutionHeight;
+- (float) getWidth;
+- (float) getHeight;
+- (float) getDepth;
+- (float) getTime;
+
 - (int) getChannel;
+
+- (void) updateSpectrum:(unsigned char *)data;
 
 @end

@@ -21,7 +21,7 @@
 - (void) setShaderSettings:(ShaderSettings *)shaderSettings;
 - (void) setFragCoordScale:(float)scale andXOffset:(float)xOffset andYOffset:(float)yOffset;
 - (void) setResolution:(float)x y:(float)y;
-- (void) setIGlobalTime:(float)iGlobalTime;
+- (void) setTime:(float)time;
 - (void) setDate:(NSDate *)date;
 - (void) setMouse:(GLKVector4) mouse;
 - (void) setFrame:(int) frame;
@@ -40,5 +40,7 @@
 
 - (float) getWidth;
 - (float) getHeight;
+- (float) getDepth;
+- (float) getTime;
 
 @end

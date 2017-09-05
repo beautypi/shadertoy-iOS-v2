@@ -5,7 +5,6 @@ precision highp int;
 precision highp sampler2D;
 
 uniform vec3      iResolution;                  // viewport resolution (in pixels)
-uniform float     iGlobalTime;                  // DEPRECATED : shader playback time (in seconds) 
 uniform float     iTime;                        // shader playback time (in seconds)
 uniform vec4      iMouse;                       // mouse pixel coords
 uniform vec4      iDate;                        // (year, month, day, time in seconds)
@@ -16,3 +15,11 @@ uniform float     iChannelTime[4];              // channel playback time (in sec
 uniform vec2      ifFragCoordOffsetUniform;     // used for tiled based hq rendering
 uniform float     iTimeDelta;                   // render time (in seconds)
 uniform int       iFrame;                       // shader playback frame
+uniform float     iFrameRate;
+
+struct Channel {
+    vec3    resolution;
+    float   time;
+};
+
+uniform Channel iChannel[4];

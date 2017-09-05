@@ -11,43 +11,30 @@
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES3/glext.h>
 
-#import <AVFoundation/AVFoundation.h>
-#import <StreamingKit/STKAudioPlayer.h>
-
-#include <Accelerate/Accelerate.h>
-
 #import "Utils.h"
 #import "APISoundCloud.h"
 
 #import "ShaderPassRenderer.h"
 #include "TextureHelper.h"
+#include "SoundStreamHelper.h"
 
 @interface ShaderInput () {
     APIShaderPassInput *_shaderPassInput;
-
+    
     ShaderInputType _type;
     ShaderInputFilterMode _filterMode;
     ShaderInputWrapMode _wrapMode;
     
     TextureHelper *_textureHelper;
-    
-    STKAudioPlayer *_audioPlayer;
+    SoundStreamHelper* _soundStreamHelper;
     
     float _iChannelTime;
-    float _iChannelResolutionWidth;
-    float _iChannelResolutionHeight;
+    float _iChannelWidth;
+    float _iChannelHeight;
+    float _iChannelDepth;
     int _channelSlot;
     
-    float* window;
-    float* obtainedReal;
-    float* originalReal;
-    unsigned char* _buffer;
-    int fftStride;
-    
-    FFTSetup setupReal;
-    DSPSplitComplex fftInput;
-    
-    STKAudioPlayerOptions options;
+    unsigned char *_buffer;
 }
 @end
 
@@ -56,9 +43,11 @@
 
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input {
     _shaderPassInput = input;
-    _buffer = NULL;
     _channelSlot = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
-
+    
+    _buffer = NULL;
+    _iChannelDepth = 1;
+    
     bool vflip = NO;
     bool srgb = NO;
     
@@ -119,7 +108,7 @@
                               @"webcam": @"webcam.png",
                               @"music": @"music.png"
                               };
-    
+        
     if( [input.ctype isEqualToString:@"buffer"] ) {
         _type = BUFFER;
     }
@@ -134,108 +123,34 @@
         _type = TEXTURE2D;
     }
     
+    if( [input.ctype isEqualToString:@"volume"] ) {
+        _type = TEXTURE3D;
+    }
+    
     if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"] || [input.ctype isEqualToString:@"webcam"] ) {
-        
         if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"]) {
-            options.enableVolumeMixer = false;
-            memset(options.equalizerBandFrequencies,0,4);
-            options.flushQueueOnSeek = false;
-            options.gracePeriodAfterSeekInSeconds = 0.25f;
-            options.readBufferSize = 2048;
-            options.secondsRequiredToStartPlaying = 0.25f;
-            options.secondsRequiredToStartPlayingAfterBufferUnderun = 0;
-            
-            _audioPlayer = [[STKAudioPlayer alloc] initWithOptions:options];
-            
-            [self setupFFT];
-            [_audioPlayer appendFrameFilterWithName:@"STKSpectrumAnalyzerFilter" block:^(UInt32 channelsPerFrame, UInt32 bytesPerFrame, UInt32 frameCount, void* frames) {
-                
-                int log2n = log2f(frameCount);
-                frameCount = 1 << log2n;
-                
-                SInt16* samples16 = (SInt16*)frames;
-                SInt32* samples32 = (SInt32*)frames;
-                
-                if (bytesPerFrame / channelsPerFrame == 2)
-                {
-                    for (int i = 0, j = 0; i < frameCount * channelsPerFrame; i+= channelsPerFrame, j++)
-                    {
-                        originalReal[j] = samples16[i] / 32768.0;
-                    }
-                }
-                else if (bytesPerFrame / channelsPerFrame == 4)
-                {
-                    for (int i = 0, j = 0; i < frameCount * channelsPerFrame; i+= channelsPerFrame, j++)
-                    {
-                        originalReal[j] = samples32[i] / 32768.0;
-                    }
-                }
-                
-                vDSP_ctoz((COMPLEX*)originalReal, 2, &fftInput, 1, frameCount);
-                
-                const float one = 1;
-                float scale = (float)1.0 / (2 * frameCount);
-                
-                //Take the fft and scale appropriately
-                vDSP_fft_zrip(setupReal, &fftInput, 1, log2n, FFT_FORWARD);
-                vDSP_vsmul(fftInput.realp, 1, &scale, fftInput.realp, 1, frameCount/2);
-                vDSP_vsmul(fftInput.imagp, 1, &scale, fftInput.imagp, 1, frameCount/2);
-                
-                //Zero out the nyquist value
-                fftInput.imagp[0] = 0.0;
-                
-                //Convert the fft data to dB
-                vDSP_zvmags(&fftInput, 1, obtainedReal, 1, frameCount/2);
-                
-                
-                //In order to avoid taking log10 of zero, an adjusting factor is added in to make the minimum value equal -128dB
-                //      vDSP_vsadd(obtainedReal, 1, &kAdjust0DB, obtainedReal, 1, frameCount/2);
-                vDSP_vdbcon(obtainedReal, 1, &one, obtainedReal, 1, frameCount/2, 0);
-                
-                // min decibels is set to -100
-                // max decibels is set to -30
-                // calculated range is -128 to 0, so adjust:
-                float addvalue = 70;
-                vDSP_vsadd(obtainedReal, 1, &addvalue, obtainedReal, 1, frameCount/2);
-                scale = 5.f; //256.f / frameCount;
-                vDSP_vsmul(obtainedReal, 1, &scale, obtainedReal, 1, frameCount/2);
-                
-                float vmin = 0;
-                float vmax = 255;
-                
-                vDSP_vclip(obtainedReal, 1, &vmin, &vmax, obtainedReal, 1, frameCount/2);
-                vDSP_vfixu8(obtainedReal, 1, _buffer, 1, MIN(256,frameCount/2));
-                
-                addvalue = 1.;
-                vDSP_vsadd(originalReal, 1, &addvalue, originalReal, 1, MIN(256,frameCount/2));
-                scale = 128.f;
-                vDSP_vsmul(originalReal, 1, &scale, originalReal, 1, MIN(256,frameCount/2));
-                vDSP_vclip(originalReal, 1, &vmin, &vmax, originalReal, 1,  MIN(256,frameCount/2));
-                vDSP_vfixu8(originalReal, 1, &_buffer[256], 1, MIN(256,frameCount/2));
-            }];
-            
             if( [input.ctype isEqualToString:@"musicstream"] ) {
+                _type = SOUNDCLOUD;
                 APISoundCloud* soundCloud = [[APISoundCloud alloc] init];
                 [soundCloud resolve:input.src success:^(NSDictionary *resultDict) {
                     NSString* url = [resultDict objectForKey:@"stream_url"];
                     url = [url stringByAppendingString:@"?client_id=64a52bb31abd2ec73f8adda86358cfbf"];
-                    
-                    [_audioPlayer play:url];
-                    for( int i=0; i<100; i++ ) {
-                        [_audioPlayer queue:url];
-                    }
+                    __weak typeof (self) weakSelf = self;
+                    _soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
+                    [_soundStreamHelper playUrl:url];
                 }];
             } else {
+                _type = MUSIC;
                 NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
-                [_audioPlayer play:url];
+                __weak typeof (self) weakSelf = self;
+                _soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
+                [_soundStreamHelper playUrl:url];
             }
-            
             _textureHelper = [[TextureHelper alloc] initWithType:MUSIC vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
         } else {
             _type = TEXTURE2D;
         }
     }
-    
     
     if( _type == TEXTURE2D || [input.ctype isEqualToString:@"texture"] || [input.ctype isEqualToString:@"cubemap"] ) {
         _type = [input.ctype isEqualToString:@"cubemap"] ? TEXTURECUBE : TEXTURE2D;
@@ -248,17 +163,27 @@
             [_textureHelper loadFromFile:file];
         } else {
             NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
-         
+            
             _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
             [_textureHelper loadFromURL:file];
         }
     }
+    
+    if( [input.ctype isEqualToString:@"volume"] ) {
+        _type = TEXTURE3D;
+        NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
+        
+        _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
+        [_textureHelper loadFromURL:file];
+    }
 }
 
 - (void) bindTexture:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
+    // NSLog(@"Bind input %s to %d", [_shaderPassInput.src cStringUsingEncoding:NSUTF8StringEncoding], _channelSlot );
+    
+    glActiveTexture(GL_TEXTURE0 + _channelSlot);
+    
     if( _type == BUFFER ) {
-        glActiveTexture(GL_TEXTURE0 + _channelSlot);
-        
         NSNumber *inputId = _shaderPassInput.inputId;
         
         for( ShaderPassRenderer *shaderPass in shaderPasses ) {
@@ -271,25 +196,30 @@
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 }
-                _iChannelResolutionWidth = [shaderPass getWidth];
-                _iChannelResolutionHeight = [shaderPass getHeight];
-                
+                _iChannelWidth = [shaderPass getWidth];
+                _iChannelHeight = [shaderPass getHeight];
+                _iChannelDepth = [shaderPass getDepth];
             }
         }
     }
     else if( _textureHelper ) {
         if( [_textureHelper getType] == KEYBOARD ) {
-            [_textureHelper loadData:keyboardBuffer width:256 height:2 channels:1];
+            [_textureHelper loadData:keyboardBuffer width:256 height:2 depth:1 channels:1 isFloat:NO];
         }
         else if( [_textureHelper getType] == MUSIC ) {
-            [_textureHelper loadData:_buffer width:256 height:2 channels:1];
+            [_textureHelper loadData:_buffer width:256 height:2 depth:1 channels:1 isFloat:NO];
         }
         
         [_textureHelper bindToChannel:_channelSlot];
         
-        _iChannelResolutionWidth = [_textureHelper getWidth];
-        _iChannelResolutionHeight = [_textureHelper getHeight];
+        _iChannelWidth = [_textureHelper getWidth];
+        _iChannelHeight = [_textureHelper getHeight];
+        _iChannelDepth = [_textureHelper getDepth];
     }
+}
+
+- (void) updateSpectrum:(unsigned char *)data {
+    _buffer = data;
 }
 
 - (void) mute {
@@ -297,28 +227,20 @@
 }
 
 - (void) pause {
-    if( _audioPlayer ) {
-        [_audioPlayer pause];
+    if( _soundStreamHelper ) {
+        [_soundStreamHelper pause];
     }
 }
 
 - (void) play {
-    if( _audioPlayer ) {
-        [_audioPlayer resume];
+    if( _soundStreamHelper ) {
+        [_soundStreamHelper play];
     }
 }
 
 - (void) rewindTo:(double)time {
-    if( _audioPlayer ) {
-        [_audioPlayer seekToTime:time];
-    }
-}
-
-- (void) stop {
-    if( _audioPlayer ) {
-        [_audioPlayer removeFrameFilterWithName:@"STKSpectrumAnalyzerFilter"];
-        [_audioPlayer stop];
-        [_audioPlayer dispose];
+    if( _soundStreamHelper ) {
+        [_soundStreamHelper rewindTo:time];
     }
 }
 
@@ -326,46 +248,32 @@
     if( _textureHelper ) {
         _textureHelper = nil;
     }
-    if( _audioPlayer ) {
-        [_audioPlayer stop];
-        [_audioPlayer dispose];
-        _audioPlayer = nil;
+    if( _soundStreamHelper ) {
+        _soundStreamHelper = nil;
     }
 }
 
-- (void) setupFFT {
-    int maxSamples = 4096;
-    int log2n = log2f(maxSamples);
-    int n = 1 << log2n;
-    
-    fftStride = 1;
-    int nOver2 = maxSamples / 2;
-    
-    fftInput.realp = (float*)calloc(nOver2, sizeof(float));
-    fftInput.imagp =(float*)calloc(nOver2, sizeof(float));
-    
-    obtainedReal = (float*)calloc(n, sizeof(float));
-    originalReal = (float*)calloc(n, sizeof(float));
-    window = (float*)calloc(maxSamples, sizeof(float));
-    _buffer = (unsigned char*)calloc(n, sizeof(unsigned char));
-    
-    vDSP_blkman_window(window, maxSamples, 0);
-    
-    setupReal = vDSP_create_fftsetup(log2n, FFT_RADIX2);
+- (float) getWidth {
+    return _iChannelWidth;
 }
 
-
-- (float) getResolutionWidth {
-    return _iChannelResolutionWidth;
+- (float) getHeight {
+    return _iChannelHeight;
 }
 
-- (float) getResolutionHeight {
-    return _iChannelResolutionHeight;
+- (float) getDepth {
+    return _iChannelDepth;
+}
+
+- (float) getTime {
+    if( _soundStreamHelper ) {
+        return [_soundStreamHelper getTime];
+    }
+    return _iChannelTime;
 }
 
 - (int) getChannel {
-    return [[_shaderPassInput channel] intValue];
+    return _channelSlot;
 }
-
 
 @end
