@@ -6,6 +6,7 @@ precision highp sampler2D;
 
 uniform vec3      iResolution;                  // viewport resolution (in pixels)
 uniform float     iTime;                        // shader playback time (in seconds)
+uniform float     iGlobalTime;                  // shader playback time (in seconds)
 uniform vec4      iMouse;                       // mouse pixel coords
 uniform vec4      iDate;                        // (year, month, day, time in seconds)
 uniform float     iSampleRate;                  // sound sample rate (i.e., 44100)

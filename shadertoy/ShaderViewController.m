@@ -217,7 +217,7 @@
     [self layoutCanvasView];
 }
 
-- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
+- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)(void))success {
     [self bk_performBlock:^(id obj) {
         NSString *error;
         

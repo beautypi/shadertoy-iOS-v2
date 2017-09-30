@@ -38,6 +38,7 @@ typedef NS_ENUM(NSUInteger, VRSettingsQuality) {
 -(NSString *) getFragmentShaderCode;
 
 -(GLKVector3) getDeviceRotation;
+-(GLKVector3) getDevicePosition;
 -(GLKMatrix3) getDeviceRotationMatrix;
 
 -(void) setInputActive:(bool)active;

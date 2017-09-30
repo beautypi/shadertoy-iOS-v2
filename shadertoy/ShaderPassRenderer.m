@@ -384,7 +384,9 @@ const GLubyte Indices[] = {
     glUniform2fv( [self getLoc:@"ifFragCoordOffsetUniform" program:_programId], 1, _ifFragCoordOffsetXY);
     if( _vrSettings ) {
         GLKMatrix3 mat = [_vrSettings getDeviceRotationMatrix];
+        GLKVector3 pos = [_vrSettings getDevicePosition];
         glUniformMatrix3fv( [self getLoc:@"iDeviceRotationUniform" program:_programId], 1, false, &mat.m00);
+        glUniform3f( [self getLoc:@"iDevicePositionUniform" program:_programId], pos.x, pos.y, pos.z );
     }
     
     NSDateComponents *components = [[NSCalendar currentCalendar] components:kCFCalendarUnitYear | kCFCalendarUnitMonth | kCFCalendarUnitDay | kCFCalendarUnitHour | kCFCalendarUnitMinute | kCFCalendarUnitSecond fromDate:_date];

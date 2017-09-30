@@ -2,6 +2,7 @@
 
 #ifdef VR_SETTINGS_DEVICE_ORIENTATION
 uniform mat3 iDeviceRotationUniform;
+uniform vec3 iDevicePositionUniform;
 #endif
 
 
@@ -106,6 +107,8 @@ void main()  {
     mat3 rotation = iDeviceRotationUniform;
     rd = rotation * vec3(rd.y, -rd.x, rd.z);
     ro = rotation * vec3(ro.y, -ro.x, ro.z);
+    
+    ro += iDevicePositionUniform * 10.;
 #else
     eyeRotation.yx = .5*mix( vec2(-3.1415926), vec2(3.1415926), abs(iMouse.xy) / iResolution.xy ) * vec2(1.,-1.);
     
