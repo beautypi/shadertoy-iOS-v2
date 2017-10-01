@@ -36,7 +36,8 @@ typedef NS_ENUM(NSUInteger, ShaderInputType) {
 @interface ShaderInput : NSObject
 
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input;
-- (void) bindTexture:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer;
+- (void) update:(unsigned char*)keyboardBuffer;
+- (void) bindTexture:(NSMutableArray *)shaderPasses;
 
 - (void) pause;
 - (void) play;

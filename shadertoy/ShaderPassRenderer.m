@@ -8,23 +8,13 @@
 
 #import "ShaderPassRenderer.h"
 #import "ShaderInput.h"
+#import "VRManager.h"
+#import "GLUtils.h"
 
 #import <OpenGLES/ES3/gl.h>
 #import <OpenGLES/ES3/glext.h>
 
 #import "Utils.h"
-
-const float Vertices[] = {
-    1, -1, 0,
-    1,  1, 0,
-    -1,  1, 0,
-    -1, -1, 0
-};
-
-const GLubyte Indices[] = {
-    0, 1, 2,
-    2, 3, 0
-};
 
 @interface ShaderPassRenderer () {
     VRSettings* _vrSettings;
@@ -38,7 +28,6 @@ const GLubyte Indices[] = {
     GLuint _vertexBuffer;
     GLuint _indexBuffer;
     GLuint _vertexArray;
-    
     
     float _iSampleRate;
     float *_channelResolution;
@@ -61,9 +50,6 @@ const GLubyte Indices[] = {
     
     GLuint _copyProgramId;
     GLuint _copyRenderTexture;
-    GLuint _copyResolutionSourceUniform;
-    GLuint _copyResolutionTargetUniform;
-    GLuint _copyTextureUniform;
 }
 
 @end
@@ -93,82 +79,16 @@ const GLubyte Indices[] = {
     _shaderSettings = shaderSettings;
 }
 
-- (void) initVertexBuffer {
-    glGenVertexArrays(1, &_vertexArray);
-    glBindVertexArray(_vertexArray);
-    
-    glGenBuffers(1, &_vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &_indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-    
-    glBindVertexArray(0);
-}
-
 - (void) initRenderBuffers {
     if( [_shaderPass.type isEqualToString:@"buffer"] ) {
         _renderToBuffer = true;
-        GLint drawFboId;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
-        
-        glGenFramebuffers(1, &_frameBuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-        
+        _frameBuffer = [GLUtils createRenderBuffer];
         _renderBufferWidth = _renderBufferHeight = -1;
         
         glGenTextures(1, &_renderTexture0);
         glGenTextures(1, &_renderTexture1);
         glGenTextures(1, &_copyRenderTexture);
-        
-        glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
     }
-}
-
-- (int) compileShader:(NSString *)VertexShaderCode fragmentShaderCode:(NSString *)FragmentShaderCode theError:(NSString **)error {
-    GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-    
-    char const * VertexSourcePointer = [VertexShaderCode UTF8String];
-    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-    glCompileShader(VertexShaderID);
-    
-    char const * FragmentSourcePointer = [FragmentShaderCode UTF8String];
-    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-    glCompileShader(FragmentShaderID);
-    
-    GLint logLength;
-    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetShaderInfoLog(FragmentShaderID, logLength, &logLength, log);
-        *error = [NSString stringWithFormat:@"%s", log];
-        free(log);
-        
-        return -1;
-    }
-    
-    GLuint programId = glCreateProgram();
-    glAttachShader(programId, VertexShaderID);
-    glAttachShader(programId, FragmentShaderID);
-    glLinkProgram(programId);
-    
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
-    
-    glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0) {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetProgramInfoLog(programId, logLength, &logLength, log);
-        *error = [NSString stringWithFormat:@"%s", log];
-        free(log);
-        
-        return -1;
-    }
-    
-    return (int)programId;
 }
 
 - (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
@@ -182,7 +102,7 @@ const GLubyte Indices[] = {
         VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
     }
     
-    NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
+    NSString *FragmentShaderCode = [[NSString alloc] readFromFile:@"/shaders/fragment_base_uniforms" ofType:@"glsl"];
     
     bool channelsUsed[4];
     for( int i=0; i<4; i++ ) {
@@ -217,7 +137,7 @@ const GLubyte Indices[] = {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_image" ofType:@"glsl"]];
     }
     
-    int programId = [self compileShader:VertexShaderCode fragmentShaderCode:FragmentShaderCode theError:error];
+    int programId = [GLUtils compileShader:VertexShaderCode fragmentShaderCode:FragmentShaderCode theError:error];
     if( programId < 0 ) {
         return NO;
     }
@@ -225,7 +145,7 @@ const GLubyte Indices[] = {
     
     _positionSlot = glGetAttribLocation(_programId, "position");
     
-    [self initVertexBuffer];
+    [GLUtils createVAO:&_vertexArray buffer:&_vertexBuffer index:&_indexBuffer];
     [self initShaderPassInputs];
     [self initRenderBuffers];
     [self initCopyProgram];
@@ -266,11 +186,7 @@ const GLubyte Indices[] = {
         NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_main_copy" ofType:@"glsl"];
         NSString *error;
         
-        _copyProgramId = [self compileShader:VertexShaderCode fragmentShaderCode:FragmentShaderCode theError:&error];
-        
-        _copyResolutionSourceUniform = glGetUniformLocation(_copyProgramId, "sourceResolution");
-        _copyResolutionTargetUniform = glGetUniformLocation(_copyProgramId, "targetResolution");
-        _copyTextureUniform = glGetUniformLocation(_copyProgramId, "sourceTexture");
+        _copyProgramId = [GLUtils compileShader:VertexShaderCode fragmentShaderCode:FragmentShaderCode theError:&error];
     }
 }
 
@@ -286,18 +202,15 @@ const GLubyte Indices[] = {
     
     glUseProgram(_copyProgramId);
     
-    glUniform1i(_copyTextureUniform, 0);
-    glUniform2f(_copyResolutionSourceUniform, (float)sw, (float)sh);
-    glUniform2f(_copyResolutionTargetUniform, (float)tw, (float)th);
+    glUniform1i([self getLoc:@"sourceTexture" program:_copyProgramId], 0);
+    glUniform2f([self getLoc:@"sourceResolution" program:_copyProgramId], (float)sw, (float)sh);
+    glUniform2f([self getLoc:@"targetResolution" program:_copyProgramId], (float)tw, (float)th);
     
     glActiveTexture(GL_TEXTURE0 );
     glBindTexture(GL_TEXTURE_2D, source);
     
-    glEnableVertexAttribArray(_positionSlot);
-    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
-    
     glBindVertexArray(_vertexArray);
-    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
     
     glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
 }
@@ -383,8 +296,8 @@ const GLubyte Indices[] = {
     
     glUniform2fv( [self getLoc:@"ifFragCoordOffsetUniform" program:_programId], 1, _ifFragCoordOffsetXY);
     if( _vrSettings ) {
-        GLKMatrix3 mat = [_vrSettings getDeviceRotationMatrix];
-        GLKVector3 pos = [_vrSettings getDevicePosition];
+        GLKMatrix3 mat = [VRManager getDeviceRotationMatrix];
+        GLKVector3 pos = [VRManager getDevicePosition];
         glUniformMatrix3fv( [self getLoc:@"iDeviceRotationUniform" program:_programId], 1, false, &mat.m00);
         glUniform3f( [self getLoc:@"iDevicePositionUniform" program:_programId], pos.x, pos.y, pos.z );
     }
@@ -438,7 +351,6 @@ const GLubyte Indices[] = {
     glDeleteBuffers(1, &_vertexBuffer);
     glDeleteBuffers(1, &_indexBuffer);
     glDeleteVertexArrays(1, &_vertexArray);
-    glDeleteProgram(_programId);
     glDeleteProgram(_programId);
     
     if( _renderToBuffer ) {
@@ -500,7 +412,13 @@ const GLubyte Indices[] = {
     _currentRenderTexture = !_currentRenderTexture;
 }
 
-- (void) render:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
+- (void) updateShaderInputs:(unsigned char*)keyboardBuffer {
+    for( ShaderInput* shaderInput in _shaderInputs ) {
+        [shaderInput update:keyboardBuffer];
+    }
+}
+    
+- (void) render:(NSMutableArray *)shaderPasses {
     if( !_programId ) return;
     
     GLint drawFboId = 0;
@@ -520,16 +438,13 @@ const GLubyte Indices[] = {
     glUseProgram(_programId);
     
     for( ShaderInput* shaderInput in _shaderInputs ) {
-        [shaderInput bindTexture:shaderPasses keyboardBuffer:keyboardBuffer];
+        [shaderInput bindTexture:shaderPasses];
     }
     
     [self bindUniforms];
     
-    glEnableVertexAttribArray(_positionSlot);
-    glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (const GLvoid *) 0);
-    
     glBindVertexArray(_vertexArray);
-    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
     
     if( _renderToBuffer ) {
         glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);

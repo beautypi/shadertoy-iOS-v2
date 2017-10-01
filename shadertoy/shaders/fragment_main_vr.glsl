@@ -108,7 +108,7 @@ void main()  {
     rd = rotation * vec3(rd.y, -rd.x, rd.z);
     ro = rotation * vec3(ro.y, -ro.x, ro.z);
     
-    ro += iDevicePositionUniform * 10.;
+    ro += iDevicePositionUniform;
 #else
     eyeRotation.yx = .5*mix( vec2(-3.1415926), vec2(3.1415926), abs(iMouse.xy) / iResolution.xy ) * vec2(1.,-1.);
     

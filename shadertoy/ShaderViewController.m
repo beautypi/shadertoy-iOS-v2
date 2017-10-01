@@ -14,6 +14,7 @@
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+AFNetworking.h"
 #import "BlocksKit.h"
+#import "VRManager.h"
 
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -96,6 +97,7 @@
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
+    [VRManager deActivate];
     [_soundPassPlayer stop];
     [_imageShaderViewController pauseInputs];
     [super viewWillDisappear:animated];

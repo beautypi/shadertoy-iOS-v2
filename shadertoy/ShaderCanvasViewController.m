@@ -9,6 +9,7 @@
 #import "ShaderCanvasViewController.h"
 #import "ShaderInput.h"
 #import "ShaderPassRenderer.h"
+#import "VRManager.h"
 
 #import <OpenGLES/ES3/gl.h>
 #import <OpenGLES/ES3/glext.h>
@@ -161,7 +162,7 @@
         [pass start];
     }
     if( _vrSettings ) {
-        [_vrSettings setInputActive:true];
+        [VRManager setInputActive:true];
     }
 }
 
@@ -172,7 +173,7 @@
         [pass pauseInputs];
     }
     if( _vrSettings ) {
-        [_vrSettings setInputActive:false];
+        [VRManager setInputActive:false];
     }
 }
 
@@ -183,7 +184,7 @@
         [pass resumeInputs];
     }
     if( _vrSettings ) {
-        [_vrSettings setInputActive:true];
+        [VRManager setInputActive:true];
     }
 }
 
@@ -294,7 +295,9 @@
         [pass setDate:date];
         [pass setFrame:(_frame>0?_frame:0)];
         [pass setTimeDelta:deltaTime];
-        [pass render:_shaderPasses keyboardBuffer:&_keyboardBuffer[0]];
+        [pass updateShaderInputs:&_keyboardBuffer[0]];
+ 
+        [pass render:_shaderPasses];
         
         [pass nextFrame];
     }    
@@ -367,6 +370,5 @@
 - (void)updateKeyboardBufferUp:(int)v {
     _keyboardBuffer[v] = 0;
 }
-
 
 @end

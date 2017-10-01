@@ -200,15 +200,15 @@
     GLenum sourceFormat=GL_RGBA;
     
     if (channels == 4) {
-        format = isFloat?GL_RGBA16F:GL_RGBA;
+        format = isFloat?GL_RGBA16F:GL_RGBA8;
         sourceFormat=GL_RGBA;
     }
     if (channels == 3) {
-        format = isFloat?GL_RGB16F:GL_RGB;
+        format = isFloat?GL_RGB16F:GL_RGB8;
         sourceFormat=GL_RGB;
     }
     if (channels == 2) {
-        format = isFloat?GL_RG16F:GL_RG;
+        format = isFloat?GL_RG16F:GL_RG8;
         sourceFormat=GL_RG;
     }
     if (channels == 1) {

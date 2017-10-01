@@ -15,6 +15,9 @@
 		4B321C611C15952A00EA227E /* APISoundCloud.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C601C15952A00EA227E /* APISoundCloud.m */; };
 		4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
 		4B375CA91B85DCF600583F2B /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
+		4B53BA351F7FAFAA002495CD /* VRManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B53BA341F7FAFAA002495CD /* VRManager.m */; };
+		4B53BA381F7FBB98002495CD /* CameraTextureHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B53BA371F7FBB98002495CD /* CameraTextureHelper.m */; };
+		4B53BA3B1F7FEAA2002495CD /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B53BA3A1F7FEAA2002495CD /* GLUtils.m */; };
 		4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; };
 		4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B51B8C7B6900928AD5 /* AboutViewController.m */; };
 		4B8610BA1B94590E00928AD5 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B91B94590E00928AD5 /* Utils.m */; };
@@ -54,6 +57,12 @@
 		4B375CA11B85038F00583F2B /* ShaderCanvasViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderCanvasViewController.h; sourceTree = "<group>"; };
 		4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShaderCanvasViewController.m; sourceTree = "<group>"; };
 		4B375CA81B85DCF600583F2B /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = presets; sourceTree = "<group>"; };
+		4B53BA331F7FAFAA002495CD /* VRManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VRManager.h; sourceTree = "<group>"; };
+		4B53BA341F7FAFAA002495CD /* VRManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VRManager.m; sourceTree = "<group>"; };
+		4B53BA361F7FBB98002495CD /* CameraTextureHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraTextureHelper.h; sourceTree = "<group>"; };
+		4B53BA371F7FBB98002495CD /* CameraTextureHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraTextureHelper.m; sourceTree = "<group>"; };
+		4B53BA391F7FEAA2002495CD /* GLUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
+		4B53BA3A1F7FEAA2002495CD /* GLUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GLUtils.m; sourceTree = "<group>"; };
 		4B745CA51ED20F5700A9FDD8 /* stb_image.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		4B759EDC1BADDF93001563AA /* VRSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRSettings.h; sourceTree = "<group>"; };
 		4B759EDD1BADDF93001563AA /* VRSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VRSettings.m; sourceTree = "<group>"; };
@@ -176,6 +185,8 @@
 				4BF748C71B84852A00E2F772 /* Supporting Files */,
 				4B8610BB1B94592000928AD5 /* Utils.h */,
 				4B8610B91B94590E00928AD5 /* Utils.m */,
+				4B53BA331F7FAFAA002495CD /* VRManager.h */,
+				4B53BA341F7FAFAA002495CD /* VRManager.m */,
 				4B759EDC1BADDF93001563AA /* VRSettings.h */,
 				4B759EDD1BADDF93001563AA /* VRSettings.m */,
 				4B8D55051D44F6B300EAE5F7 /* ShaderSettings.h */,
@@ -185,6 +196,10 @@
 				4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */,
 				4BBD31F31F5C23F400CEE627 /* SoundStreamHelper.h */,
 				4BBD31F41F5C23F400CEE627 /* SoundStreamHelper.m */,
+				4B53BA361F7FBB98002495CD /* CameraTextureHelper.h */,
+				4B53BA371F7FBB98002495CD /* CameraTextureHelper.m */,
+				4B53BA391F7FEAA2002495CD /* GLUtils.h */,
+				4B53BA3A1F7FEAA2002495CD /* GLUtils.m */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -370,6 +385,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B53BA3B1F7FEAA2002495CD /* GLUtils.m in Sources */,
 				4BF1F1991C54093E00D50CBE /* ShaderPassRenderer.m in Sources */,
 				4BF748F21B848AD900E2F772 /* APIShadertoy.m in Sources */,
 				4BF748CD1B84852A00E2F772 /* AppDelegate.m in Sources */,
@@ -383,8 +399,10 @@
 				4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */,
 				4BF748FE1B8498E100E2F772 /* QueryTableViewCell.m in Sources */,
 				4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */,
+				4B53BA381F7FBB98002495CD /* CameraTextureHelper.m in Sources */,
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
 				4B321C611C15952A00EA227E /* APISoundCloud.m in Sources */,
+				4B53BA351F7FAFAA002495CD /* VRManager.m in Sources */,
 				4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */,
 				4B1C95BD1ED6DC4400FC91D1 /* TextureHelper.m in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
