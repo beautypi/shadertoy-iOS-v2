@@ -27,7 +27,6 @@
     ShaderInputWrapMode _wrapMode;
     
     TextureHelper *_textureHelper;
-    CameraTextureHelper *_cameraTextureHelper;
     SoundStreamHelper* _soundStreamHelper;
     
     float _iChannelTime;
@@ -156,10 +155,7 @@
     
     if( [input.ctype isEqualToString:@"webcam"] && [CameraTextureHelper isSupported]) {
         _type = WEBCAM;
-        _cameraTextureHelper = [[CameraTextureHelper alloc] init];
-        _iChannelWidth = 512;
-        _iChannelHeight = 512;
-        _iChannelDepth = 1;
+        _textureHelper = [[CameraTextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
     }
     
     if( _type == TEXTURE2D || [input.ctype isEqualToString:@"texture"] || [input.ctype isEqualToString:@"cubemap"] ) {
@@ -196,9 +192,7 @@
         else if( [_textureHelper getType] == MUSIC ) {
             [_textureHelper loadData:_buffer width:256 height:2 depth:1 channels:1 isFloat:NO];
         }
-    }
-    if( _cameraTextureHelper ) {
-        [_cameraTextureHelper update];
+        [_textureHelper update];
     }
 }
     
@@ -230,9 +224,6 @@
         _iChannelWidth = [_textureHelper getWidth];
         _iChannelHeight = [_textureHelper getHeight];
         _iChannelDepth = [_textureHelper getDepth];
-    }
-    else if(_cameraTextureHelper) {
-        [_cameraTextureHelper bindToChannel:_channelSlot];
     }
 }
     

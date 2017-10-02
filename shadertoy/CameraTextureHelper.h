@@ -7,12 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "TextureHelper.h"
 
-@interface CameraTextureHelper : NSObject
-
+@interface CameraTextureHelper : TextureHelper
+    
 +(BOOL) isSupported;
-  
--(void) update;
--(void) bindToChannel:(int)channel;
+
+- (id) initWithType:(ShaderInputType)type vFlip:(bool)vFlip sRGB:(bool)sRGB wrapMode:(ShaderInputWrapMode)wrapMode filterMode:(ShaderInputFilterMode)filterMode;
+
+- (void) update;
     
 @end

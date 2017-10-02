@@ -30,16 +30,14 @@
     GLuint _vertexBuffer;
     GLuint _indexBuffer;
     GLuint _vertexArray;
-    
-    GLuint _tex;
 }
     
     @end
 
 @implementation CameraTextureHelper
     
--(id) init {
-    self = [super init];
+- (id) initWithType:(ShaderInputType)type vFlip:(bool)vFlip sRGB:(bool)sRGB wrapMode:(ShaderInputWrapMode)wrapMode filterMode:(ShaderInputFilterMode)filterMode {
+    self = [super initWithType:type vFlip:vFlip sRGB:sRGB wrapMode:wrapMode filterMode:filterMode];
     
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [EAGLContext currentContext], NULL, &_videoTextureCache);
     if (err)
@@ -56,6 +54,8 @@
     [GLUtils createVAO:&_vertexArray buffer:&_vertexBuffer index:&_indexBuffer];
         
     _frameBuffer = [GLUtils createRenderBuffer];
+    [self createEmpty:512 height:512];
+
     return self;
 }
     
@@ -139,15 +139,7 @@
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFboId);
     
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-    
-    if(!_tex) {
-        glGenTextures(1, &_tex);
-        glBindTexture(GL_TEXTURE_2D, _tex);
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 512, 512);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _tex, 0);
-    }
-    
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _tex, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  [self getTexId], 0);
     
     glViewport(0, 0, 512, 512);
     
@@ -162,16 +154,27 @@
     glUniform1i( glGetUniformLocation(_programId, "SamplerY"), 0);
     glUniform1i( glGetUniformLocation(_programId, "SamplerUV"), 1);
     
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    
+    if(orientation == UIInterfaceOrientationPortrait) {
+        glUniform1i( glGetUniformLocation(_programId, "uOrientation"), 1);
+    } else if(orientation == UIInterfaceOrientationLandscapeLeft) {
+        glUniform1i( glGetUniformLocation(_programId, "uOrientation"), 2);
+    } else if(orientation == UIInterfaceOrientationLandscapeRight) {
+        glUniform1i( glGetUniformLocation(_programId, "uOrientation"), 3);
+    } else {
+        glUniform1i( glGetUniformLocation(_programId, "uOrientation"), 4);
+    }
     
     glBindVertexArray(_vertexArray);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
     
     glBindFramebuffer(GL_FRAMEBUFFER, drawFboId);
-}
     
-- (void) bindToChannel:(int)channel {
-    glActiveTexture(GL_TEXTURE0 + channel);
-    glBindTexture(GL_TEXTURE_2D, _tex);
+    if( [self getFilterMode] == MIPMAP) {
+        glBindTexture(GL_TEXTURE_2D, [self getTexId]);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 }
     
 - (void)dealloc {
@@ -182,10 +185,6 @@
     glDeleteVertexArrays(1, &_vertexArray);
     
     glDeleteFramebuffers(1, &_frameBuffer);
-    
-    if(_tex) {
-        glDeleteTextures(1, &_tex);
-    }
     
     glDeleteProgram(_programId);
 }
@@ -201,7 +200,7 @@
         _chromaTexture = NULL;
     }
     
-    // Periodic texture cache flush every frame
+    // Texture cache flush every frame
     CVOpenGLESTextureCacheFlush(_videoTextureCache, 0);
 }
     

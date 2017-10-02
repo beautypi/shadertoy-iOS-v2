@@ -17,7 +17,9 @@
 - (void) loadFromURL:(NSString *)url;
 - (void) loadData:(unsigned char *)data width:(int)width height:(int)height depth:(int)depth channels:(int)channels isFloat:(BOOL)isFloat cubemapLayer:(int)layer;
 - (void) loadData:(unsigned char *)data width:(int)width height:(int)height depth:(int)depth channels:(int)channels isFloat:(BOOL)isFloat;
-
+- (void) createEmpty:(int)width height:(int)height;
+    
+- (void) update;
 - (void) bindToChannel:(int)channel;
 
 - (float) getWidth;
@@ -25,5 +27,7 @@
 - (float) getDepth;
 
 - (ShaderInputType) getType;
-
+- (ShaderInputFilterMode) getFilterMode;
+- (GLuint) getTexId;
+    
 @end
