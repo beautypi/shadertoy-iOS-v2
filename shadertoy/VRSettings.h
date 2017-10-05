@@ -17,6 +17,7 @@ typedef NS_ENUM(NSUInteger, VRSettingsRenderMode) {
 typedef NS_ENUM(NSUInteger, VRSettingsInput) {
     VR_INPUT_NONE,
     VR_INPUT_DEVICE,
+    VR_INPUT_ARKIT,
     VR_INPUT_TOUCH
 };
 typedef NS_ENUM(NSUInteger, VRSettingsQuality) {

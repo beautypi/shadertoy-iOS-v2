@@ -35,6 +35,8 @@
         
         if( [shader needsUpdateFromAPI] ) {
             needsUpdate = YES;
+        } else {
+            success(shader);            
         }
     } else {
         shader = [[APIShaderObject alloc] init];

@@ -33,7 +33,7 @@
     
     NSString * version = [[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"];
     [self.aboutText2 setText:
-     [NSString stringWithFormat:@"\nVersion %@ : Not all shader input types are implemented yet (webcam, microphone, video).\n\n"
+     [NSString stringWithFormat:@"\nVersion %@ : Not all shader input types are implemented yet (microphone, video).\n\n"
       @"Please let me know if you have any suggestions, comments or questions about this app:\n"
       , version]];
 }

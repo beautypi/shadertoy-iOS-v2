@@ -12,11 +12,11 @@
 #import <ARKit/ARKit.h>
 
 @implementation VRManager
-    static GLKMatrix3 deviceRotationMatrix;
-    static GLKVector3 devicePosition;
-    static bool inputActive;
-    static bool arKitPaused;
-    
+static GLKMatrix3 deviceRotationMatrix;
+static GLKVector3 devicePosition;
+static bool inputActive;
+static bool arKitPaused;
+
 - (id)init {
     self = [super init];
     if(self){
@@ -24,7 +24,7 @@
     }
     return self;
 }
-    
+
 + (CMMotionManager*)sharedMotionManager {
     static CMMotionManager *_sharedMotionManagerInstance;
     if(!_sharedMotionManagerInstance) {
@@ -40,7 +40,7 @@
     
     return _sharedMotionManagerInstance;
 }
-    
+
 + (id)sharedARSession {
     if (@available(iOS 11.0, *)) {
         static ARSession *_sharedARSessionInstance;
@@ -57,7 +57,7 @@
         }
         if(_sharedARSessionInstance && arKitPaused) {
             ARWorldTrackingConfiguration *configuration = [ARWorldTrackingConfiguration new];
-
+            
             [_sharedARSessionInstance runWithConfiguration:configuration options:ARSessionRunOptionResetTracking];
             arKitPaused = NO;
         }
@@ -67,7 +67,7 @@
         return NULL;
     }
 }
-    
+
 +(BOOL) isARKitSupported {
     if (@available(iOS 11.0, *)) {
         if( [ARWorldTrackingConfiguration isSupported] ) {
@@ -76,11 +76,11 @@
     }
     return false;
 }
-    
+
 +(BOOL) isCameraTextureSupported {
     return [VRManager isARKitSupported];
 }
-    
+
 +(CVPixelBufferRef) capturedImage {
     if(@available(iOS 11.0, *) ) {
         if( [VRManager sharedARSession] ) {
@@ -92,25 +92,29 @@
     return NULL;
 }
 
-+(GLKVector3) getDevicePosition {
++(GLKVector3) getDevicePosition:(VRSettings *)settings {
     if(!inputActive) {
         return devicePosition;
     }
     
-    if(@available(iOS 11.0, *) ) {
-        if( [VRManager sharedARSession] ) {
-            ARSession * session = (ARSession *)[VRManager sharedARSession];
-            matrix_float4x4 mat = [[session currentFrame] camera].transform;
-
-            devicePosition.x = mat.columns[3][0];
-            devicePosition.y = mat.columns[3][1];
-            devicePosition.z = mat.columns[3][2];
+    if(settings.inputMode == VR_INPUT_ARKIT) {
+        if(@available(iOS 11.0, *) ) {
+            if( [VRManager sharedARSession] ) {
+                ARSession * session = (ARSession *)[VRManager sharedARSession];
+                matrix_float4x4 mat = [[session currentFrame] camera].transform;
+                
+                devicePosition.x = mat.columns[3][0];
+                devicePosition.y = mat.columns[3][1];
+                devicePosition.z = mat.columns[3][2];
+            }
         }
+    } else {
+        devicePosition = GLKVector3Make(0.0f, 0.0f, 0.0f);
     }
     return devicePosition;
 }
-    
-+(GLKMatrix3) getDeviceRotationMatrix {
+
++(GLKMatrix3) getDeviceRotationMatrix:(VRSettings *)settings {
     if(!inputActive) {
         return deviceRotationMatrix;
     }
@@ -118,20 +122,22 @@
     GLKMatrix3 glkm;
     BOOL arKitUsed = NO;
     
-    if(@available(iOS 11.0, *) ) {
-        ARSession * session = (ARSession *)[VRManager sharedARSession];
-        if( session ) {
-            
-            matrix_float4x4 mat = [[session currentFrame] camera].transform;
-            
-            glkm = GLKMatrix3Make(mat.columns[0][0], mat.columns[0][1], mat.columns[0][2],
-                                  mat.columns[1][0], mat.columns[1][1], mat.columns[1][2],
-                                  mat.columns[2][0], mat.columns[2][1], mat.columns[2][2]);
-            
-            glkm = GLKMatrix3Multiply( GLKMatrix3Multiply( GLKMatrix3Make(-1,0,0,    0,0,-1,    0,1,0 ), glkm ),  GLKMatrix3Make(0,-1,0,    1,0,0,    0,0,-1 ) );
-            
-            deviceRotationMatrix = glkm;
-            arKitUsed = YES;
+    if(settings.inputMode == VR_INPUT_ARKIT) {
+        if(@available(iOS 11.0, *) ) {
+            ARSession * session = (ARSession *)[VRManager sharedARSession];
+            if( session ) {
+                
+                matrix_float4x4 mat = [[session currentFrame] camera].transform;
+                
+                glkm = GLKMatrix3Make(mat.columns[0][0], mat.columns[0][1], mat.columns[0][2],
+                                      mat.columns[1][0], mat.columns[1][1], mat.columns[1][2],
+                                      mat.columns[2][0], mat.columns[2][1], mat.columns[2][2]);
+                
+                glkm = GLKMatrix3Multiply( GLKMatrix3Multiply( GLKMatrix3Make(-1,0,0,    0,0,-1,    0,1,0 ), glkm ),  GLKMatrix3Make(0,-1,0,    1,0,0,    0,0,-1 ) );
+                
+                deviceRotationMatrix = glkm;
+                arKitUsed = YES;
+            }
         }
     }
     
@@ -157,12 +163,12 @@
     
     return deviceRotationMatrix;
 }
-    
+
 +(void) setInputActive:(bool)active {
     inputActive = active;
     [self deActivate];
 }
-    
+
 +(void) deActivate {
     if(@available(iOS 11.0, *) ) {
         ARSession * session = (ARSession *)[VRManager sharedARSession];
@@ -173,5 +179,5 @@
         arKitPaused = YES;
     }
 }
-    
+
 @end

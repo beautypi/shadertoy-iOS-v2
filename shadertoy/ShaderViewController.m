@@ -448,13 +448,24 @@
                                        [weakSelf vrChooseQuality:vrSettings];
                                        
                                    }]];
-    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
-                                   {
-                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
-                                       vrSettings.inputMode = VR_INPUT_DEVICE;
-                                       [weakSelf vrChooseQuality:vrSettings];
-                                       
-                                   }]];
+    if( [VRManager isARKitSupported] ) {
+        [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation & position" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                       {
+                                           [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                           vrSettings.inputMode = VR_INPUT_ARKIT;
+                                           [weakSelf vrChooseQuality:vrSettings];
+                                           
+                                       }]];
+        
+    } else {
+        [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                       {
+                                           [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                           vrSettings.inputMode = VR_INPUT_DEVICE;
+                                           [weakSelf vrChooseQuality:vrSettings];
+                                           
+                                       }]];
+    }
     [self presentViewController:myAlertController animated:YES completion:nil];
 }
 

@@ -296,8 +296,8 @@
     
     glUniform2fv( [self getLoc:@"ifFragCoordOffsetUniform" program:_programId], 1, _ifFragCoordOffsetXY);
     if( _vrSettings ) {
-        GLKMatrix3 mat = [VRManager getDeviceRotationMatrix];
-        GLKVector3 pos = [VRManager getDevicePosition];
+        GLKMatrix3 mat = [VRManager getDeviceRotationMatrix:_vrSettings];
+        GLKVector3 pos = [VRManager getDevicePosition:_vrSettings];
         glUniformMatrix3fv( [self getLoc:@"iDeviceRotationUniform" program:_programId], 1, false, &mat.m00);
         glUniform3f( [self getLoc:@"iDevicePositionUniform" program:_programId], pos.x, pos.y, pos.z );
     }

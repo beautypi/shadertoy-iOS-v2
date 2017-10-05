@@ -9,14 +9,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import "VRSettings.h"
 
 @interface VRManager : NSObject
 
 +(BOOL) isARKitSupported;
 +(BOOL) isCameraTextureSupported;
     
-+(GLKVector3) getDevicePosition;
-+(GLKMatrix3) getDeviceRotationMatrix;
++(GLKVector3) getDevicePosition:(VRSettings *)settings;
++(GLKMatrix3) getDeviceRotationMatrix:(VRSettings *)settings;
     
 +(CVPixelBufferRef) capturedImage;
     

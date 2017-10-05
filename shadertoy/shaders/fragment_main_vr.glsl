@@ -8,12 +8,12 @@ uniform vec3 iDevicePositionUniform;
 
 #ifdef VR_SETTINGS_FULLSCREEN
     #define iLeftEyeRect vec4( 0., 0., 1., 1.)
-    #define iLeftEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iLeftEyeDegrees vec4( -0.75, 0.422, 0.75, -0.422)
     #define iLeftEyeTranslation vec3( 0., 0., 0. )
     #define iLeftEyeRotation vec3( 0., 0., 0. )
 
     #define iRightEyeRect vec4( 0., 0., 0., 0.)
-    #define iRightEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iRightEyeDegrees vec4( -0.75, 0.422, 0.75, -0.422)
     #define iRightEyeTranslation vec3( 0., 0., 0. )
     #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
@@ -34,12 +34,12 @@ uniform vec3 iDevicePositionUniform;
 
 #ifdef VR_SETTINGS_CROSS_EYE
     #define iLeftEyeRect vec4( 0.5, 0., 1., 1.)
-    #define iLeftEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iLeftEyeDegrees vec4( -0.75, 0.422, 0.75, -0.422)
     #define iLeftEyeTranslation vec3( -0.063, 0., 0. )
     #define iLeftEyeRotation vec3( 0., 0., 0. )
 
     #define iRightEyeRect vec4( 0., 0., .5, 1.)
-    #define iRightEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iRightEyeDegrees vec4( -0.75, 0.422, 0.75, -0.422)
     #define iRightEyeTranslation vec3( 0.063, 0., 0. )
     #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
@@ -47,12 +47,12 @@ uniform vec3 iDevicePositionUniform;
 
 #ifdef VR_SETTINGS_RED_CYAN
     #define iLeftEyeRect vec4( 0., 0., 1., 1.)
-    #define iLeftEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iLeftEyeDegrees vec4( -0.75, 0.422, 0.75, -0.422)
     #define iLeftEyeTranslation vec3( -0.063, 0., 0. )
     #define iLeftEyeRotation vec3( 0., 0., 0. )
 
     #define iRightEyeRect vec4( 0., 0., 1., 1.)
-    #define iRightEyeDegrees vec4( -.84, 0.47, .84, -0.47)
+    #define iRightEyeDegrees vec4( -0.75, 0.422, 0.75, -0.422)
     #define iRightEyeTranslation vec3( 0.063, 0., 0. )
     #define iRightEyeRotation vec3( 0., 0., 0. )
 #endif
