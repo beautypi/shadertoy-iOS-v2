@@ -200,15 +200,15 @@
     GLenum sourceFormat=GL_RGBA;
     
     if (channels == 4) {
-        format = isFloat?GL_RGBA16F:GL_RGBA;
+        format = isFloat?GL_RGBA16F:GL_RGBA8;
         sourceFormat=GL_RGBA;
     }
     if (channels == 3) {
-        format = isFloat?GL_RGB16F:GL_RGB;
+        format = isFloat?GL_RGB16F:GL_RGB8;
         sourceFormat=GL_RGB;
     }
     if (channels == 2) {
-        format = isFloat?GL_RG16F:GL_RG;
+        format = isFloat?GL_RG16F:GL_RG8;
         sourceFormat=GL_RG;
     }
     if (channels == 1) {
@@ -232,7 +232,19 @@
     
     _iChannelWidth = (float)width;
     _iChannelHeight = (float)height;
+    _iChannelDepth = (float)depth;
+    
+    _isInitialised = YES;
+}
+    
+- (void) createEmpty:(int)width height:(int)height {
+    glBindTexture(GL_TEXTURE_2D, _texId);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  _texId, 0);
+    
     _iChannelWidth = (float)width;
+    _iChannelHeight = (float)height;
+    _iChannelDepth = 1.0f;
     
     _isInitialised = YES;
 }
@@ -251,6 +263,10 @@
 
 - (ShaderInputType) getType {
     return _type;
+}
+    
+- (ShaderInputFilterMode) getFilterMode {
+    return _filterMode;
 }
 
 - (void) bindToChannel:(int)channel{
@@ -285,7 +301,14 @@
     }
 }
 
-- (void)dealloc {
+- (GLuint) getTexId {
+    return _texId;
+}
+
+- (void) update {
+}
+    
+- (void) dealloc {
     glDeleteTextures(1, &_texId);
 }
 

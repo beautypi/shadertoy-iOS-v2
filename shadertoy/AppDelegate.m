@@ -47,22 +47,24 @@
 
 - (void)handleURL:(NSURL *)url {
     if( url ) {
-        NSArray<NSString *> *pathComponents = [url pathComponents];
-        if( [pathComponents count] >= 3 ) {
-            NSString* shaderId = [pathComponents objectAtIndex:2];
-            
-            MainTabBarController* mainTabBarController = (MainTabBarController *)self.window.rootViewController;
-            [mainTabBarController setSelectedIndex:0];
-            
-            UINavigationController* navigationController = [mainTabBarController.viewControllers objectAtIndex:0];
-            [navigationController popToRootViewControllerAnimated:NO];
-            
-            QueryTableViewController* queryTableViewController = [navigationController.childViewControllers objectAtIndex:0];
-            
-            [[[APIShaderRepository alloc] init] getShader:shaderId success:^(APIShaderObject *shader) {
-                [queryTableViewController navigateToShader:shaderId];
-            }];
-        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            NSArray<NSString *> *pathComponents = [url pathComponents];
+            if( [pathComponents count] >= 3 ) {
+                NSString* shaderId = [pathComponents objectAtIndex:2];
+
+                MainTabBarController* mainTabBarController = (MainTabBarController *)self.window.rootViewController;
+                [mainTabBarController setSelectedIndex:0];
+                
+                UINavigationController* navigationController = [mainTabBarController.viewControllers objectAtIndex:0];
+                [navigationController popToRootViewControllerAnimated:NO];
+                
+                QueryTableViewController* queryTableViewController = [navigationController.childViewControllers objectAtIndex:0];
+                
+                [[[APIShaderRepository alloc] init] getShader:shaderId success:^(APIShaderObject *shader) {
+                    [queryTableViewController navigateToShader:shaderId];
+                }];
+            }
+        });
     }
 }
 

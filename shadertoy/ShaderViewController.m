@@ -14,6 +14,7 @@
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+AFNetworking.h"
 #import "BlocksKit.h"
+#import "VRManager.h"
 
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -96,6 +97,7 @@
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
+    [VRManager deActivate];
     [_soundPassPlayer stop];
     [_imageShaderViewController pauseInputs];
     [super viewWillDisappear:animated];
@@ -217,7 +219,7 @@
     [self layoutCanvasView];
 }
 
-- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
+- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)(void))success {
     [self bk_performBlock:^(id obj) {
         NSString *error;
         
@@ -446,13 +448,24 @@
                                        [weakSelf vrChooseQuality:vrSettings];
                                        
                                    }]];
-    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
-                                   {
-                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
-                                       vrSettings.inputMode = VR_INPUT_DEVICE;
-                                       [weakSelf vrChooseQuality:vrSettings];
-                                       
-                                   }]];
+    if( [VRManager isARKitSupported] ) {
+        [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation & position" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                       {
+                                           [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                           vrSettings.inputMode = VR_INPUT_ARKIT;
+                                           [weakSelf vrChooseQuality:vrSettings];
+                                           
+                                       }]];
+        
+    } else {
+        [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                       {
+                                           [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                           vrSettings.inputMode = VR_INPUT_DEVICE;
+                                           [weakSelf vrChooseQuality:vrSettings];
+                                           
+                                       }]];
+    }
     [self presentViewController:myAlertController animated:YES completion:nil];
 }
 

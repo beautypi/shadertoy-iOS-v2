@@ -16,6 +16,7 @@
 
 #import "ShaderPassRenderer.h"
 #include "TextureHelper.h"
+#include "CameraTextureHelper.h"
 #include "SoundStreamHelper.h"
 
 @interface ShaderInput () {
@@ -36,11 +37,11 @@
     
     unsigned char *_buffer;
 }
-@end
+    @end
 
 
 @implementation ShaderInput
-
+    
 - (void) initWithShaderPassInput:(APIShaderPassInput *)input {
     _shaderPassInput = input;
     _channelSlot = MAX( MIN( (int)[input.channel integerValue], 3 ), 0);
@@ -108,7 +109,7 @@
                               @"webcam": @"webcam.png",
                               @"music": @"music.png"
                               };
-        
+    
     if( [input.ctype isEqualToString:@"buffer"] ) {
         _type = BUFFER;
     }
@@ -152,6 +153,11 @@
         }
     }
     
+    if( [input.ctype isEqualToString:@"webcam"] && [CameraTextureHelper isSupported]) {
+        _type = WEBCAM;
+        _textureHelper = [[CameraTextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
+    }
+    
     if( _type == TEXTURE2D || [input.ctype isEqualToString:@"texture"] || [input.ctype isEqualToString:@"cubemap"] ) {
         _type = [input.ctype isEqualToString:@"cubemap"] ? TEXTURECUBE : TEXTURE2D;
         
@@ -177,10 +183,20 @@
         [_textureHelper loadFromURL:file];
     }
 }
-
-- (void) bindTexture:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer {
-    // NSLog(@"Bind input %s to %d", [_shaderPassInput.src cStringUsingEncoding:NSUTF8StringEncoding], _channelSlot );
     
+- (void) update:(unsigned char*)keyboardBuffer {
+    if( _textureHelper ) {
+        if( [_textureHelper getType] == KEYBOARD ) {
+            [_textureHelper loadData:keyboardBuffer width:256 height:2 depth:1 channels:1 isFloat:NO];
+        }
+        else if( [_textureHelper getType] == MUSIC ) {
+            [_textureHelper loadData:_buffer width:256 height:2 depth:1 channels:1 isFloat:NO];
+        }
+        [_textureHelper update];
+    }
+}
+    
+- (void) bindTexture:(NSMutableArray *)shaderPasses {
     glActiveTexture(GL_TEXTURE0 + _channelSlot);
     
     if( _type == BUFFER ) {
@@ -203,13 +219,6 @@
         }
     }
     else if( _textureHelper ) {
-        if( [_textureHelper getType] == KEYBOARD ) {
-            [_textureHelper loadData:keyboardBuffer width:256 height:2 depth:1 channels:1 isFloat:NO];
-        }
-        else if( [_textureHelper getType] == MUSIC ) {
-            [_textureHelper loadData:_buffer width:256 height:2 depth:1 channels:1 isFloat:NO];
-        }
-        
         [_textureHelper bindToChannel:_channelSlot];
         
         _iChannelWidth = [_textureHelper getWidth];
@@ -217,33 +226,33 @@
         _iChannelDepth = [_textureHelper getDepth];
     }
 }
-
+    
 - (void) updateSpectrum:(unsigned char *)data {
     _buffer = data;
 }
-
+    
 - (void) mute {
     
 }
-
+    
 - (void) pause {
     if( _soundStreamHelper ) {
         [_soundStreamHelper pause];
     }
 }
-
+    
 - (void) play {
     if( _soundStreamHelper ) {
         [_soundStreamHelper play];
     }
 }
-
+    
 - (void) rewindTo:(double)time {
     if( _soundStreamHelper ) {
         [_soundStreamHelper rewindTo:time];
     }
 }
-
+    
 - (void) dealloc {
     if( _textureHelper ) {
         _textureHelper = nil;
@@ -252,28 +261,28 @@
         _soundStreamHelper = nil;
     }
 }
-
+    
 - (float) getWidth {
     return _iChannelWidth;
 }
-
+    
 - (float) getHeight {
     return _iChannelHeight;
 }
-
+    
 - (float) getDepth {
     return _iChannelDepth;
 }
-
+    
 - (float) getTime {
     if( _soundStreamHelper ) {
         return [_soundStreamHelper getTime];
     }
     return _iChannelTime;
 }
-
+    
 - (int) getChannel {
     return _channelSlot;
 }
-
-@end
+    
+    @end

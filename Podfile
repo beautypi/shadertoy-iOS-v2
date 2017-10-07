@@ -3,7 +3,7 @@ use_frameworks!
 platform :ios, '9.0'
 
 def pods
-pod 'AFNetworking'
+pod 'AFNetworking', '~> 3.0'
 pod 'GoogleAnalytics'
 pod 'NSString_stripHtml'
 pod 'BlocksKit'
