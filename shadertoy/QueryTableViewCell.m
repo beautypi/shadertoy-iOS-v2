@@ -67,7 +67,7 @@
     [super willMoveToSuperview:newSuperview];
     if(!newSuperview) {
         // cancel timers
-        [_shaderImageView cancelImageRequestOperation];
+        [_shaderImageView cancelImageDownloadTask];
         [_shader cancelShaderRequestOperation];
     }
 }

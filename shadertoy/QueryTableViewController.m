@@ -24,7 +24,7 @@
     NSString* _sortBy;
     NSArray* _data;
     
-    AFHTTPRequestOperation* _currentAFRequestOperation;
+    NSURLSessionDataTask*  _currentAFRequestOperation;
     
     UISearchBar*            _searchBar;
     NSString*               _searchQuery;
@@ -240,13 +240,12 @@
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
     
-    APIShaderObject* shader = [_repository getShader:shaderId success:^(APIShaderObject *shader) {}];
-    [shader cancelShaderRequestOperation];
-    
-    if( shader.imagePass != NULL ) {
-        [((ShaderViewController *)viewController) setShaderObject:shader];
-        [self.navigationController pushViewController:viewController animated:YES];
-    }
+    [_repository getShader:shaderId success:^(APIShaderObject *shader) {
+        if( shader.imagePass != NULL ) {
+            [((ShaderViewController *)viewController) setShaderObject:shader];
+            [self.navigationController pushViewController:viewController animated:YES];
+        }
+    }];
 }
 
 #pragma mark - Search functions

@@ -10,7 +10,7 @@
 #import "NSString+URLEncode.h"
 
 @interface APIShadertoy () {
-    AFHTTPRequestOperationManager *_requestManager;
+    AFHTTPSessionManager *_manager;
 }
 @end
 
@@ -19,21 +19,21 @@
 - (id)init {
     self = [super init];
     if(self){
-        _requestManager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:[NSURL URLWithString:APIShadertoyBaseUrl]];
+        _manager = [[AFHTTPSessionManager manager] initWithBaseURL:[NSURL URLWithString:APIShadertoyBaseUrl]];
         
         AFJSONRequestSerializer *requestSerializer = [AFJSONRequestSerializer serializer];
         
         NSString *language = [[NSLocale preferredLanguages] firstObject];
         [requestSerializer setValue:language forHTTPHeaderField:@"Accept-Language"];
-        _requestManager.requestSerializer = requestSerializer;
+        _manager.requestSerializer = requestSerializer;
         
-        _requestManager.responseSerializer = [AFJSONResponseSerializer serializer];
-        _requestManager.securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
+        _manager.responseSerializer = [AFJSONResponseSerializer serializer];
+        _manager.securityPolicy = [AFSecurityPolicy policyWithPinningMode:AFSSLPinningModeNone];
     }
     return self;
 }
 
-- (AFHTTPRequestOperation *) getShaderKeys:(NSString *)sortBy success:(void (^)(NSArray *results))success {
+- (NSURLSessionDataTask *) getShaderKeys:(NSString *)sortBy success:(void (^)(NSArray *results))success {
     NSDictionary *params = @{
                              @"key": APIShadertoyKey,
                              @"sort": sortBy
@@ -42,7 +42,7 @@
     return [self getShaderKeys:@"query" params:params success:success];
 }
 
-- (AFHTTPRequestOperation *) getShaderKeys:(NSString *)sortBy query:(NSString *)query success:(void (^)(NSArray *results))success {
+- (NSURLSessionDataTask *) getShaderKeys:(NSString *)sortBy query:(NSString *)query success:(void (^)(NSArray *results))success {
     NSDictionary *params = @{
                              @"key": APIShadertoyKey,
                              @"sort": sortBy
@@ -51,30 +51,30 @@
     return [self getShaderKeys:url params:params success:success];
 }
 
-- (AFHTTPRequestOperation *) getShaderKeys:(NSString *)url params:(NSDictionary *)params success:(void (^)(NSArray *results))success {
-    return [_requestManager GET:url parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+- (NSURLSessionDataTask *) getShaderKeys:(NSString *)url params:(NSDictionary *)params success:(void (^)(NSArray *results))success {
+    return [_manager GET:url parameters:params progress:nil success:^(NSURLSessionTask *operation, id responseObject) {
         if(![responseObject isKindOfClass:[NSDictionary class]]){
             return;
         }
         NSArray *results = [responseObject objectForKey:@"Results"];
         success(results);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionTask *operation, NSError *error) {
         
     }];
 }
 
-- (AFHTTPRequestOperation *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success {
+- (NSURLSessionDataTask *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success {
     NSDictionary *params = @{
                              @"key": APIShadertoyKey
                              };
     
-    return [_requestManager GET:shaderId parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    return [_manager GET:shaderId parameters:params progress:nil success:^(NSURLSessionTask *operation, id responseObject) {
         if(![responseObject isKindOfClass:[NSDictionary class]]){
             return;
         }
         NSDictionary *shaderDict = [responseObject objectForKey:@"Shader"];
         success(shaderDict);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+    } failure:^(NSURLSessionTask *operation, NSError *error) {
         
     }];
 }

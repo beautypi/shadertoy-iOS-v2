@@ -1,16 +1,15 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
-platform :ios, '8.0'
+platform :ios, '9.0'
 
 def pods
-pod 'AFNetworking', '~> 2.6.3'
+pod 'AFNetworking', '~> 3.0'
 pod 'GoogleAnalytics'
-pod 'NSString_stripHtml', '~> 0.1'
+pod 'NSString_stripHtml'
 pod 'BlocksKit'
-pod 'NSString-UrlEncode', '~> 2.0'
+pod 'NSString-UrlEncode'
 pod 'Fabric'
 pod 'Crashlytics'
-pod 'StreamingKit'
 end
 
 target 'Shadertoy' do

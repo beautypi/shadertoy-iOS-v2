@@ -21,14 +21,15 @@
 - (void) setShaderSettings:(ShaderSettings *)shaderSettings;
 - (void) setFragCoordScale:(float)scale andXOffset:(float)xOffset andYOffset:(float)yOffset;
 - (void) setResolution:(float)x y:(float)y;
-- (void) setIGlobalTime:(float)iGlobalTime;
+- (void) setTime:(float)time;
 - (void) setDate:(NSDate *)date;
 - (void) setMouse:(GLKVector4) mouse;
 - (void) setFrame:(int) frame;
 - (void) setTimeDelta:(float)deltaTime;
 
-- (void) render:(NSMutableArray *)shaderPasses keyboardBuffer:(unsigned char*)keyboardBuffer;
+- (void) render:(NSMutableArray *)shaderPasses;
 - (void) nextFrame;
+- (void) updateShaderInputs:(unsigned char*)keyboardBuffer;
 
 - (void) start;
 - (void) pauseInputs;
@@ -40,5 +41,7 @@
 
 - (float) getWidth;
 - (float) getHeight;
+- (float) getDepth;
+- (float) getTime;
 
 @end

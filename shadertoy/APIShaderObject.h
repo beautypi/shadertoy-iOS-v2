@@ -82,7 +82,7 @@
 @property (nonatomic, strong) APIShaderPass *soundPass;
 @property (nonatomic, strong) NSMutableArray *bufferPasses;
 
-@property (nonatomic, weak)   AFHTTPRequestOperation *requestOperation;
+@property (nonatomic, weak)   NSURLSessionDataTask *requestOperation;
 
 @property (nonatomic, strong) NSDate *dateLastUpdated;
 

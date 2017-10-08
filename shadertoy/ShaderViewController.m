@@ -14,6 +14,7 @@
 #import "BlocksKit+UIKit.h"
 #import "UIImageView+AFNetworking.h"
 #import "BlocksKit.h"
+#import "VRManager.h"
 
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -81,7 +82,7 @@
 
 - (void) viewWillAppear:(BOOL)animated {
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;
-   
+    
     [_shaderImageView setImageWithURLRequest:[NSURLRequest requestWithURL:[_shader getPreviewImageUrl]] placeholderImage:nil success:nil failure:nil];
     
     
@@ -96,6 +97,7 @@
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
+    [VRManager deActivate];
     [_soundPassPlayer stop];
     [_imageShaderViewController pauseInputs];
     [super viewWillDisappear:animated];
@@ -174,11 +176,14 @@
     _soundShaderViewController = nil;
 }
 
-- (UIAlertView *) createProgressAlert:(NSString *)title {
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:title];
+- (UIAlertController *) createProgressAlert:(NSString *)title {
+    UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:title message:@"Exporting ..." preferredStyle:UIAlertControllerStyleAlert ];
+    
+    UIViewController *viewController = [[UIViewController alloc]init];
+    
     _progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
-    _progressView.frame = CGRectMake(0, 0, 200, 15);
-    _progressView.bounds = CGRectMake(0, 0, 200, 15);
+    _progressView.frame = CGRectMake(10, 35, 250, 15);
+    _progressView.bounds = CGRectMake(0, 0, 250, 15);
     _progressView.backgroundColor = [UIColor darkGrayColor];
     
     [_progressView setUserInteractionEnabled:NO];
@@ -186,8 +191,10 @@
     [_progressView setProgressTintColor:[UIColor colorWithRed:1.f green:0.5f blue:0.125f alpha:1.f]];
     [_progressView setProgress:0.f animated:NO];
     
-    [alert setValue:_progressView forKey:@"accessoryView"];
-    return alert;
+    [viewController.view addSubview:_progressView];
+    
+    [myAlertController setValue:viewController forKey:@"contentViewController"];
+    return myAlertController;
 }
 
 #pragma mark - Compile shader, setup canvas
@@ -212,7 +219,7 @@
     [self layoutCanvasView];
 }
 
-- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)())success {
+- (void) compileShader:(bool)soundPass vc:(ShaderCanvasViewController *)shaderViewController success:(void (^)(void))success {
     [self bk_performBlock:^(id obj) {
         NSString *error;
         
@@ -227,8 +234,12 @@
             [_shaderCompileInfoButton setTintColor:[UIColor redColor]];
             [_shaderCompileInfoButton setHidden:NO];
             [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
-                UIAlertView* alert = [[UIAlertView alloc]  initWithTitle:@"Shader error" message:error delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil];
-                [alert show];
+                UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Shader error" message:error preferredStyle:UIAlertControllerStyleAlert ];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                               {
+                                                   [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                               }]];
+                [self presentViewController:myAlertController animated:YES completion:nil];
             } forControlEvents:UIControlEventTouchDown];
         }
     } afterDelay:0.05f];
@@ -248,8 +259,13 @@
         [self bk_performBlock:^(id obj) {
             NSString *headerComment = [_shader getHeaderComments];
             [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
-                UIAlertView* alert = [[UIAlertView alloc]  initWithTitle:@"Header comments" message:headerComment delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles: nil];
-                [alert show];
+                UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Header comments" message:headerComment preferredStyle:UIAlertControllerStyleAlert ];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                               {
+                                                   [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                                   
+                                               }]];
+                [weakSelf presentViewController:myAlertController animated:YES completion:nil];
             } forControlEvents:UIControlEventTouchDown];
             
             [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
@@ -342,15 +358,21 @@
 }
 
 - (IBAction)shaderHDClick:(id)sender {
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Quality Settings" message:@"You can run this shader in HD.\n\nWarning: most likely the shader will run very slow and running the shader in HD will drain the battery fast."];
-    [alert bk_addButtonWithTitle:@"High Quality" handler:^{
-        [self startHD];
-    }];
-    [alert bk_setCancelButtonWithTitle:@"Cancel" handler:^{
-        
-    }];
+    __weak typeof (self) weakSelf = self;
     
-    [alert show];
+    UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Quality Settings" message:@"You can run this shader in HD.\n\nWarning: most likely the shader will run very slow and running the shader in HD will drain the battery fast." preferredStyle:UIAlertControllerStyleAlert ];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"High Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [weakSelf startHD];
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       
+                                   }]];
+    [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 - (void)startHD {
@@ -379,59 +401,100 @@
 }
 
 - (void) vrChooseRenderMode:(VRSettings *)vrSettings {
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render mode:"];
-    [alert bk_addButtonWithTitle:@"Cardboard" handler:^{
-        vrSettings.renderMode = VR_SPLIT_SCREEN;
-        // always use device rotation as input for cardboard
-        // [self vrChooseInput:vrSettings];
-        vrSettings.inputMode = VR_INPUT_DEVICE;
-        [self vrChooseQuality:vrSettings];
-    }];
-    [alert bk_addButtonWithTitle:@"Cross-eyed stereo" handler:^{
-        vrSettings.renderMode = VR_CROSS_EYE;
-        [self vrChooseInput:vrSettings];
-    }];
-    [alert bk_addButtonWithTitle:@"Anaglyph (cyan/red)" handler:^{
-        vrSettings.renderMode = VR_CYAN_RED;
-        [self vrChooseInput:vrSettings];
-    }];
-    [alert bk_addButtonWithTitle:@"Fullscreen" handler:^{
-        vrSettings.renderMode = VR_FULL_SCREEN;
-        [self vrChooseInput:vrSettings];
-    }];
+    __weak typeof (self) weakSelf = self;
     
-    [alert show];
+    UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"VR Settings" message:@"Choose render mode:" preferredStyle:UIAlertControllerStyleAlert ];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cardboard" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       vrSettings.renderMode = VR_SPLIT_SCREEN;
+                                       // always use device rotation as input for cardboard
+                                       // [self vrChooseInput:vrSettings];
+                                       vrSettings.inputMode = VR_INPUT_DEVICE;
+                                       [weakSelf vrChooseQuality:vrSettings];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cross-eyed stereo" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.renderMode = VR_CROSS_EYE;
+                                       [weakSelf vrChooseInput:vrSettings];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Anaglyph (cyan/red)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.renderMode = VR_CYAN_RED;
+                                       [weakSelf vrChooseInput:vrSettings];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Fullscreen" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.renderMode = VR_FULL_SCREEN;
+                                       [weakSelf vrChooseInput:vrSettings];
+                                       
+                                   }]];
+    [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 - (void) vrChooseInput:(VRSettings *)vrSettings {
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose input:"];
-    [alert bk_addButtonWithTitle:@"Touch" handler:^{
-        vrSettings.inputMode = VR_INPUT_TOUCH;
-        [self vrChooseQuality:vrSettings];
-    }];
-    [alert bk_addButtonWithTitle:@"Device rotation" handler:^{
-        vrSettings.inputMode = VR_INPUT_DEVICE;
-        [self vrChooseQuality:vrSettings];
-    }];
+    __weak typeof (self) weakSelf = self;
     
-    [alert show];
+    UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"VR Settings" message:@"Choose input:" preferredStyle:UIAlertControllerStyleAlert ];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Touch" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.inputMode = VR_INPUT_TOUCH;
+                                       [weakSelf vrChooseQuality:vrSettings];
+                                       
+                                   }]];
+    if( [VRManager isARKitSupported] ) {
+        [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation & position" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                       {
+                                           [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                           vrSettings.inputMode = VR_INPUT_ARKIT;
+                                           [weakSelf vrChooseQuality:vrSettings];
+                                           
+                                       }]];
+        
+    } else {
+        [myAlertController addAction: [UIAlertAction actionWithTitle:@"Device rotation" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                       {
+                                           [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                           vrSettings.inputMode = VR_INPUT_DEVICE;
+                                           [weakSelf vrChooseQuality:vrSettings];
+                                           
+                                       }]];
+    }
+    [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 - (void) vrChooseQuality:(VRSettings *)vrSettings {
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"VR Settings" message:@"Choose render quality:"];
-    [alert bk_addButtonWithTitle:@"High Quality" handler:^{
-        vrSettings.quality = VR_QUALITY_HIGH;
-        [self vrStart:vrSettings];
-    }];
-    [alert bk_addButtonWithTitle:@"Normal Quality" handler:^{
-        vrSettings.quality = VR_QUALITY_NORMAL;
-        [self vrStart:vrSettings];
-    }];
-    [alert bk_addButtonWithTitle:@"Low Quality" handler:^{
-        vrSettings.quality = VR_QUALITY_LOW;
-        [self vrStart:vrSettings];
-    }];
-    [alert show];
+    __weak typeof (self) weakSelf = self;
+    
+    UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"VR Settings" message:@"Choose render quality:" preferredStyle:UIAlertControllerStyleAlert ];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"High Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.quality = VR_QUALITY_HIGH;
+                                       [weakSelf vrStart:vrSettings];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Normal Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.quality = VR_QUALITY_NORMAL;
+                                       [weakSelf vrStart:vrSettings];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Low Quality" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       vrSettings.quality = VR_QUALITY_LOW;
+                                       [weakSelf vrStart:vrSettings];
+                                       
+                                   }]];
+    [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 - (void) vrStart:(VRSettings *)vrSettings {
@@ -477,18 +540,26 @@
     
     _exporting = YES;
     
-    UIAlertView* alert = [UIAlertView bk_alertViewWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook."];
-    [alert bk_addButtonWithTitle:@"Export animated GIF image" handler:^{
-        [self exportImage:YES];
-    }];
-    [alert bk_addButtonWithTitle:@"Export HQ image" handler:^{
-        [self exportImage:NO];
-    }];
-    [alert bk_addButtonWithTitle:@"Cancel" handler:^{
-        _exporting = NO;
-    }];
-    
-    [alert show];
+    UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Share shader" message:@"You can render an animated GIF of this shader and share it using email.\nAt the moment, it is not possible to share an animated GIF using twitter or facebook." preferredStyle:UIAlertControllerStyleAlert ];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Export animated GIF image" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [self exportImage:YES];
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Export HQ image" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       [self exportImage:NO];
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       
+                                   }]];
+    [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                                   {
+                                       _exporting = NO;
+                                       [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                                       
+                                   }]];
+    [self presentViewController:myAlertController animated:YES completion:nil];
 }
 
 #pragma mark - Export animated gif
@@ -603,14 +674,14 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     
     if( asGif ) {
         // gif export
-        UIAlertView* alert =[self createProgressAlert:@"Exporting animated GIF"];
-        [alert show];
+        UIAlertController* alert =[self createProgressAlert:@"Exporting animated GIF"];
+        [self presentViewController:alert animated:YES completion:nil];
         
         [_imageShaderViewController setCanvasScaleFactor: 2.f*ImageExportGIFWidth / _imageShaderView.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self addAnimationFrameToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(NSURL *fileURL) {
-                [alert dismissWithClickedButtonIndex:0 animated:YES];
+                [alert dismissViewControllerAnimated:YES completion:nil];
                 
                 [weakSelf shareText:text andImage:[NSData dataWithContentsOfURL:fileURL] andUrl:url];
                 [shaderCanvasViewController setDefaultCanvasScaleFactor];
@@ -618,14 +689,14 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         });
     } else {
         // normal export
-        UIAlertView* alert =[self createProgressAlert:@"Exporting HQ image"];
-        [alert show];
+        UIAlertController* alert =[self createProgressAlert:@"Exporting HQ image"];
+        [self presentViewController:alert animated:YES completion:nil];
         
         [_imageShaderViewController setCanvasScaleFactor: exportTileWidth / _imageShaderView.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self addHQTileToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(UIImage *image) {
-                [alert dismissWithClickedButtonIndex:0 animated:YES];
+                [alert dismissViewControllerAnimated:YES completion:nil];
                 
                 [weakSelf shareText:text andImage:(NSData *)image andUrl:url];
                 [shaderCanvasViewController setDefaultCanvasScaleFactor];
