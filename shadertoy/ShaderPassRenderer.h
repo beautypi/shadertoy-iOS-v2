@@ -15,7 +15,7 @@
 
 @interface ShaderPassRenderer : NSObject
 
-- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error;
+- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass commonPass:(APIShaderPass *)commonPass theError:(NSString **)error;
 
 - (void) setVRSettings:(VRSettings *)vrSettings;
 - (void) setShaderSettings:(ShaderSettings *)shaderSettings;

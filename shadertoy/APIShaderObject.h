@@ -80,6 +80,7 @@
 
 @property (nonatomic, strong) APIShaderPass *imagePass;
 @property (nonatomic, strong) APIShaderPass *soundPass;
+@property (nonatomic, strong) APIShaderPass *commonPass;
 @property (nonatomic, strong) NSMutableArray *bufferPasses;
 
 @property (nonatomic, weak)   NSURLSessionDataTask *requestOperation;
