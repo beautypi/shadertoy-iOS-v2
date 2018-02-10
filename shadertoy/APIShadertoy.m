@@ -73,7 +73,9 @@
             return;
         }
         NSDictionary *shaderDict = [responseObject objectForKey:@"Shader"];
-        success(shaderDict);
+        if( shaderDict != nil) {
+            success(shaderDict);
+        }
     } failure:^(NSURLSessionTask *operation, NSError *error) {
         
     }];
