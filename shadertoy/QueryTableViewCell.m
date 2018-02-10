@@ -44,6 +44,9 @@
 }
 
 - (void) layoutForShader:(APIShaderObject *)shader {
+    if (!shader) {
+        return;
+    }
     _shader = shader;
     
     _shaderImageView.contentMode = UIViewContentModeScaleAspectFill;

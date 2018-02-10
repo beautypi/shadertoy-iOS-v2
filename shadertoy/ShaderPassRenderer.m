@@ -91,7 +91,7 @@
     }
 }
 
-- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass theError:(NSString **)error {
+- (BOOL) createShaderProgram:(APIShaderPass *)shaderPass commonPass:(APIShaderPass *)commonPass theError:(NSString **)error {
     _shaderPass = shaderPass;
     
     NSString *VertexShaderCode;
@@ -122,6 +122,10 @@
         if( !channelsUsed[i] ) {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform highp sampler2D iChannel%d;\n", i];
         }
+    }
+    
+    if(commonPass != nil && ![commonPass.code isEqualToString:@""]) {
+        FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[@"\n\n" stringByAppendingString:commonPass.code] stringByAppendingString:@"\n\n"]];
     }
     
     NSString *code = shaderPass.code;

@@ -31,9 +31,9 @@
     [[UITabBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     [[UINavigationBar appearance] setBarTintColor:[UIColor darkGrayColor]];
     
-    if( [[LocalCache sharedLocalCache] getVersion] < [NSNumber numberWithInt:4]) {
+    if( [[LocalCache sharedLocalCache] getVersion] < [NSNumber numberWithInt:5]) {
         [[LocalCache sharedLocalCache] clear];
-        [[LocalCache sharedLocalCache] setVersion:[NSNumber numberWithInt:4]];
+        [[LocalCache sharedLocalCache] setVersion:[NSNumber numberWithInt:5]];
     }
     
     if( ![GoogleAnalyticsKey isEqualToString:@""] ) {

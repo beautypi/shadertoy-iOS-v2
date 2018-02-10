@@ -105,7 +105,7 @@
     
     if( soundPass ) {
         ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
-        if( ![passRenderer createShaderProgram:shader.soundPass theError:error] ) {
+        if( ![passRenderer createShaderProgram:shader.soundPass commonPass:shader.commonPass theError:error] ) {
             [self tearDownGL];
             return NO;
         }
@@ -115,7 +115,7 @@
             ShaderPassRenderer* bufferPassRenderer = [[ShaderPassRenderer alloc] init];
             [bufferPassRenderer setVRSettings:_vrSettings];
 
-            if( ![bufferPassRenderer createShaderProgram:pass theError:error] ) {
+            if( ![bufferPassRenderer createShaderProgram:pass commonPass:shader.commonPass theError:error] ) {
                 [self tearDownGL];
                 return NO;
             }
@@ -125,7 +125,7 @@
         ShaderPassRenderer* passRenderer = [[ShaderPassRenderer alloc] init];
         [passRenderer setVRSettings:_vrSettings];
         
-        if( ![passRenderer createShaderProgram:shader.imagePass theError:error] ) {
+        if( ![passRenderer createShaderProgram:shader.imagePass commonPass:shader.commonPass theError:error] ) {
             [self tearDownGL];
             return NO;
         }

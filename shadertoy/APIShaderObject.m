@@ -172,6 +172,8 @@
             self.imagePass = [[[APIShaderPass alloc] init] updateWithDict:d];
         } else if( [[d objectForKey:@"type"] isEqualToString:@"sound"] ) {
             self.soundPass = [[[APIShaderPass alloc] init] updateWithDict:d];
+        } else if( [[d objectForKey:@"type"] isEqualToString:@"common"] ) {
+            self.commonPass = [[[APIShaderPass alloc] init] updateWithDict:d];
         } else {
             [self.bufferPasses addObject:[[[APIShaderPass alloc] init] updateWithDict:d]];
         }
@@ -188,6 +190,7 @@
     [coder encodeObject:self.date forKey:@"date"];
     [coder encodeObject:self.imagePass forKey:@"imagePass"];
     [coder encodeObject:self.soundPass forKey:@"soundPass"];
+    [coder encodeObject:self.commonPass forKey:@"commonPass"];
     [coder encodeObject:self.bufferPasses forKey:@"bufferPasses"];
     [coder encodeObject:self.dateLastUpdated forKey:@"dateLastUpdated"];
 }
@@ -203,6 +206,7 @@
         self.date = [coder decodeObjectForKey:@"date"];
         self.imagePass = [coder decodeObjectForKey:@"imagePass"];
         self.soundPass = [coder decodeObjectForKey:@"soundPass"];
+        self.commonPass = [coder decodeObjectForKey:@"commonPass"];
         self.bufferPasses = [coder decodeObjectForKey:@"bufferPasses"];
         self.dateLastUpdated = [coder decodeObjectForKey:@"dateLastUpdated"];
     }
