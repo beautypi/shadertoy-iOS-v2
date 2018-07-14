@@ -63,7 +63,7 @@
     }];
 }
 
-- (NSURLSessionDataTask *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success {
+- (NSURLSessionDataTask *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success failure:(void (^)(void))failure {
     NSDictionary *params = @{
                              @"key": APIShadertoyKey
                              };
@@ -77,7 +77,7 @@
             success(shaderDict);
         }
     } failure:^(NSURLSessionTask *operation, NSError *error) {
-        
+        failure();
     }];
 }
 

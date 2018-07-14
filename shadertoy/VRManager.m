@@ -119,7 +119,7 @@ static bool arKitPaused;
         return deviceRotationMatrix;
     }
     
-    GLKMatrix3 glkm;
+    GLKMatrix3 glkm = GLKMatrix3Identity;
     BOOL arKitUsed = NO;
     
     if(settings.inputMode == VR_INPUT_ARKIT) {

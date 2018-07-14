@@ -15,6 +15,6 @@
 
 - (NSURLSessionDataTask *) getShaderKeys:(NSString *)sortBy success:(void (^)(NSArray *results))success;
 - (NSURLSessionDataTask *) getShaderKeys:(NSString *)sortBy query:(NSString *)query success:(void (^)(NSArray *results))success;
-- (NSURLSessionDataTask *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success;
+- (NSURLSessionDataTask *) getShader:(NSString *)shaderId success:(void (^)(NSDictionary *shaderDict))success failure:(void (^)(void))failure;
 
 @end
