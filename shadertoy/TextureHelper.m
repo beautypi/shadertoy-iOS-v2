@@ -239,7 +239,8 @@
     
 - (void) createEmpty:(int)width height:(int)height {
     glBindTexture(GL_TEXTURE_2D, _texId);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+    int levels = 1 + floor(log2(MAX(width, height)));
+    glTexStorage2D(GL_TEXTURE_2D, levels, GL_RGBA8, width, height);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  _texId, 0);
     
     _iChannelWidth = (float)width;
