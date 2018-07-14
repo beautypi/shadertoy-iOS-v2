@@ -223,17 +223,17 @@
     [self bk_performBlock:^(id obj) {
         NSString *error;
         
-        if( [shaderViewController compileShader:_shader soundPass:soundPass theError:&error] ) {
+        if( [shaderViewController compileShader:self->_shader soundPass:soundPass theError:&error] ) {
             [self bk_performBlock:^(id obj) {
                 success();
             } afterDelay:0.05f];
         } else {
-            [_shaderCompiling setText:@"Shader error"];
-            [_shaderCompiling setTextColor:[UIColor redColor]];
+            [self->_shaderCompiling setText:@"Shader error"];
+            [self->_shaderCompiling setTextColor:[UIColor redColor]];
             
-            [_shaderCompileInfoButton setTintColor:[UIColor redColor]];
-            [_shaderCompileInfoButton setHidden:NO];
-            [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
+            [self->_shaderCompileInfoButton setTintColor:[UIColor redColor]];
+            [self->_shaderCompileInfoButton setHidden:NO];
+            [self->_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
                 UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Shader error" message:error preferredStyle:UIAlertControllerStyleAlert ];
                 [myAlertController addAction: [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                                {
@@ -251,14 +251,14 @@
     __weak typeof (self) weakSelf = self;
     
     [self compileShader:false vc:_imageShaderViewController success:^{
-        [_imageShaderViewController start];
+        [self->_imageShaderViewController start];
         [weakSelf playSoundSyncedWithShader];
-        [_imageShaderView setHidden:NO];
-        [_imageShaderView setAutoresizingMask:UIViewAutoresizingNone];
+        [self->_imageShaderView setHidden:NO];
+        [self->_imageShaderView setAutoresizingMask:UIViewAutoresizingNone];
         
         [self bk_performBlock:^(id obj) {
-            NSString *headerComment = [_shader getHeaderComments];
-            [_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
+            NSString *headerComment = [self->_shader getHeaderComments];
+            [self->_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
                 UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Header comments" message:headerComment preferredStyle:UIAlertControllerStyleAlert ];
                 [myAlertController addAction: [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                                {
@@ -269,27 +269,27 @@
             } forControlEvents:UIControlEventTouchDown];
             
             [UIView transitionWithView:weakSelf.view duration:0.5f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
-                [_shaderCompiling setHidden:YES];
-                [_shaderPlayerContainer setHidden:NO];
-                [_shaderImageView setAlpha:0.f];
-                [_imageShaderViewController setTimeLabel:_shaderPlayerTime];
+                [self->_shaderCompiling setHidden:YES];
+                [self->_shaderPlayerContainer setHidden:NO];
+                [self->_shaderImageView setAlpha:0.f];
+                [self->_imageShaderViewController setTimeLabel:_shaderPlayerTime];
                 
                 if( ![headerComment isEqualToString:@""] ) {
-                    [_shaderCompileInfoButton setHidden:NO];
+                    [self->_shaderCompileInfoButton setHidden:NO];
                 }
-                if( [_shader vrImplemented] && !_vrSettings ) {
-                    [_shaderVRButton setHidden:NO];
-                } else if( !_shaderSettings || (_shaderSettings && _shaderSettings.quality != SHADER_QUALITY_HIGH)) {
-                    [_shaderHDButton setHidden:NO];
+                if( [self->_shader vrImplemented] && !_vrSettings ) {
+                    [self->_shaderVRButton setHidden:NO];
+                } else if( !self->_shaderSettings || (_shaderSettings && _shaderSettings.quality != SHADER_QUALITY_HIGH)) {
+                    [self->_shaderHDButton setHidden:NO];
                 }
             } completion:^(BOOL finished) {
-                [_shaderImageView setHidden:YES];
-                [weakSelf.view bringSubviewToFront:_imageShaderView];
+                [self->_shaderImageView setHidden:YES];
+                [weakSelf.view bringSubviewToFront:self->_imageShaderView];
                 [weakSelf.view bringSubviewToFront:weakSelf.shaderInputButtonView];
                 [weakSelf.view bringSubviewToFront:weakSelf.shaderInputSpaceview];
-                [weakSelf.navigationItem setRightBarButtonItem:_shaderShareButton animated:NO];
+                [weakSelf.navigationItem setRightBarButtonItem:self->_shaderShareButton animated:NO];
                 
-                _compiled = YES;
+                self->_compiled = YES;
             }];
         } afterDelay:0.1f];
     }];
@@ -311,14 +311,14 @@
     
     __weak typeof (self) weakSelf = self;
     [self compileShader:true vc:_soundShaderViewController success:^{
-        [_soundShaderViewController setDefaultCanvasScaleFactor];
+        [self->_soundShaderViewController setDefaultCanvasScaleFactor];
         [weakSelf renderSoundShaderFrame:0 complete:^{
-            [_soundPassPlayer prepareToPlay];
+            [self->_soundPassPlayer prepareToPlay];
             
-            [_soundShaderView removeFromSuperview];
-            [_soundShaderViewController removeFromParentViewController];
-            _soundShaderView = nil;
-            _soundShaderViewController = nil;
+            [self->_soundShaderView removeFromSuperview];
+            [self->_soundShaderViewController removeFromParentViewController];
+            self->_soundShaderView = nil;
+            self->_soundShaderViewController = nil;
             
             [weakSelf compileImageShader];
         }];
@@ -332,7 +332,7 @@
     [_soundShaderViewController setFragCoordScale:1.f andXOffset:(double)(frameNumber*256*256)/11025.0 andYOffset:0.f];
     
     [_soundShaderViewController renderOneFrame:0.f success:^(UIImage *image) {
-        [_soundPassPlayer fillSoundBufferFromImage:image block:frameNumber];
+        [self->_soundPassPlayer fillSoundBufferFromImage:image block:frameNumber];
         if( frameNumber < 9 ) {
             [weakSelf renderSoundShaderFrame:(frameNumber+1) complete:complete];
         } else {
@@ -555,7 +555,7 @@
                                    }]];
     [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
                                    {
-                                       _exporting = NO;
+                                       self->_exporting = NO;
                                        [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                        
                                    }]];
@@ -598,10 +598,10 @@ static float const kFrameDelay = ImageExportGIFFrameDelay;
     __weak typeof (self) weakSelf = self;
     
     [_imageShaderViewController renderOneFrame:time success:^(UIImage *image) {
-        UIImage *scaledImage = [[image resizedImageWithMaximumSize:CGSizeMake(ImageExportGIFWidth, ImageExportGIFWidth)] setShaderWatermarkText:_shader];
-        [_exportImageArray insertObject:scaledImage atIndex:frameNumber];
+        UIImage *scaledImage = [[image resizedImageWithMaximumSize:CGSizeMake(ImageExportGIFWidth, ImageExportGIFWidth)] setShaderWatermarkText:self->_shader];
+        [self->_exportImageArray insertObject:scaledImage atIndex:frameNumber];
         
-        [_progressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
+        [self->_progressView setProgress:(float)(frameNumber+1)/(float)kFrameCount animated:NO];
         
         if( frameNumber < kFrameCount-1 ) {
             [weakSelf addAnimationFrameToArray:(frameNumber+1) time:(time + kFrameDelay) complete:complete];
@@ -645,9 +645,9 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
     [_imageShaderViewController setFragCoordScale:scale andXOffset:x andYOffset:y];
     
     [_imageShaderViewController renderOneFrame:time success:^(UIImage *image) {
-        [_exportImageArray insertObject:image atIndex:frameNumber];
+        [self->_exportImageArray insertObject:image atIndex:frameNumber];
         
-        [_progressView setProgress:(float)(frameNumber+1)/(float)(exportHQTiles*exportHQTiles) animated:NO];
+        [self->_progressView setProgress:(float)(frameNumber+1)/(float)(exportHQTiles*exportHQTiles) animated:NO];
         
         if( frameNumber < (exportHQTiles*exportHQTiles)-1 ) {
             [weakSelf addHQTileToArray:(frameNumber+1) time:time complete:complete];
@@ -680,7 +680,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         [_imageShaderViewController setCanvasScaleFactor: 2.f*ImageExportGIFWidth / _imageShaderView.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self addAnimationFrameToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(NSURL *fileURL) {
+            [self addAnimationFrameToArray:0 time:[self->_imageShaderViewController getIGlobalTime]complete:^(NSURL *fileURL) {
                 [alert dismissViewControllerAnimated:YES completion:nil];
                 
                 [weakSelf shareText:text andImage:[NSData dataWithContentsOfURL:fileURL] andUrl:url];
@@ -695,7 +695,7 @@ static float const exportTileHeight = exportTileWidth * 9.f/16.f;
         [_imageShaderViewController setCanvasScaleFactor: exportTileWidth / _imageShaderView.frame.size.width ];
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self addHQTileToArray:0 time:[_imageShaderViewController getIGlobalTime]complete:^(UIImage *image) {
+            [self addHQTileToArray:0 time:[self->_imageShaderViewController getIGlobalTime]complete:^(UIImage *image) {
                 [alert dismissViewControllerAnimated:YES completion:nil];
                 
                 [weakSelf shareText:text andImage:(NSData *)image andUrl:url];

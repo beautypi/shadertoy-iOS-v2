@@ -136,7 +136,7 @@
         NSString *searchQueryCopy = [_searchQuery copy];
         _currentAFRequestOperation = [_client getShaderKeys:_sortBy query:_searchQuery success:^(NSArray *results) {
             [weakSelf setDataIsLoaded:results];
-            [_searchCache setValue:(results?results:[NSArray array]) forKey:searchQueryCopy];
+            [self->_searchCache setValue:(results?results:[NSArray array]) forKey:searchQueryCopy];
             if( [results count] ) {
                 [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
             }
@@ -226,7 +226,7 @@
     UIImage *logo = [[[UIImage imageNamed:@"shadertoy_title"] resizedImageWithMaximumSize:CGSizeMake(10000,24)] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     __weak QueryTableViewController *weakSelf = self;
     UIBarButtonItem *item = [[UIBarButtonItem alloc] bk_initWithImage:logo style:UIBarButtonItemStylePlain handler:^(id sender) {
-        if( [_data count] ) {
+        if( [self->_data count] ) {
             [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
         }
     }];

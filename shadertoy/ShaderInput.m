@@ -137,8 +137,8 @@
                     NSString* url = [resultDict objectForKey:@"stream_url"];
                     url = [url stringByAppendingString:@"?client_id=64a52bb31abd2ec73f8adda86358cfbf"];
                     __weak typeof (self) weakSelf = self;
-                    _soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
-                    [_soundStreamHelper playUrl:url];
+                    self->_soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
+                    [self->_soundStreamHelper playUrl:url];
                 }];
             } else {
                 _type = MUSIC;

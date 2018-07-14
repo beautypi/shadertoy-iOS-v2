@@ -185,8 +185,8 @@
                         } else {
                             NSLog(@"File is saved to %@",fileURL);
                         }
-                        _fileURL = fileURL;
-                        _newDataLoaded = true;
+                        self->_fileURL = fileURL;
+                        self->_newDataLoaded = true;
                     }
                 }] resume];
 }
