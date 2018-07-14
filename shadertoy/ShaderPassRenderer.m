@@ -10,6 +10,7 @@
 #import "ShaderInput.h"
 #import "VRManager.h"
 #import "GLUtils.h"
+#import "TextureHelper.h"
 
 #import <OpenGLES/ES3/gl.h>
 #import <OpenGLES/ES3/glext.h>
@@ -51,9 +52,7 @@
     GLuint _copyProgramId;
     GLuint _copyRenderTexture;
 }
-
 @end
-
 
 @implementation ShaderPassRenderer
 
@@ -237,23 +236,16 @@
         
         _renderBufferWidth = (int)x;
         _renderBufferHeight = (int)y;
+        int levels = [TextureHelper getMipLevels:_renderBufferWidth height:_renderBufferHeight];
         
         [self copyTexture:_renderTexture0 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         [self copyTexture:_copyRenderTexture target:_renderTexture0 sw:oldBufferWidth sh:oldBufferHeight tw:_renderBufferWidth th:_renderBufferHeight];
         
         [self copyTexture:_renderTexture1 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _renderBufferWidth, _renderBufferHeight, 0,GL_RGBA, GL_HALF_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         [self copyTexture:_copyRenderTexture target:_renderTexture1 sw:oldBufferWidth sh:oldBufferHeight tw:_renderBufferWidth th:_renderBufferHeight];
     }
 }

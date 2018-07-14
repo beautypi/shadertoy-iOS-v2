@@ -236,10 +236,14 @@
     
     _isInitialised = YES;
 }
-    
+
++ (int) getMipLevels:(int)width height:(int)height {
+    return 1 + floor(log2(MAX(width, height)));
+}
+
 - (void) createEmpty:(int)width height:(int)height {
     glBindTexture(GL_TEXTURE_2D, _texId);
-    int levels = 1 + floor(log2(MAX(width, height)));
+    int levels = [TextureHelper getMipLevels:width height:height];
     glTexStorage2D(GL_TEXTURE_2D, levels, GL_RGBA8, width, height);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  _texId, 0);
     
@@ -279,21 +283,24 @@
     GLuint target = (_type == TEXTURECUBE) ? GL_TEXTURE_CUBE_MAP : (_type == TEXTURE3D) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
     glActiveTexture(GL_TEXTURE0 + channel);
     glBindTexture( target, _texId);
-    
-    if( _wrapMode == REPEAT ) {
+    [TextureHelper setGLTexParameters:target type:_type wrapMode:_wrapMode filterMode:_filterMode];
+}
+
++ (void) setGLTexParameters:(GLuint)target type:(ShaderInputType)type wrapMode:(ShaderInputWrapMode)wrapMode filterMode:(ShaderInputFilterMode)filterMode {
+    if( wrapMode == REPEAT ) {
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        if(_type == TEXTURECUBE || _type == TEXTURE3D) glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        if(type == TEXTURECUBE || type == TEXTURE3D) glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT);
     } else {
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        if(_type == TEXTURECUBE || _type == TEXTURE3D) glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        if(type == TEXTURECUBE || type == TEXTURE3D) glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
     
-    if( _filterMode == NEAREST ) {
+    if( filterMode == NEAREST ) {
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    } else if( _filterMode == MIPMAP ) {
+    } else if( filterMode == MIPMAP ) {
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     } else {

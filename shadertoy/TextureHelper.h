@@ -26,6 +26,9 @@
 - (float) getHeight;
 - (float) getDepth;
 
++ (int) getMipLevels:(int)width height:(int)height;
++ (void) setGLTexParameters:(GLuint)target type:(ShaderInputType)type wrapMode:(ShaderInputWrapMode)wrapMode filterMode:(ShaderInputFilterMode)filterMode;
+
 - (ShaderInputType) getType;
 - (ShaderInputFilterMode) getFilterMode;
 - (GLuint) getTexId;

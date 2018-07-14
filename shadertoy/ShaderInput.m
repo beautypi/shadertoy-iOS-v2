@@ -205,13 +205,13 @@
         for( ShaderPassRenderer *shaderPass in shaderPasses ) {
             if( [inputId integerValue] == [[shaderPass getOutputId] integerValue] ) {
                 glBindTexture(GL_TEXTURE_2D, [shaderPass getCurrentTexId]);
-                if( _filterMode == NEAREST ) {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                } else {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+               
+                [TextureHelper setGLTexParameters:GL_TEXTURE_2D type:TEXTURE2D wrapMode:_wrapMode filterMode:_filterMode];
+                
+                if( _filterMode ==  MIPMAP ) {
+                    glGenerateMipmap(GL_TEXTURE_2D);
                 }
+                
                 _iChannelWidth = [shaderPass getWidth];
                 _iChannelHeight = [shaderPass getHeight];
                 _iChannelDepth = [shaderPass getDepth];
