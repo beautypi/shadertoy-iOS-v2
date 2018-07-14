@@ -49,6 +49,10 @@
             [shader updateWithDict:shaderDict];
             [[LocalCache sharedLocalCache] storeShaderObject:shader forKey:shaderId];
             success(shader);
+        } failure:^{
+            if (cachedShader) {
+                success(shader);
+            }
         }];
     }
     

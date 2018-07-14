@@ -31,8 +31,7 @@
     GLuint _indexBuffer;
     GLuint _vertexArray;
 }
-    
-    @end
+@end
 
 @implementation CameraTextureHelper
     
@@ -40,8 +39,7 @@
     self = [super initWithType:type vFlip:vFlip sRGB:sRGB wrapMode:wrapMode filterMode:filterMode];
     
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [EAGLContext currentContext], NULL, &_videoTextureCache);
-    if (err)
-    {
+    if (err) {
         NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", err);
     }
     
@@ -64,7 +62,6 @@
 }
     
 -(void) update {
-    
     CVImageBufferRef pixelBuffer = (CVImageBufferRef)[VRManager capturedImage];
     
     if (CVPixelBufferGetPlaneCount(pixelBuffer) < 2) {
@@ -78,8 +75,7 @@
     _textureWidth = (GLsizei)width;
     _textureHeight = (GLsizei)height;
     
-    if (!_videoTextureCache)
-    {
+    if (!_videoTextureCache) {
         NSLog(@"No video texture cache");
         return;
     }
@@ -100,8 +96,7 @@
                                                        GL_UNSIGNED_BYTE,
                                                        0,
                                                        &_lumaTexture);
-    if (err)
-    {
+    if (err) {
         NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
@@ -124,8 +119,7 @@
                                                        GL_UNSIGNED_BYTE,
                                                        1,
                                                        &_chromaTexture);
-    if (err)
-    {
+    if (err) {
         NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
