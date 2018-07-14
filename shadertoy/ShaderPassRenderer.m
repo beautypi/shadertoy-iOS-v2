@@ -236,7 +236,6 @@
         
         _renderBufferWidth = (int)x;
         _renderBufferHeight = (int)y;
-        int levels = [TextureHelper getMipLevels:_renderBufferWidth height:_renderBufferHeight];
         
         [self copyTexture:_renderTexture0 target:_copyRenderTexture sw:oldBufferWidth sh:oldBufferHeight tw:oldBufferWidth th:oldBufferHeight];
         glBindTexture(GL_TEXTURE_2D, _renderTexture0);
