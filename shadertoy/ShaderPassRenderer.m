@@ -93,6 +93,10 @@
 - (BOOL) createShaderProgram:(APIShaderPass *)shaderPass commonPass:(APIShaderPass *)commonPass theError:(NSString **)error {
     _shaderPass = shaderPass;
     
+    if (![shaderPass.code containsString:@"mainVR"]) {
+        _vrSettings = NULL;
+    }
+    
     NSString *VertexShaderCode;
     
     if( _vrSettings ) {
