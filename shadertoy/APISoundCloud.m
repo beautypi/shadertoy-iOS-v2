@@ -38,26 +38,26 @@
                              @"url": url
                              };
     
-    return [_manager GET:@"resolve.json" parameters:params progress:nil success:^(NSURLSessionTask *operation, id responseObject) {
+    return [_manager GET:@"resolve.json" parameters:params headers:nil progress:nil success:^(NSURLSessionDataTask *operation, id responseObject) {
         if(![responseObject isKindOfClass:[NSDictionary class]]){
             return;
         }
         success(responseObject);
-    } failure:^(NSURLSessionTask *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask *operation, NSError *error) {
         
     }];
 }
 
 - (NSURLSessionDataTask *) track:(NSString *)location success:(void (^)(NSDictionary *resultDict))success {
     NSDictionary *params = @{};
-    
-    return [_manager GET:location parameters:params progress:nil success:^(NSURLSessionTask *operation, id responseObject) {
-        if(![responseObject isKindOfClass:[NSDictionary class]]){
+    return [_manager GET:location parameters:params headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        if (![responseObject isKindOfClass:[NSDictionary class]])
+        {
             return;
         }
         NSDictionary *shaderDict = [responseObject objectForKey:@"Shader"];
         success(shaderDict);
-    } failure:^(NSURLSessionTask *operation, NSError *error) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         
     }];
 }

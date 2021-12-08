@@ -8,11 +8,80 @@
 
 #import "APIShaderObject.h"
 
+static STInputType STInputTypeFromStr(NSString* str) {
+    if ([str isEqualToString:@"texture"]) return STInputTypeTexture;
+    if ([str isEqualToString:@"cubemap"]) return STInputTypeCubemap;
+    if ([str isEqualToString:@"volume"]) return STInputTypeVolume;
+    if ([str isEqualToString:@"buffer"]) return STInputTypeBuffer;
+    if ([str isEqualToString:@"keyboard"]) return STInputTypeKeyboard;
+    if ([str isEqualToString:@"video"]) return STInputTypeVideo;
+    if ([str isEqualToString:@"music"]) return STInputTypeMusic;
+    if ([str isEqualToString:@"musicstream"]) return STInputTypeMusicStream;
+    if ([str isEqualToString:@"webcam"]) return STInputTypeWebCam;
+    if ([str isEqualToString:@"mic"]) return STInputTypeMic;
+    return STInputTypeInvalid;
+}
+
+static STSamplerFilter STSamplerFilterFromStr(NSString* str) {
+    if ([str isEqualToString:@"nearest"]) return STSamplerFilterNearest;
+    if ([str isEqualToString:@"linear"]) return STSamplerFilterLinear;
+    if ([str isEqualToString:@"mipmap"]) return STSamplerFilterMipmap;
+    return STSamplerFilterInvalid;
+}
+
+static STSamplerWrap STSamplerWrapFromStr(NSString* str) {
+    if ([str isEqualToString:@"repeat"]) return STSamplerWrapRepeat;
+    if ([str isEqualToString:@"clamp"]) return STSamplerWrapClamp;
+    return STSamplerWrapInvalid;
+}
+
+static STPassType STPassTypeFromStr(NSString* str) {
+    if ([str isEqualToString:@"image"]) return STPassTypeImage;
+    if ([str isEqualToString:@"buffer"]) return STPassTypeBuffer;
+    if ([str isEqualToString:@"sound"]) return STPassTypeSound;
+    if ([str isEqualToString:@"common"]) return STPassTypeCommon;
+    return STPassTypeInvalid;
+}
+
+static NSString* STInputTypeToStr(STInputType value) {
+    if (value == STInputTypeTexture) return @"texture";
+    if (value == STInputTypeCubemap) return @"cubemap";
+    if (value == STInputTypeVolume) return @"volume";
+    if (value == STInputTypeBuffer) return @"buffer";
+    if (value == STInputTypeKeyboard) return @"keyboard";
+    if (value == STInputTypeVideo) return @"video";
+    if (value == STInputTypeMusic) return @"music";
+    if (value == STInputTypeMusicStream) return @"musicstream";
+    if (value == STInputTypeWebCam) return @"webcam";
+    if (value == STInputTypeMic) return @"mic";
+    return @"STInputTypeInvalid";
+}
+
+static NSString* STSamplerFilterToStr(STSamplerFilter value) {
+    if (value == STSamplerFilterNearest) return @"nearest";
+    if (value == STSamplerFilterLinear) return @"linear";
+    if (value == STSamplerFilterMipmap) return @"mipmap";
+    return @"STSamplerFilterInvalid";
+}
+
+static NSString* STSamplerWrapToStr(STSamplerWrap value) {
+    if (value == STSamplerWrapRepeat) return @"repeat";
+    if (value == STSamplerWrapClamp) return @"clamp";
+    return @"STSamplerWrapInvalid";
+}
+
+static NSString* STPassTypeToStr(STPassType value) {
+    if (value == STPassTypeImage) return @"image";
+    if (value == STPassTypeBuffer) return @"buffer";
+    if (value == STPassTypeSound) return @"sound";
+    if (value == STPassTypeCommon) return @"common";
+    return @"STPassTypeInvalid";
+}
 
 @implementation APIShaderPassInputSampler : NSObject
 - (APIShaderPassInputSampler *) updateWithDict:(NSDictionary *) dict {
-    self.filter = [dict objectForKey:@"filter"];
-    self.wrap = [dict objectForKey:@"wrap"];
+    self.filter = @(STSamplerFilterFromStr([dict objectForKey:@"filter"]));
+    self.wrap = @(STSamplerWrapFromStr([dict objectForKey:@"wrap"]));
     self.vflip = [dict objectForKey:@"vflip"];
     self.srgb = [dict objectForKey:@"srgb"];
     
@@ -34,14 +103,17 @@
     }
     return self;
 }
+-(NSString*) description {
+    return [NSString stringWithFormat:@"{filter:'%@', wrap:'%@', vflip:'%@', srgb:'%@'}", STSamplerFilterToStr(self.filter.integerValue), STSamplerWrapToStr(self.wrap.integerValue), self.vflip, self.srgb];
+}
 @end
 
 
 @implementation APIShaderPassInput : NSObject
 - (APIShaderPassInput *) updateWithDict:(NSDictionary *) dict {
     self.inputId = [dict objectForKey:@"id"];
-    self.src = [dict objectForKey:@"src"];
-    self.ctype = [dict objectForKey:@"ctype"];
+    self.filepath = [dict objectForKey:@"filepath"];
+    self.type = @(STInputTypeFromStr([dict objectForKey:@"type"]));
     self.channel = [dict objectForKey:@"channel"];
     NSDictionary* d = [dict objectForKey:@"sampler"];
     self.sampler = [[[APIShaderPassInputSampler alloc] init] updateWithDict:d];
@@ -49,8 +121,8 @@
 }
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.inputId forKey:@"inputId"];
-    [coder encodeObject:self.src forKey:@"src"];
-    [coder encodeObject:self.ctype forKey:@"ctype"];
+    [coder encodeObject:self.filepath forKey:@"filepath"];
+    [coder encodeObject:self.type forKey:@"type"];
     [coder encodeObject:self.channel forKey:@"channel"];
     [coder encodeObject:self.sampler forKey:@"sampler"];
 }
@@ -58,12 +130,15 @@
     self = [super init];
     if (self != nil) {
         self.inputId = [coder decodeObjectForKey:@"inputId"];
-        self.src = [coder decodeObjectForKey:@"src"];
-        self.ctype = [coder decodeObjectForKey:@"ctype"];
+        self.filepath = [coder decodeObjectForKey:@"filepath"];
+        self.type = [coder decodeObjectForKey:@"type"];
         self.channel = [coder decodeObjectForKey:@"channel"];
         self.sampler = [coder decodeObjectForKey:@"sampler"];
     }
     return self;
+}
+-(NSString*) description {
+    return [NSString stringWithFormat:@"{type:'%@', inputID:%@, channel:%d, \n  sampler:%@,\n  src:'...'}", STInputTypeToStr(_type.integerValue), _inputId, _channel.intValue, _sampler];
 }
 @end
 
@@ -86,13 +161,20 @@
     }
     return self;
 }
+-(NSString*) description {
+    return [NSString stringWithFormat:@"{outputID:%@, channel:%d}", _outputId, _channel.intValue];
+}
 @end
 
 
 @implementation APIShaderPass : NSObject
+-(NSString*) description {
+    return [NSString stringWithFormat:@"{type:'%@', name:'%@',\n  inputs:\n%@,\n  outputs:\n%@,\n  code:'%@'}", STPassTypeToStr(_type.integerValue), _name, _inputs, _outputs, _code];
+}
 - (APIShaderPass *) updateWithDict:(NSDictionary *) dict {
     self.code = [dict objectForKey:@"code"];
-    self.type = [dict objectForKey:@"type"];
+    self.type = @(STPassTypeFromStr([dict objectForKey:@"type"]));
+    self.name = [dict objectForKey:@"name"];
     self.inputs = [[NSMutableArray alloc] init];
     self.outputs = [[NSMutableArray alloc] init];
     NSArray* inputs = [dict objectForKey:@"inputs"];
@@ -108,6 +190,7 @@
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.code forKey:@"code"];
     [coder encodeObject:self.type forKey:@"type"];
+    [coder encodeObject:self.name forKey:@"name"];
     [coder encodeObject:self.inputs forKey:@"inputs"];
     [coder encodeObject:self.outputs forKey:@"outputs"];
 }
@@ -116,6 +199,7 @@
     if (self != nil) {
         self.code = [coder decodeObjectForKey:@"code"];
         self.type = [coder decodeObjectForKey:@"type"];
+        self.name = [coder decodeObjectForKey:@"name"];
         self.inputs = [coder decodeObjectForKey:@"inputs"];
         self.outputs = [coder decodeObjectForKey:@"outputs"];
     }
@@ -146,7 +230,159 @@
 }
 @end
 
+@interface APIShaderObject ()
+{
+    NSString* _summaryDescription;
+}
+
+@end
+
 @implementation APIShaderObject : NSObject
+
+-(NSString*) description {
+    return [NSString stringWithFormat:@"{name:'%@', ID:'%@', username:'%@',\n  imagePass:\n%@,\n  bufferPasses:\n%@,\n  commonPass:\n%@,\n  soundPass:\n%@\nlicense=%d\n}", _shaderName, _shaderId, _username, _imagePass, _bufferPasses, _commonPass, _soundPass, _license];
+}
+
+-(NSString*) summaryDescription {
+    if (!_summaryDescription)
+    {
+        NSMutableString* ret = [[NSMutableString alloc] init];
+        for (APIShaderPass* pass in _bufferPasses)
+        {
+            NSString* outputID = @"";
+            if (pass.outputs && pass.outputs.count > 0)
+            {
+                outputID = ((APIShaderPassOutput*)pass.outputs[0]).outputId;
+            }
+            for (APIShaderPassInput* input in pass.inputs)
+            {
+                [ret appendFormat:@"%@ ->[%d] %@\n", input.inputId, input.channel.intValue, outputID];
+            }
+        }
+        if (_imagePass)
+        {
+            NSString* outputID = @"";
+            if (_imagePass.outputs && _imagePass.outputs.count > 0)
+            {
+                outputID = ((APIShaderPassOutput*)_imagePass.outputs[0]).outputId;
+            }
+            for (APIShaderPassInput* input in _imagePass.inputs)
+            {
+                [ret appendFormat:@"%@ ->[%d] %@\n", input.inputId, input.channel.intValue, outputID];
+            }
+        }
+        for (APIShaderPass* pass in _bufferPasses)
+        {
+            NSString* outputID = @"";
+            if (pass.outputs && pass.outputs.count > 0)
+            {
+                outputID = ((APIShaderPassOutput*)pass.outputs[0]).outputId;
+            }
+            [ret appendFormat:@"%@:\n", outputID];
+            if (pass.code && pass.code.length > 0)
+            {
+                [ret appendString:pass.code];
+                [ret appendString:@"\n"];
+            }
+            [ret appendString:@"\n"];
+        }
+        if (_commonPass)
+        {
+            [ret appendString:@"Common:\n"];
+            [ret appendString:_commonPass.code];
+            [ret appendString:@"\n"];
+        }
+        if (_soundPass)
+        {
+            [ret appendString:@"Sound:\n"];
+            [ret appendString:_soundPass.code];
+            [ret appendString:@"\n"];
+        }
+        if (_imagePass)
+        {
+            [ret appendString:@"Image:\n"];
+            [ret appendString:_imagePass.code];
+            [ret appendString:@"\n"];
+        }
+        
+        _summaryDescription = [NSString stringWithString:ret];
+    }
+    return _summaryDescription;
+}
+
+const int LicenseNotSpecified = 0;
+const int LicenseCC0 = 0x01;
+const int LicenseMIT = 0x02;
+const int LicenseForbidModify = 0x04;
+const int LicenseForbidCommercial = 0x08;
+const int LicenseEducationalOnly = 0x10;
+
++(int) checkForLicense:(NSString*)text {
+    static dispatch_once_t once;
+    static NSMutableArray<NSMutableArray<NSRegularExpression* >* >* LicensePatternRegs;
+    dispatch_once(&once, ^{
+        NSArray<NSArray<NSString* >* >* LicensePatterns = @[
+            @[@"cc0 license", @"license cc0", @"license: cc0"],
+            @[@"mit license"],
+            @[@"not modify", @" gpl ", @"general public license"],
+            @[@"noncommercial", @"non-commercial", @"non commercial"],
+            @[@" or commer", @" or non-commer", @"or noncommer", @" or noncommer"],
+        ];
+        LicensePatternRegs = [[NSMutableArray alloc] init];
+        for (NSArray* patterns in LicensePatterns)
+        {
+            NSMutableArray<NSRegularExpression* >* regs = [[NSMutableArray alloc] init];
+            [LicensePatternRegs addObject:regs];
+            for (NSString* pattern in patterns)
+            {
+                NSRegularExpression* reg = [[NSRegularExpression alloc] initWithPattern:pattern options:(NSRegularExpressionCaseInsensitive) error:nil];
+                if (reg)
+                {
+                    [regs addObject:reg];
+                }
+            }
+        }
+    });
+    
+    if (!text || text.length == 0)
+    {
+        return 0;
+    }
+    
+    int license = 0;
+    int curCode = 0x01;
+    for (NSInteger i = 0; i < LicensePatternRegs.count; ++i)
+    {
+        NSArray<NSRegularExpression* >* regs = LicensePatternRegs[i];
+        for (NSRegularExpression* reg in regs)
+        {
+            NSArray* matches = [reg matchesInString:text options:0 range:NSMakeRange(0, text.length)];
+            if (matches.count > 0)
+            {
+                license |= curCode;
+            }
+        }
+        curCode <<= 1;
+    }
+    return license;
+}
+
+-(void) checkLicense {
+    int licenseLevel = 0;
+    {
+        licenseLevel |= [self.class checkForLicense:_commonPass.code];
+    }
+    {
+        licenseLevel |= [self.class checkForLicense:_imagePass.code];
+    }
+    for (APIShaderPass* pass in _bufferPasses)
+    {
+        licenseLevel |= [self.class checkForLicense:pass.code];
+    }
+    
+    _license = licenseLevel;
+}
+
 - (APIShaderObject *) updateWithDict:(NSDictionary *) dict {
     NSDictionary* info = [dict objectForKey:@"info"];
     
@@ -178,8 +414,12 @@
             [self.bufferPasses addObject:[[[APIShaderPass alloc] init] updateWithDict:d]];
         }
     }
+    
+    [self checkLicense];
+
     return self;
 }
+
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:self.shaderId forKey:@"shaderId"];
     [coder encodeObject:self.shaderName forKey:@"shaderName"];
@@ -193,7 +433,9 @@
     [coder encodeObject:self.commonPass forKey:@"commonPass"];
     [coder encodeObject:self.bufferPasses forKey:@"bufferPasses"];
     [coder encodeObject:self.dateLastUpdated forKey:@"dateLastUpdated"];
+    [coder encodeInt:self.license forKey:@"license"];
 }
+
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super init];
     if (self != nil) {
@@ -209,6 +451,7 @@
         self.commonPass = [coder decodeObjectForKey:@"commonPass"];
         self.bufferPasses = [coder decodeObjectForKey:@"bufferPasses"];
         self.dateLastUpdated = [coder decodeObjectForKey:@"dateLastUpdated"];
+        self.license = [coder decodeIntForKey:@"license"];
     }
     return self;
 }
@@ -267,11 +510,11 @@
 - (BOOL) useKeyboard {
     for( APIShaderPass *pass in self.bufferPasses ) {
         for( APIShaderPassInput *input in pass.inputs ) {
-            if( [input.ctype isEqualToString:@"keyboard"] ) return true;
+            if (input.type.integerValue == STInputTypeKeyboard) return true;
         }
     }
     for( APIShaderPassInput *input in self.imagePass.inputs ) {
-        if( [input.ctype isEqualToString:@"keyboard"] ) return true;
+        if (input.type.integerValue == STInputTypeKeyboard) return true;
     }
     return false;
 }

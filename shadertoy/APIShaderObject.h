@@ -9,16 +9,51 @@
 #import <Foundation/Foundation.h>
 #import "AFNetworking.h"
 
+typedef NS_ENUM(NSInteger, STInputType) {
+    STInputTypeTexture = 0, //"texture"
+    STInputTypeCubemap = 1, //"cubemap"
+    STInputTypeVolume = 2, //"volume"
+    STInputTypeBuffer = 3, //"buffer"
+    STInputTypeKeyboard = 4, //"keyboard"
+    STInputTypeVideo = 5, //"video"
+    STInputTypeMusic = 6, //"music"
+    STInputTypeMusicStream = 7, //"musicstream"
+    STInputTypeWebCam = 8, //"webcam"
+    STInputTypeMic = 9, //"mic"
+    STInputTypeInvalid = 100
+};
+
+typedef NS_ENUM(NSInteger, STSamplerFilter) {
+    STSamplerFilterNearest = 0, //"nearest"
+    STSamplerFilterLinear = 1, //"linear"
+    STSamplerFilterMipmap = 2, //"mipmap"
+    STSamplerFilterInvalid = 100
+};
+
+typedef NS_ENUM(NSInteger, STSamplerWrap) {
+    STSamplerWrapRepeat = 0, //"repeat"
+    STSamplerWrapClamp = 1, //"clamp"
+    STSamplerWrapInvalid = 100
+};
+
+typedef NS_ENUM(NSInteger, STPassType) {
+    STPassTypeImage = 0, //"image"
+    STPassTypeBuffer = 1, //"buffer"
+    STPassTypeSound = 2, //"sound"
+    STPassTypeCommon = 3, //"common"
+    STPassTypeInvalid = 100
+};
+
 @interface APIShaderPassInputSampler : NSObject
 
 - (APIShaderPassInputSampler *) updateWithDict:(NSDictionary *) dict;
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
-@property (nonatomic, strong) NSString *filter;
-@property (nonatomic, strong) NSString *wrap;
-@property (nonatomic, strong) NSString *vflip;
-@property (nonatomic, strong) NSString *srgb;
+@property (nonatomic, copy) NSNumber* filter;
+@property (nonatomic, copy) NSNumber* wrap;
+@property (nonatomic, strong) NSString* vflip;
+@property (nonatomic, strong) NSString* srgb;
 
 @end
 
@@ -28,10 +63,10 @@
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
-@property (nonatomic, strong) NSNumber *inputId;
-@property (nonatomic, strong) NSString *src;
-@property (nonatomic, strong) NSString *ctype;
-@property (nonatomic, strong) NSNumber *channel;
+@property (nonatomic, copy) NSString* inputId;
+@property (nonatomic, copy) NSString* filepath;
+@property (nonatomic, copy) NSNumber* type;
+@property (nonatomic, strong) NSNumber* channel;
 @property (nonatomic, strong) APIShaderPassInputSampler *sampler;
 
 @end
@@ -43,8 +78,8 @@
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
-@property (nonatomic, strong) NSNumber *outputId;
-@property (nonatomic, strong) NSNumber *channel;
+@property (nonatomic, copy) NSString* outputId;
+@property (nonatomic, strong) NSNumber* channel;
 
 @end
 
@@ -55,19 +90,29 @@
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
 
-@property (nonatomic, strong) NSMutableArray *inputs;
-@property (nonatomic, strong) NSMutableArray *outputs;
-@property (nonatomic, strong) NSString *code;
-@property (nonatomic, strong) NSString *type;
+@property (nonatomic, strong) NSMutableArray<APIShaderPassInput*>* inputs;
+@property (nonatomic, strong) NSMutableArray<APIShaderPassOutput*>* outputs;
+@property (nonatomic, copy) NSString* code;
+@property (nonatomic, copy) NSNumber* type;
+@property (nonatomic, copy) NSString* name;
 
 @end
 
 
-@interface APIShaderObject : NSObject
+extern const int LicenseNotSpecified;
+extern const int LicenseCC0;
+extern const int LicenseMIT;
+extern const int LicenseForbidModify;
+extern const int LicenseForbidCommercial;
+extern const int LicenseEducationalOnly;
+
+@interface APIShaderObject : NSObject<NSCoding>
 
 - (APIShaderObject *) updateWithDict:(NSDictionary *) dict;
 - (void)encodeWithCoder:(NSCoder *)coder;
 - (id)initWithCoder:(NSCoder *)coder;
+
+@property (nonatomic, copy) NSString* summaryDescription;
 
 @property (nonatomic, strong) NSString *shaderId;
 @property (nonatomic, strong) NSString *shaderName;
@@ -83,9 +128,11 @@
 @property (nonatomic, strong) APIShaderPass *commonPass;
 @property (nonatomic, strong) NSMutableArray *bufferPasses;
 
+@property (nonatomic, strong) NSDate *dateLastUpdated;
+
 @property (nonatomic, weak)   NSURLSessionDataTask *requestOperation;
 
-@property (nonatomic, strong) NSDate *dateLastUpdated;
+@property (nonatomic, assign) int license;
 
 - (NSURL *) getPreviewImageUrl;
 - (NSURL *) getShaderUrl;

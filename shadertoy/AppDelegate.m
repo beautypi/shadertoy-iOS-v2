@@ -19,6 +19,9 @@
 #import "QueryTableViewController.h"
 #import "APIShaderRepository.h"
 
+#import "hook/wrap_gl.h"
+#import "hook/wrap_glext.h"
+
 @interface AppDelegate () {
 }
 @end
@@ -60,7 +63,7 @@
                 
                 QueryTableViewController* queryTableViewController = [navigationController.childViewControllers objectAtIndex:0];
                 
-                [[[APIShaderRepository alloc] init] getShader:shaderId success:^(APIShaderObject *shader) {
+                [[APIShaderRepository sharedRepo] getShader:shaderId success:^(APIShaderObject *shader) {
                     [queryTableViewController navigateToShader:shaderId];
                 }];
             }
@@ -71,7 +74,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [self initApp];
     [self handleURL:[launchOptions objectForKey:@"url"]];
-    
+#ifdef FISHHOOK
+    hookES30GL();
+    hookES30GLExt();
+#endif
     return YES;
 }
 

@@ -239,7 +239,9 @@
 -(void) navigateToShader:(NSString *)shaderId {
     UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle: nil];
     UIViewController* viewController = (UIViewController*)[mainStoryboard instantiateViewControllerWithIdentifier: @"ShaderViewController"];
-    
+#if FISHHOOK && DEBUG
+    shaderId = @"lstSRS";///!!!For Debug:
+#endif
     [_repository getShader:shaderId success:^(APIShaderObject *shader) {
         if( shader.imagePass != NULL ) {
             [((ShaderViewController *)viewController) setShaderObject:shader];
@@ -332,8 +334,8 @@
     NSString* shaderId = [_data objectAtIndex:indexPath.row];
     
     [((QueryTableViewCell *)cell) layoutForShader:[_repository getShader:shaderId success:^(APIShaderObject *shader) {
-        [((QueryTableViewCell *)cell) layoutForShader:shader];
-    }]];
+        [((QueryTableViewCell *)cell) layoutForShader:shader index:indexPath.row];
+    }] index:indexPath.row];
     
     if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
         [cell setSeparatorInset:UIEdgeInsetsZero];
