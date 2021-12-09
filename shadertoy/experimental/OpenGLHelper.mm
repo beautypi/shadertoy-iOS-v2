@@ -195,7 +195,7 @@ void loadCubemapTextureFromImage(GLuint* pTexture, UIImage* image, CGSize destSi
 //- (void) loadData:(unsigned char *)data width:(int)width height:(int)height depth:(int)depth channels:(int)channels isFloat:(BOOL)isFloat cubemapLayer:(int)layer {
 //    GLenum format=GL_RGBA;
 //    GLenum sourceFormat=GL_RGBA;
-//
+//    
 //    if (channels == 4) {
 //        format = isFloat?GL_RGBA16F:GL_RGBA8;
 //        sourceFormat=GL_RGBA;
@@ -212,7 +212,7 @@ void loadCubemapTextureFromImage(GLuint* pTexture, UIImage* image, CGSize destSi
 //        format = isFloat?GL_R16F:GL_R8;
 //        sourceFormat=GL_RED;
 //    }
-//
+//    
 //    if( _type == TEXTURECUBE ) {
 //        glBindTexture(GL_TEXTURE_CUBE_MAP, _texId);
 //        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, 0, format, width, height, 0, sourceFormat, isFloat?GL_FLOAT:GL_UNSIGNED_BYTE, data);
@@ -226,11 +226,11 @@ void loadCubemapTextureFromImage(GLuint* pTexture, UIImage* image, CGSize destSi
 //        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, sourceFormat, isFloat?GL_FLOAT:GL_UNSIGNED_BYTE, data);
 //        glGenerateMipmap(GL_TEXTURE_2D);
 //    }
-//
+//    
 //    _iChannelWidth = (float)width;
 //    _iChannelHeight = (float)height;
 //    _iChannelDepth = (float)depth;
-//
+//    
 //    _isInitialised = YES;
 //}
 

@@ -38,7 +38,7 @@ uniform sampler2D _MainTex;
 void main()
 {
     mainImage(FragColor, _fragCoord);
-    gl_FragDepth = 1.0;
+    ///??? gl_FragDepth = 1.0;
 }
 """;
 
@@ -166,10 +166,10 @@ precision highp sampler3D;
         _vao = 0;
         if (_stShaderPass.type.intValue != STPassType.image.rawValue)
         {
-            _renderTexture = GLRenderTexture(texture: 0, textureTarget: GLenum(GL_TEXTURE_2D), width: 256, height: 256, depth: 1, internalFormat: GL_RGBA16F, format: GLenum(GL_RGBA), dataType: GLenum(GL_HALF_FLOAT), enableDepthTest: true);
+            _renderTexture = GLRenderTexture(texture: 0, textureTarget: GLenum(GL_TEXTURE_2D), width: 256, height: 256, depth: 1, internalFormat: GL_RGBA16F, format: GLenum(GL_RGBA), dataType: GLenum(GL_HALF_FLOAT), enableDepthTest: false);
             if (nil != _outputID)
             {
-                _renderTexture1 = GLRenderTexture(texture: 0, textureTarget: GLenum(GL_TEXTURE_2D), width: 256, height: 256, depth: 1, internalFormat: GL_RGBA16F, format: GLenum(GL_RGBA), dataType: GLenum(GL_HALF_FLOAT), enableDepthTest: true);
+                _renderTexture1 = GLRenderTexture(texture: 0, textureTarget: GLenum(GL_TEXTURE_2D), width: 256, height: 256, depth: 1, internalFormat: GL_RGBA16F, format: GLenum(GL_RGBA), dataType: GLenum(GL_HALF_FLOAT), enableDepthTest: false);
             }
         }
         
@@ -253,7 +253,7 @@ precision highp sampler3D;
             rt.resizeIfNecessary(width, height, 1);
             rt.blit();
         }
-        glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        glClear(GLbitfield(GL_COLOR_BUFFER_BIT));
         CHECK_GL_ERROR();
         if let glProgram = _drawQuadProgram
         {
@@ -268,18 +268,7 @@ precision highp sampler3D;
                 let iChannelSlot = glProgram.slot(of: "iChannel\(channel)");
                 if (iChannelSlot >= 0)
                 {
-                    var texture: GLuint = 0;
-                    if (nil != _outputID && _outputID == input.inputId)
-                    {
-                        if let rt = (0 == _currentRTIndex) ? _renderTexture1 : _renderTexture
-                        {
-                            texture = rt.texture;
-                        }
-                    }
-                    else
-                    {
-                        texture = _inputTextureOfChannel[channel];
-                    }
+                    let texture = _inputTextureOfChannel[channel];
                     glUniform1i(iChannelSlot, GLint(channel));
                     // glActiveTexture calling should precede to that of glBindTexture:
                     glActiveTexture(GLenum(Int(GL_TEXTURE0) + channel));
@@ -324,14 +313,14 @@ precision highp sampler3D;
             CHECK_GL_ERROR();
             glUniform1f(glProgram.slot(of: GLProgramSlotKey.iTime.rawValue), timestamp);
             let iFrameSlot = glProgram.slot(of: GLProgramSlotKey.iFrame.rawValue);
-            if (nil != _outputID && frameCount < 2)
-            {
-                glUniform1i(iFrameSlot, 0);
-            }
-            else
-            {
+//            if (nil != _outputID && frameCount < 2)
+//            {
+//                glUniform1i(iFrameSlot, 0);
+//            }
+//            else
+//            {
                 glUniform1i(iFrameSlot, GLint(frameCount));
-            }
+//            }
             let now = Date();
             let dateComponents = Calendar.current.dateComponents(Set<Calendar.Component>([.year, .month, .day, .hour, .minute, .second]), from: now);
             var totalSeconds = GLfloat(now.timeIntervalSince1970);
@@ -358,8 +347,8 @@ precision highp sampler3D;
         {
             return false;
         }
-        var attachment = GLenum(GL_DEPTH_ATTACHMENT);
-        glInvalidateFramebuffer(GLenum(GL_FRAMEBUFFER), 1, &attachment);
+//        var attachment = GLenum(GL_DEPTH_ATTACHMENT);
+//        glInvalidateFramebuffer(GLenum(GL_FRAMEBUFFER), 1, &attachment);
         if let rt = (0 == _currentRTIndex) ? _renderTexture : _renderTexture1
         {
             if (nil != _outputID)
@@ -374,12 +363,24 @@ precision highp sampler3D;
     
     override var targetTexture: GLuint {
         get {
-            guard let rt = (0 == _currentRTIndex) ? _renderTexture : _renderTexture1
+            if (nil != _outputID)
+            {
+                guard let rt = (0 == _currentRTIndex) ? _renderTexture1 : _renderTexture
+                else
+                {
+                    return 0;
+                }
+                return rt.texture;
+            }
             else
             {
-                return 0;
+                guard let rt = _renderTexture
+                else
+                {
+                    return 0;
+                }
+                return rt.texture;
             }
-            return rt.texture;
         }
     }
     

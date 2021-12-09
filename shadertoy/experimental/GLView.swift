@@ -70,10 +70,10 @@ class GLView : NSView, GLRenderer {
         let B = Float(0.2);
 
         glViewport(GLint(dirtyRect.minX), GLint(dirtyRect.minY), GLint(dirtyRect.width) / 2, GLint(dirtyRect.height) / 2);
-        glEnable(GLenum(GL_DEPTH_TEST));
-        glClearDepthf(1.0);
+//        glEnable(GLenum(GL_DEPTH_TEST));
+//        glClearDepthf(1.0);
         glClearColor(R, G, B, 1.0);
-        glClear(GLbitfield(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        glClear(GLbitfield(GL_COLOR_BUFFER_BIT));
         CHECK_GL_ERROR();
 
         if let r = self.renderer
@@ -205,8 +205,8 @@ class GLView : UIView, GLRenderer {
         }
         glDeleteRenderbuffers(1, &_renderBuffer);
         _renderBuffer = 0;
-        glDeleteRenderbuffers(1, &_depthBuffer);
-        _depthBuffer = 0;
+//        glDeleteRenderbuffers(1, &_depthBuffer);
+//        _depthBuffer = 0;
         glDeleteFramebuffers(1, &_frameBuffer);
         _frameBuffer = 0;
     }
@@ -215,7 +215,7 @@ class GLView : UIView, GLRenderer {
 //        print("#List#Cache#Leak# GLView.createGLObjectsIfNecessary (\(self.hash))");
         glGenFramebuffers(1, &_frameBuffer);
         glGenRenderbuffers(1, &_renderBuffer);
-        glGenRenderbuffers(1, &_depthBuffer);
+//        glGenRenderbuffers(1, &_depthBuffer);
         CHECK_GL_ERROR();
         bindLayer();
         if let r = self.renderer
@@ -367,9 +367,9 @@ class GLView : UIView, GLRenderer {
         glGetRenderbufferParameteriv(GLenum(GL_RENDERBUFFER), GLenum(GL_RENDERBUFFER_WIDTH), &canvasWidth);
         glGetRenderbufferParameteriv(GLenum(GL_RENDERBUFFER), GLenum(GL_RENDERBUFFER_HEIGHT), &canvasHeight);
         //print("#GLView# bindLayer (w,h)=(\(width), \(height))")
-        glBindRenderbuffer(GLenum(GL_RENDERBUFFER), _depthBuffer);
-        glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT24), canvasWidth, canvasHeight);
-        glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_DEPTH_ATTACHMENT), GLenum(GL_RENDERBUFFER), _depthBuffer);
+//        glBindRenderbuffer(GLenum(GL_RENDERBUFFER), _depthBuffer);
+//        glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH_COMPONENT24), canvasWidth, canvasHeight);
+//        glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_DEPTH_ATTACHMENT), GLenum(GL_RENDERBUFFER), _depthBuffer);
         CHECK_GL_ERROR();
         glBindRenderbuffer(GLenum(GL_RENDERBUFFER), _renderBuffer);
         glFramebufferRenderbuffer(GLenum(GL_FRAMEBUFFER), GLenum(GL_COLOR_ATTACHMENT0), GLenum(GL_RENDERBUFFER), _renderBuffer);
@@ -459,6 +459,6 @@ class GLView : UIView, GLRenderer {
     private var _glRenderLoop: GLRenderLoop? = nil
     private var _frameBuffer: GLuint = 0
     private var _renderBuffer: GLuint = 0
-    private var _depthBuffer: GLuint = 0
+//    private var _depthBuffer: GLuint = 0
 }
 #endif //#if os(macOS)
