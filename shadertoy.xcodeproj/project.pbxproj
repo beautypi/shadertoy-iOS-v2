@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3022F184A64286F3C387256E /* Pods_Shadertoy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 358EDFF278A0EE9996A0232F /* Pods_Shadertoy.framework */; };
+		2B7946E65EED3DF3ED6D732F /* Pods_Shadertoy_debug.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E94BDBFF7D4C62C840CBFAC0 /* Pods_Shadertoy_debug.framework */; };
+		3022F184A64286F3C387256E /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		4B1C95BD1ED6DC4400FC91D1 /* TextureHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */; };
 		4B2FD9E31BC16FC20026F317 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; };
 		4B321C5C1C14362100EA227E /* ShaderInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C5B1C14362100EA227E /* ShaderInput.m */; };
@@ -41,11 +42,78 @@
 		4BF749171B84D35A00E2F772 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749151B84D35A00E2F772 /* GLKit.framework */; };
 		4BF749181B84D35A00E2F772 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749161B84D35A00E2F772 /* OpenGLES.framework */; };
 		4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749201B84E17B00E2F772 /* MainTabBarController.m */; };
+		BB39177C274F68720084572B /* GLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39176D274F68710084572B /* GLView.swift */; };
+		BB39177D274F68720084572B /* STRenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39176E274F68710084572B /* STRenderPass.swift */; };
+		BB39177E274F68720084572B /* OpenGLHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB39176F274F68710084572B /* OpenGLHelper.mm */; };
+		BB39177F274F68720084572B /* GLProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391770274F68710084572B /* GLProgram.swift */; };
+		BB391780274F68720084572B /* STProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391771274F68710084572B /* STProcessor.swift */; };
+		BB391781274F68720084572B /* TwoLevelCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391772274F68710084572B /* TwoLevelCache.swift */; };
+		BB391782274F68720084572B /* STSoundPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391773274F68710084572B /* STSoundPass.swift */; };
+		BB391783274F68720084572B /* STInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391774274F68720084572B /* STInputSource.swift */; };
+		BB391784274F68720084572B /* GLUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391775274F68720084572B /* GLUtils.swift */; };
+		BB391785274F68720084572B /* DAG.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391776274F68720084572B /* DAG.swift */; };
+		BB391786274F68720084572B /* GLRenderLoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391777274F68720084572B /* GLRenderLoop.swift */; };
+		BB391787274F68730084572B /* RenderFSM.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391778274F68720084572B /* RenderFSM.swift */; };
+		BB391788274F68730084572B /* GLRenderTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391779274F68720084572B /* GLRenderTexture.swift */; };
+		BB391789274F68730084572B /* RenderLoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39177A274F68720084572B /* RenderLoop.swift */; };
+		BB39178A274F68730084572B /* STRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39177B274F68720084572B /* STRenderer.swift */; };
+		BBADBD94276085B400DE091D /* GLUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B53BA3A1F7FEAA2002495CD /* GLUtils.m */; };
+		BBADBD95276085B400DE091D /* STRenderPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39176E274F68710084572B /* STRenderPass.swift */; };
+		BBADBD96276085B400DE091D /* ShaderPassRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF1F1981C54093E00D50CBE /* ShaderPassRenderer.m */; };
+		BBADBD97276085B400DE091D /* APIShadertoy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748F11B848AD900E2F772 /* APIShadertoy.m */; };
+		BBADBD98276085B400DE091D /* STSoundPass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391773274F68710084572B /* STSoundPass.swift */; };
+		BBADBD99276085B400DE091D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748CC1B84852A00E2F772 /* AppDelegate.m */; };
+		BBADBD9A276085B400DE091D /* SoundStreamHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BBD31F41F5C23F400CEE627 /* SoundStreamHelper.m */; };
+		BBADBD9B276085B400DE091D /* APIShaderRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF7490B1B84BD8900E2F772 /* APIShaderRepository.m */; };
+		BBADBD9C276085B400DE091D /* RenderFSM.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391778274F68720084572B /* RenderFSM.swift */; };
+		BBADBD9D276085B400DE091D /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B91B94590E00928AD5 /* Utils.m */; };
+		BBADBD9E276085B400DE091D /* wrap_glext.c in Sources */ = {isa = PBXBuildFile; fileRef = BB391790274F68990084572B /* wrap_glext.c */; };
+		BBADBD9F276085B400DE091D /* STInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391774274F68720084572B /* STInputSource.swift */; };
+		BBADBDA0276085B400DE091D /* SoundPassPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610BD1B947F9600928AD5 /* SoundPassPlayer.m */; };
+		BBADBDA1276085B400DE091D /* GLUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391775274F68720084572B /* GLUtils.swift */; };
+		BBADBDA2276085B400DE091D /* OpenGLHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB39176F274F68710084572B /* OpenGLHelper.mm */; };
+		BBADBDA3276085B400DE091D /* QueryTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748F41B8491A100E2F772 /* QueryTableViewController.m */; };
+		BBADBDA4276085B400DE091D /* ShaderCanvasViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B375CA21B85038F00583F2B /* ShaderCanvasViewController.m */; };
+		BBADBDA5276085B400DE091D /* APIShaderObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749081B84B1B500E2F772 /* APIShaderObject.m */; };
+		BBADBDA6276085B400DE091D /* AboutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8610B51B8C7B6900928AD5 /* AboutViewController.m */; };
+		BBADBDA7276085B400DE091D /* QueryTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748FC1B8498E100E2F772 /* QueryTableViewCell.m */; };
+		BBADBDA8276085B400DE091D /* GLRenderTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391779274F68720084572B /* GLRenderTexture.swift */; };
+		BBADBDA9276085B400DE091D /* GLRenderLoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391777274F68720084572B /* GLRenderLoop.swift */; };
+		BBADBDAA276085B400DE091D /* MainTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749201B84E17B00E2F772 /* MainTabBarController.m */; };
+		BBADBDAB276085B400DE091D /* CameraTextureHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B53BA371F7FBB98002495CD /* CameraTextureHelper.m */; };
+		BBADBDAC276085B400DE091D /* STProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391771274F68710084572B /* STProcessor.swift */; };
+		BBADBDAD276085B400DE091D /* LocalCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF7490E1B84C48200E2F772 /* LocalCache.m */; };
+		BBADBDAE276085B400DE091D /* APISoundCloud.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C601C15952A00EA227E /* APISoundCloud.m */; };
+		BBADBDAF276085B400DE091D /* VRManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B53BA341F7FAFAA002495CD /* VRManager.m */; };
+		BBADBDB0276085B400DE091D /* STRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39177B274F68720084572B /* STRenderer.swift */; };
+		BBADBDB1276085B400DE091D /* GLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39176D274F68710084572B /* GLView.swift */; };
+		BBADBDB2276085B400DE091D /* GLProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391770274F68710084572B /* GLProgram.swift */; };
+		BBADBDB3276085B400DE091D /* wrap_gl.c in Sources */ = {isa = PBXBuildFile; fileRef = BB39178E274F68980084572B /* wrap_gl.c */; };
+		BBADBDB4276085B400DE091D /* VRSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B759EDD1BADDF93001563AA /* VRSettings.m */; };
+		BBADBDB5276085B400DE091D /* TextureHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */; };
+		BBADBDB6276085B400DE091D /* DAG.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391776274F68720084572B /* DAG.swift */; };
+		BBADBDB7276085B400DE091D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF748C91B84852A00E2F772 /* main.m */; };
+		BBADBDB8276085B400DE091D /* RenderLoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB39177A274F68720084572B /* RenderLoop.swift */; };
+		BBADBDB9276085B400DE091D /* TwoLevelCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB391772274F68710084572B /* TwoLevelCache.swift */; };
+		BBADBDBA276085B400DE091D /* ShaderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BF749111B84CE3000E2F772 /* ShaderViewController.m */; };
+		BBADBDBB276085B400DE091D /* ShaderInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B321C5B1C14362100EA227E /* ShaderInput.m */; };
+		BBADBDBC276085B400DE091D /* ShaderSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B8D55061D44F6B300EAE5F7 /* ShaderSettings.m */; };
+		BBADBDBE276085B400DE091D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B321C5D1C14B2DD00EA227E /* Accelerate.framework */; };
+		BBADBDBF276085B400DE091D /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749151B84D35A00E2F772 /* GLKit.framework */; };
+		BBADBDC0276085B400DE091D /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BF749161B84D35A00E2F772 /* OpenGLES.framework */; };
+		BBADBDC3276085B400DE091D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4BF748D41B84852A00E2F772 /* Main.storyboard */; };
+		BBADBDC4276085B400DE091D /* QueryTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4BF748FD1B8498E100E2F772 /* QueryTableViewCell.xib */; };
+		BBADBDC5276085B400DE091D /* presets in Resources */ = {isa = PBXBuildFile; fileRef = 4B375CA81B85DCF600583F2B /* presets */; };
+		BBADBDC6276085B400DE091D /* lstSRS.json in Resources */ = {isa = PBXBuildFile; fileRef = BBE83227275F4DF9003C63CA /* lstSRS.json */; };
+		BBADBDC7276085B400DE091D /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 4B2FD9E21BC16FC20026F317 /* shaders */; };
+		BBADBDC8276085B400DE091D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4BF748D91B84852A00E2F772 /* LaunchScreen.xib */; };
+		BBADBDC9276085B400DE091D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4BF748D71B84852A00E2F772 /* Images.xcassets */; };
+		BBE83228275F4DF9003C63CA /* lstSRS.json in Resources */ = {isa = PBXBuildFile; fileRef = BBE83227275F4DF9003C63CA /* lstSRS.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1320247915FFE380C3A86474 /* Pods-Shadertoy_debug.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shadertoy_debug.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Shadertoy_debug/Pods-Shadertoy_debug.debug.xcconfig"; sourceTree = "<group>"; };
 		2382360464B4A3F118584296 /* Pods-Shadertoy.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shadertoy.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Shadertoy/Pods-Shadertoy.debug.xcconfig"; sourceTree = "<group>"; };
-		358EDFF278A0EE9996A0232F /* Pods_Shadertoy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shadertoy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B1C95BB1ED6DC4400FC91D1 /* TextureHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureHelper.h; sourceTree = "<group>"; };
 		4B1C95BC1ED6DC4400FC91D1 /* TextureHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureHelper.m; sourceTree = "<group>"; };
 		4B2FD9E21BC16FC20026F317 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = shaders; sourceTree = "<group>"; };
@@ -107,6 +175,31 @@
 		4BF7491F1B84E17B00E2F772 /* MainTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainTabBarController.h; sourceTree = "<group>"; };
 		4BF749201B84E17B00E2F772 /* MainTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainTabBarController.m; sourceTree = "<group>"; };
 		A3B00050B94A4AA7EE913ADB /* Pods-Shadertoy.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shadertoy.release.xcconfig"; path = "Pods/Target Support Files/Pods-Shadertoy/Pods-Shadertoy.release.xcconfig"; sourceTree = "<group>"; };
+		B0E600B8585618E8A6B3C6F2 /* Pods-Shadertoy_debug.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shadertoy_debug.release.xcconfig"; path = "Pods/Target Support Files/Pods-Shadertoy_debug/Pods-Shadertoy_debug.release.xcconfig"; sourceTree = "<group>"; };
+		BB39176C274F68710084572B /* OpenGLHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLHelper.h; path = experimental/OpenGLHelper.h; sourceTree = "<group>"; };
+		BB39176D274F68710084572B /* GLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GLView.swift; path = experimental/GLView.swift; sourceTree = "<group>"; };
+		BB39176E274F68710084572B /* STRenderPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = STRenderPass.swift; path = experimental/STRenderPass.swift; sourceTree = "<group>"; };
+		BB39176F274F68710084572B /* OpenGLHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenGLHelper.mm; path = experimental/OpenGLHelper.mm; sourceTree = "<group>"; };
+		BB391770274F68710084572B /* GLProgram.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GLProgram.swift; path = experimental/GLProgram.swift; sourceTree = "<group>"; };
+		BB391771274F68710084572B /* STProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = STProcessor.swift; path = experimental/STProcessor.swift; sourceTree = "<group>"; };
+		BB391772274F68710084572B /* TwoLevelCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TwoLevelCache.swift; path = experimental/TwoLevelCache.swift; sourceTree = "<group>"; };
+		BB391773274F68710084572B /* STSoundPass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = STSoundPass.swift; path = experimental/STSoundPass.swift; sourceTree = "<group>"; };
+		BB391774274F68720084572B /* STInputSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = STInputSource.swift; path = experimental/STInputSource.swift; sourceTree = "<group>"; };
+		BB391775274F68720084572B /* GLUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GLUtils.swift; path = experimental/GLUtils.swift; sourceTree = "<group>"; };
+		BB391776274F68720084572B /* DAG.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DAG.swift; path = experimental/DAG.swift; sourceTree = "<group>"; };
+		BB391777274F68720084572B /* GLRenderLoop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GLRenderLoop.swift; path = experimental/GLRenderLoop.swift; sourceTree = "<group>"; };
+		BB391778274F68720084572B /* RenderFSM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RenderFSM.swift; path = experimental/RenderFSM.swift; sourceTree = "<group>"; };
+		BB391779274F68720084572B /* GLRenderTexture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GLRenderTexture.swift; path = experimental/GLRenderTexture.swift; sourceTree = "<group>"; };
+		BB39177A274F68720084572B /* RenderLoop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RenderLoop.swift; path = experimental/RenderLoop.swift; sourceTree = "<group>"; };
+		BB39177B274F68720084572B /* STRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = STRenderer.swift; path = experimental/STRenderer.swift; sourceTree = "<group>"; };
+		BB39178E274F68980084572B /* wrap_gl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wrap_gl.c; sourceTree = "<group>"; };
+		BB39178F274F68990084572B /* wrap_glext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wrap_glext.h; sourceTree = "<group>"; };
+		BB391790274F68990084572B /* wrap_glext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wrap_glext.c; sourceTree = "<group>"; };
+		BB391791274F68990084572B /* wrap_gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wrap_gl.h; sourceTree = "<group>"; };
+		BBADBD8F275F06D800DE091D /* Shadertoy-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Shadertoy-Bridging-Header.h"; sourceTree = "<group>"; };
+		BBADBDCF276085B400DE091D /* Shadertoy_debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shadertoy_debug.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBE83227275F4DF9003C63CA /* lstSRS.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = lstSRS.json; sourceTree = "<group>"; };
+		E94BDBFF7D4C62C840CBFAC0 /* Pods_Shadertoy_debug.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shadertoy_debug.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +210,18 @@
 				4B321C5E1C14B2DD00EA227E /* Accelerate.framework in Frameworks */,
 				4BF749171B84D35A00E2F772 /* GLKit.framework in Frameworks */,
 				4BF749181B84D35A00E2F772 /* OpenGLES.framework in Frameworks */,
-				3022F184A64286F3C387256E /* Pods_Shadertoy.framework in Frameworks */,
+				3022F184A64286F3C387256E /* (null) in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBADBDBD276085B400DE091D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBADBDBE276085B400DE091D /* Accelerate.framework in Frameworks */,
+				BBADBDBF276085B400DE091D /* GLKit.framework in Frameworks */,
+				BBADBDC0276085B400DE091D /* OpenGLES.framework in Frameworks */,
+				2B7946E65EED3DF3ED6D732F /* Pods_Shadertoy_debug.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,6 +242,7 @@
 			isa = PBXGroup;
 			children = (
 				4BF748C41B84852A00E2F772 /* Shadertoy.app */,
+				BBADBDCF276085B400DE091D /* Shadertoy_debug.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -145,6 +250,9 @@
 		4BF748C61B84852A00E2F772 /* shadertoy */ = {
 			isa = PBXGroup;
 			children = (
+				BBE83226275F4DCA003C63CA /* testcases */,
+				BB39178C274F687C0084572B /* hook */,
+				BB268AB12745E9A9004C9F4D /* experimental */,
 				4B8610B41B8C7B6900928AD5 /* AboutViewController.h */,
 				4B8610B51B8C7B6900928AD5 /* AboutViewController.m */,
 				4BF749071B84B1B500E2F772 /* APIShaderObject.h */,
@@ -200,6 +308,7 @@
 				4B53BA371F7FBB98002495CD /* CameraTextureHelper.m */,
 				4B53BA391F7FEAA2002495CD /* GLUtils.h */,
 				4B53BA3A1F7FEAA2002495CD /* GLUtils.m */,
+				BBADBD8F275F06D800DE091D /* Shadertoy-Bridging-Header.h */,
 			);
 			path = shadertoy;
 			sourceTree = "<group>";
@@ -213,13 +322,55 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		BB268AB12745E9A9004C9F4D /* experimental */ = {
+			isa = PBXGroup;
+			children = (
+				BB391776274F68720084572B /* DAG.swift */,
+				BB391770274F68710084572B /* GLProgram.swift */,
+				BB391777274F68720084572B /* GLRenderLoop.swift */,
+				BB391779274F68720084572B /* GLRenderTexture.swift */,
+				BB391775274F68720084572B /* GLUtils.swift */,
+				BB39176D274F68710084572B /* GLView.swift */,
+				BB39176C274F68710084572B /* OpenGLHelper.h */,
+				BB39176F274F68710084572B /* OpenGLHelper.mm */,
+				BB391778274F68720084572B /* RenderFSM.swift */,
+				BB39177A274F68720084572B /* RenderLoop.swift */,
+				BB391774274F68720084572B /* STInputSource.swift */,
+				BB391771274F68710084572B /* STProcessor.swift */,
+				BB39177B274F68720084572B /* STRenderer.swift */,
+				BB39176E274F68710084572B /* STRenderPass.swift */,
+				BB391773274F68710084572B /* STSoundPass.swift */,
+				BB391772274F68710084572B /* TwoLevelCache.swift */,
+			);
+			name = experimental;
+			sourceTree = "<group>";
+		};
+		BB39178C274F687C0084572B /* hook */ = {
+			isa = PBXGroup;
+			children = (
+				BB39178E274F68980084572B /* wrap_gl.c */,
+				BB391791274F68990084572B /* wrap_gl.h */,
+				BB391790274F68990084572B /* wrap_glext.c */,
+				BB39178F274F68990084572B /* wrap_glext.h */,
+			);
+			path = hook;
+			sourceTree = "<group>";
+		};
+		BBE83226275F4DCA003C63CA /* testcases */ = {
+			isa = PBXGroup;
+			children = (
+				BBE83227275F4DF9003C63CA /* lstSRS.json */,
+			);
+			path = testcases;
+			sourceTree = "<group>";
+		};
 		E5503E79E7E94822BE19495A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				4B321C5D1C14B2DD00EA227E /* Accelerate.framework */,
 				4BF749151B84D35A00E2F772 /* GLKit.framework */,
 				4BF749161B84D35A00E2F772 /* OpenGLES.framework */,
-				358EDFF278A0EE9996A0232F /* Pods_Shadertoy.framework */,
+				E94BDBFF7D4C62C840CBFAC0 /* Pods_Shadertoy_debug.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -229,6 +380,8 @@
 			children = (
 				2382360464B4A3F118584296 /* Pods-Shadertoy.debug.xcconfig */,
 				A3B00050B94A4AA7EE913ADB /* Pods-Shadertoy.release.xcconfig */,
+				1320247915FFE380C3A86474 /* Pods-Shadertoy_debug.debug.xcconfig */,
+				B0E600B8585618E8A6B3C6F2 /* Pods-Shadertoy_debug.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -246,7 +399,6 @@
 				4BF748C21B84852A00E2F772 /* Resources */,
 				4B8610B71B93086000928AD5 /* ShellScript */,
 				F8C88FEC801ED929DD796265 /* [CP] Embed Pods Frameworks */,
-				D8899227B534123749257FA3 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -255,6 +407,26 @@
 			name = Shadertoy;
 			productName = shadertoy;
 			productReference = 4BF748C41B84852A00E2F772 /* Shadertoy.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BBADBD90276085B400DE091D /* Shadertoy_debug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBADBDCC276085B400DE091D /* Build configuration list for PBXNativeTarget "Shadertoy_debug" */;
+			buildPhases = (
+				BBADBD91276085B400DE091D /* [CP] Check Pods Manifest.lock */,
+				BBADBD93276085B400DE091D /* Sources */,
+				BBADBDBD276085B400DE091D /* Frameworks */,
+				BBADBDC2276085B400DE091D /* Resources */,
+				BBADBDCA276085B400DE091D /* ShellScript */,
+				BBADBDCB276085B400DE091D /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Shadertoy_debug;
+			productName = shadertoy;
+			productReference = BBADBDCF276085B400DE091D /* Shadertoy_debug.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -268,8 +440,12 @@
 				TargetAttributes = {
 					4BF748C31B84852A00E2F772 = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = 98UZZR2W46;
+						DevelopmentTeam = XNCE899229;
+						LastSwiftMigration = 1300;
 						ProvisioningStyle = Automatic;
+					};
+					BBADBD90276085B400DE091D = {
+						DevelopmentTeam = XNCE899229;
 					};
 				};
 			};
@@ -278,6 +454,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -287,6 +464,7 @@
 			projectRoot = "";
 			targets = (
 				4BF748C31B84852A00E2F772 /* Shadertoy */,
+				BBADBD90276085B400DE091D /* Shadertoy_debug */,
 			);
 		};
 /* End PBXProject section */
@@ -299,9 +477,24 @@
 				4BF748D61B84852A00E2F772 /* Main.storyboard in Resources */,
 				4BF748FF1B8498E100E2F772 /* QueryTableViewCell.xib in Resources */,
 				4B375CA91B85DCF600583F2B /* presets in Resources */,
+				BBE83228275F4DF9003C63CA /* lstSRS.json in Resources */,
 				4B2FD9E31BC16FC20026F317 /* shaders in Resources */,
 				4BF748DB1B84852A00E2F772 /* LaunchScreen.xib in Resources */,
 				4BF748D81B84852A00E2F772 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBADBDC2276085B400DE091D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBADBDC3276085B400DE091D /* Main.storyboard in Resources */,
+				BBADBDC4276085B400DE091D /* QueryTableViewCell.xib in Resources */,
+				BBADBDC5276085B400DE091D /* presets in Resources */,
+				BBADBDC6276085B400DE091D /* lstSRS.json in Resources */,
+				BBADBDC7276085B400DE091D /* shaders in Resources */,
+				BBADBDC8276085B400DE091D /* LaunchScreen.xib in Resources */,
+				BBADBDC9276085B400DE091D /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,19 +532,61 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D8899227B534123749257FA3 /* [CP] Copy Pods Resources */ = {
+		BBADBD91276085B400DE091D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Shadertoy_debug-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BBADBDCA276085B400DE091D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Shadertoy/Pods-Shadertoy-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" ec13b63ccd7825c53cd998d55cb15fd83a14f593 5a66fad1065697fd4ee0c64da0b292ca9158021f6a5208034dc366cac7312256";
+		};
+		BBADBDCB276085B400DE091D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Shadertoy_debug/Pods-Shadertoy_debug-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework",
+				"${BUILT_PRODUCTS_DIR}/BlocksKit/BlocksKit.framework",
+				"${BUILT_PRODUCTS_DIR}/NSString-UrlEncode/NSString_UrlEncode.framework",
+				"${BUILT_PRODUCTS_DIR}/NSString_stripHtml/NSString_stripHtml.framework",
+				"${BUILT_PRODUCTS_DIR}/fishhook/fishhook.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AFNetworking.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BlocksKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NSString_UrlEncode.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NSString_stripHtml.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/fishhook.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Shadertoy_debug/Pods-Shadertoy_debug-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F8C88FEC801ED929DD796265 /* [CP] Embed Pods Frameworks */ = {
@@ -360,7 +595,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Shadertoy/Pods-Shadertoy-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Shadertoy/Pods-Shadertoy-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AFNetworking/AFNetworking.framework",
 				"${BUILT_PRODUCTS_DIR}/BlocksKit/BlocksKit.framework",
 				"${BUILT_PRODUCTS_DIR}/NSString-UrlEncode/NSString_UrlEncode.framework",
@@ -375,7 +610,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Shadertoy/Pods-Shadertoy-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Shadertoy/Pods-Shadertoy-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -386,29 +621,92 @@
 			buildActionMask = 2147483647;
 			files = (
 				4B53BA3B1F7FEAA2002495CD /* GLUtils.m in Sources */,
+				BB39177D274F68720084572B /* STRenderPass.swift in Sources */,
 				4BF1F1991C54093E00D50CBE /* ShaderPassRenderer.m in Sources */,
 				4BF748F21B848AD900E2F772 /* APIShadertoy.m in Sources */,
+				BB391782274F68720084572B /* STSoundPass.swift in Sources */,
 				4BF748CD1B84852A00E2F772 /* AppDelegate.m in Sources */,
 				4BBD31F51F5C23F400CEE627 /* SoundStreamHelper.m in Sources */,
 				4BF7490C1B84BD8900E2F772 /* APIShaderRepository.m in Sources */,
+				BB391787274F68730084572B /* RenderFSM.swift in Sources */,
 				4B8610BA1B94590E00928AD5 /* Utils.m in Sources */,
+				BB391783274F68720084572B /* STInputSource.swift in Sources */,
 				4B8610BE1B947F9600928AD5 /* SoundPassPlayer.m in Sources */,
+				BB391784274F68720084572B /* GLUtils.swift in Sources */,
+				BB39177E274F68720084572B /* OpenGLHelper.mm in Sources */,
 				4BF748F51B8491A100E2F772 /* QueryTableViewController.m in Sources */,
 				4B375CA31B85038F00583F2B /* ShaderCanvasViewController.m in Sources */,
 				4BF749091B84B1B500E2F772 /* APIShaderObject.m in Sources */,
 				4B8610B61B8C7B6900928AD5 /* AboutViewController.m in Sources */,
 				4BF748FE1B8498E100E2F772 /* QueryTableViewCell.m in Sources */,
+				BB391788274F68730084572B /* GLRenderTexture.swift in Sources */,
+				BB391786274F68720084572B /* GLRenderLoop.swift in Sources */,
 				4BF749211B84E17B00E2F772 /* MainTabBarController.m in Sources */,
 				4B53BA381F7FBB98002495CD /* CameraTextureHelper.m in Sources */,
+				BB391780274F68720084572B /* STProcessor.swift in Sources */,
 				4BF7490F1B84C48200E2F772 /* LocalCache.m in Sources */,
 				4B321C611C15952A00EA227E /* APISoundCloud.m in Sources */,
 				4B53BA351F7FAFAA002495CD /* VRManager.m in Sources */,
+				BB39178A274F68730084572B /* STRenderer.swift in Sources */,
+				BB39177C274F68720084572B /* GLView.swift in Sources */,
+				BB39177F274F68720084572B /* GLProgram.swift in Sources */,
 				4B759EDE1BADDF93001563AA /* VRSettings.m in Sources */,
 				4B1C95BD1ED6DC4400FC91D1 /* TextureHelper.m in Sources */,
+				BB391785274F68720084572B /* DAG.swift in Sources */,
 				4BF748CA1B84852A00E2F772 /* main.m in Sources */,
+				BB391789274F68730084572B /* RenderLoop.swift in Sources */,
+				BB391781274F68720084572B /* TwoLevelCache.swift in Sources */,
 				4BF749121B84CE3000E2F772 /* ShaderViewController.m in Sources */,
 				4B321C5C1C14362100EA227E /* ShaderInput.m in Sources */,
 				4B8D55071D44F6B300EAE5F7 /* ShaderSettings.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBADBD93276085B400DE091D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBADBD94276085B400DE091D /* GLUtils.m in Sources */,
+				BBADBD95276085B400DE091D /* STRenderPass.swift in Sources */,
+				BBADBD96276085B400DE091D /* ShaderPassRenderer.m in Sources */,
+				BBADBD97276085B400DE091D /* APIShadertoy.m in Sources */,
+				BBADBD98276085B400DE091D /* STSoundPass.swift in Sources */,
+				BBADBD99276085B400DE091D /* AppDelegate.m in Sources */,
+				BBADBD9A276085B400DE091D /* SoundStreamHelper.m in Sources */,
+				BBADBD9B276085B400DE091D /* APIShaderRepository.m in Sources */,
+				BBADBD9C276085B400DE091D /* RenderFSM.swift in Sources */,
+				BBADBD9D276085B400DE091D /* Utils.m in Sources */,
+				BBADBD9E276085B400DE091D /* wrap_glext.c in Sources */,
+				BBADBD9F276085B400DE091D /* STInputSource.swift in Sources */,
+				BBADBDA0276085B400DE091D /* SoundPassPlayer.m in Sources */,
+				BBADBDA1276085B400DE091D /* GLUtils.swift in Sources */,
+				BBADBDA2276085B400DE091D /* OpenGLHelper.mm in Sources */,
+				BBADBDA3276085B400DE091D /* QueryTableViewController.m in Sources */,
+				BBADBDA4276085B400DE091D /* ShaderCanvasViewController.m in Sources */,
+				BBADBDA5276085B400DE091D /* APIShaderObject.m in Sources */,
+				BBADBDA6276085B400DE091D /* AboutViewController.m in Sources */,
+				BBADBDA7276085B400DE091D /* QueryTableViewCell.m in Sources */,
+				BBADBDA8276085B400DE091D /* GLRenderTexture.swift in Sources */,
+				BBADBDA9276085B400DE091D /* GLRenderLoop.swift in Sources */,
+				BBADBDAA276085B400DE091D /* MainTabBarController.m in Sources */,
+				BBADBDAB276085B400DE091D /* CameraTextureHelper.m in Sources */,
+				BBADBDAC276085B400DE091D /* STProcessor.swift in Sources */,
+				BBADBDAD276085B400DE091D /* LocalCache.m in Sources */,
+				BBADBDAE276085B400DE091D /* APISoundCloud.m in Sources */,
+				BBADBDAF276085B400DE091D /* VRManager.m in Sources */,
+				BBADBDB0276085B400DE091D /* STRenderer.swift in Sources */,
+				BBADBDB1276085B400DE091D /* GLView.swift in Sources */,
+				BBADBDB2276085B400DE091D /* GLProgram.swift in Sources */,
+				BBADBDB3276085B400DE091D /* wrap_gl.c in Sources */,
+				BBADBDB4276085B400DE091D /* VRSettings.m in Sources */,
+				BBADBDB5276085B400DE091D /* TextureHelper.m in Sources */,
+				BBADBDB6276085B400DE091D /* DAG.swift in Sources */,
+				BBADBDB7276085B400DE091D /* main.m in Sources */,
+				BBADBDB8276085B400DE091D /* RenderLoop.swift in Sources */,
+				BBADBDB9276085B400DE091D /* TwoLevelCache.swift in Sources */,
+				BBADBDBA276085B400DE091D /* ShaderViewController.m in Sources */,
+				BBADBDBB276085B400DE091D /* ShaderInput.m in Sources */,
+				BBADBDBC276085B400DE091D /* ShaderSettings.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -540,11 +838,17 @@
 			baseConfigurationReference = 2382360464B4A3F118584296 /* Pods-Shadertoy.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
-				DEVELOPMENT_TEAM = 98UZZR2W46;
+				DEVELOPMENT_TEAM = XNCE899229;
 				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"BUILD_TARGET_ST=1",
+				);
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -552,6 +856,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "shadertoy/Shadertoy-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -561,11 +868,17 @@
 			baseConfigurationReference = A3B00050B94A4AA7EE913ADB /* Pods-Shadertoy.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
-				DEVELOPMENT_TEAM = 98UZZR2W46;
+				DEVELOPMENT_TEAM = XNCE899229;
 				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"BUILD_TARGET_ST=1",
+				);
 				INFOPLIST_FILE = shadertoy/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -573,6 +886,68 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "shadertoy/Shadertoy-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BBADBDCD276085B400DE091D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1320247915FFE380C3A86474 /* Pods-Shadertoy_debug.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COMPRESS_PNG_FILES = NO;
+				DEVELOPMENT_TEAM = XNCE899229;
+				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"FISHHOOK=1",
+					"BUILD_TARGET_STDEBUG=1",
+				);
+				INFOPLIST_FILE = shadertoy/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoydebug;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "shadertoy/Shadertoy-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BBADBDCE276085B400DE091D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B0E600B8585618E8A6B3C6F2 /* Pods-Shadertoy_debug.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COMPRESS_PNG_FILES = NO;
+				DEVELOPMENT_TEAM = XNCE899229;
+				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"BUILD_TARGET_STDEBUG=1",
+				);
+				INFOPLIST_FILE = shadertoy/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.beautypi.shadertoydebug;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "shadertoy/Shadertoy-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -594,6 +969,15 @@
 			buildConfigurations = (
 				4BF748EB1B84852A00E2F772 /* Debug */,
 				4BF748EC1B84852A00E2F772 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BBADBDCC276085B400DE091D /* Build configuration list for PBXNativeTarget "Shadertoy_debug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBADBDCD276085B400DE091D /* Debug */,
+				BBADBDCE276085B400DE091D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

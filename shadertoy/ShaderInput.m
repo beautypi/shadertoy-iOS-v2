@@ -53,15 +53,15 @@
     bool srgb = NO;
     
     if( input.sampler ) {
-        if( [input.sampler.filter isEqualToString:@"nearest"] ) {
+        if(input.sampler.filter.integerValue == STSamplerFilterNearest) {
             _filterMode = NEAREST;
-        } else if( [input.sampler.filter isEqualToString:@"linear"] ) {
+        } else if(input.sampler.filter.integerValue == STSamplerFilterLinear) {
             _filterMode = LINEAR;
         } else {
             _filterMode = MIPMAP;
         }
         
-        if( [input.sampler.wrap isEqualToString:@"clamp"] ) {
+        if(input.sampler.wrap.integerValue == STSamplerWrapClamp) {
             _wrapMode = CLAMP;
         } else {
             _wrapMode = REPEAT;
@@ -110,30 +110,30 @@
                               @"music": @"music.png"
                               };
     
-    if( [input.ctype isEqualToString:@"buffer"] ) {
+    if(input.type.integerValue == STInputTypeBuffer) {
         _type = BUFFER;
     }
     
     // video, music, webcam and keyboard is not implemented, so deliver dummy textures instead
-    if( [input.ctype isEqualToString:@"keyboard"] ) {
+    if(input.type.integerValue == STInputTypeKeyboard) {
         _textureHelper = [[TextureHelper alloc] initWithType:KEYBOARD vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
         _type = KEYBOARD;
     }
     
-    if( [input.ctype isEqualToString:@"video"] ) {
+    if(input.type.integerValue == STInputTypeVideo) {
         _type = TEXTURE2D;
     }
     
-    if( [input.ctype isEqualToString:@"volume"] ) {
+    if(input.type.integerValue == STInputTypeVolume) {
         _type = TEXTURE3D;
     }
     
-    if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"] || [input.ctype isEqualToString:@"webcam"] ) {
-        if( [input.ctype isEqualToString:@"music"] || [input.ctype isEqualToString:@"musicstream"]) {
-            if( [input.ctype isEqualToString:@"musicstream"] ) {
+    if(input.type.integerValue == STInputTypeMusic || input.type.integerValue == STInputTypeMusicStream || input.type.integerValue == STInputTypeWebCam) {
+        if(input.type.integerValue == STInputTypeMusic || input.type.integerValue == STInputTypeMusicStream) {
+            if(input.type.integerValue == STInputTypeMusicStream) {
                 _type = SOUNDCLOUD;
                 APISoundCloud* soundCloud = [[APISoundCloud alloc] init];
-                [soundCloud resolve:input.src success:^(NSDictionary *resultDict) {
+                [soundCloud resolve:input.filepath success:^(NSDictionary *resultDict) {
                     NSString* url = [resultDict objectForKey:@"stream_url"];
                     url = [url stringByAppendingString:@"?client_id=64a52bb31abd2ec73f8adda86358cfbf"];
                     __weak typeof (self) weakSelf = self;
@@ -142,7 +142,7 @@
                 }];
             } else {
                 _type = MUSIC;
-                NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.src];
+                NSString *url = [@"https://www.shadertoy.com" stringByAppendingString:input.filepath];
                 __weak typeof (self) weakSelf = self;
                 _soundStreamHelper = [[SoundStreamHelper alloc] initWithShaderInput:weakSelf];
                 [_soundStreamHelper playUrl:url];
@@ -153,31 +153,31 @@
         }
     }
     
-    if( [input.ctype isEqualToString:@"webcam"] && [CameraTextureHelper isSupported]) {
+    if(input.type.integerValue == STInputTypeWebCam && [CameraTextureHelper isSupported]) {
         _type = WEBCAM;
         _textureHelper = [[CameraTextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
     }
     
-    if( _type == TEXTURE2D || [input.ctype isEqualToString:@"texture"] || [input.ctype isEqualToString:@"cubemap"] ) {
-        _type = [input.ctype isEqualToString:@"cubemap"] ? TEXTURECUBE : TEXTURE2D;
+    if( _type == TEXTURE2D || input.type.integerValue == STInputTypeTexture || input.type.integerValue == STInputTypeCubemap) {
+        _type = input.type.integerValue == STInputTypeCubemap ? TEXTURECUBE : TEXTURE2D;
         
-        if( [mapping objectForKey:input.src] ) {
-            NSString* file = [@"./presets/" stringByAppendingString:mapping[input.src]];
+        if( [mapping objectForKey:input.filepath] ) {
+            NSString* file = [@"./presets/" stringByAppendingString:mapping[input.filepath]];
             file = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:file];
             
             _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
             [_textureHelper loadFromFile:file];
         } else {
-            NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
+            NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.filepath];
             
             _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
             [_textureHelper loadFromURL:file];
         }
     }
     
-    if( [input.ctype isEqualToString:@"volume"] ) {
+    if(input.type.integerValue == STInputTypeVolume) {
         _type = TEXTURE3D;
-        NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.src];
+        NSString* file = [@"http://www.shadertoy.com/" stringByAppendingString:input.filepath];
         
         _textureHelper = [[TextureHelper alloc] initWithType:_type vFlip:vflip sRGB:srgb wrapMode:_wrapMode filterMode:_filterMode];
         [_textureHelper loadFromURL:file];
@@ -200,21 +200,21 @@
     glActiveTexture(GL_TEXTURE0 + _channelSlot);
     
     if( _type == BUFFER ) {
-        NSNumber *inputId = _shaderPassInput.inputId;
+        NSString *inputId = _shaderPassInput.inputId;
         
         for( ShaderPassRenderer *shaderPass in shaderPasses ) {
-            if( [inputId integerValue] == [[shaderPass getOutputId] integerValue] ) {
-                glBindTexture(GL_TEXTURE_2D, [shaderPass getCurrentTexId]);
+            if([inputId isEqualToString:[shaderPass getOutputId]]) {
+                glBindTexture(GL_TEXTURE_2D, [shaderPass getCurrentTexId]);///!!!
                
                 [TextureHelper setGLTexParameters:GL_TEXTURE_2D type:TEXTURE2D wrapMode:_wrapMode filterMode:_filterMode];
                 
                 if( _filterMode ==  MIPMAP ) {
-                    glGenerateMipmap(GL_TEXTURE_2D);
+                    glGenerateMipmap(GL_TEXTURE_2D);///!!!
                 }
                 
                 _iChannelWidth = [shaderPass getWidth];
                 _iChannelHeight = [shaderPass getHeight];
-                _iChannelDepth = [shaderPass getDepth];
+                _iChannelDepth = [shaderPass getDepth];///!!!
             }
         }
     }

@@ -15,6 +15,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *shaderTitle;
 @property (strong, nonatomic) IBOutlet UILabel *shaderInfo;
 
-- (void) layoutForShader:(APIShaderObject *)shader;
+- (void) layoutForShader:(APIShaderObject *)shader index:(NSInteger)index;
 
 @end

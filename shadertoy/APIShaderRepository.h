@@ -11,7 +11,11 @@
 
 @interface APIShaderRepository : NSObject
 
++(_Nonnull instancetype) sharedRepo;
+
 - (APIShaderObject *) getShader:(NSString *)shaderId success:(void (^)(APIShaderObject *shader))success;
 - (void) invalidateShader:(NSString *)shaderId;
+
+-(NSString* _Nullable ) loadFileFromURL:(NSString*)url completion:(void(^)(NSString*, NSError*, BOOL))completion;
 
 @end

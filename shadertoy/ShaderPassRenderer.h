@@ -36,7 +36,7 @@
 - (void) resumeInputs;
 - (void) rewind;
 
-- (NSNumber *) getOutputId;
+- (NSString *) getOutputId;
 - (GLuint) getCurrentTexId;
 
 - (float) getWidth;

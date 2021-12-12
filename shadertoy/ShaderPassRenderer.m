@@ -79,7 +79,7 @@
 }
 
 - (void) initRenderBuffers {
-    if( [_shaderPass.type isEqualToString:@"buffer"] ) {
+    if( _shaderPass.type.integerValue == STPassTypeBuffer) {
         _renderToBuffer = true;
         _frameBuffer = [GLUtils createRenderBuffer];
         _renderBufferWidth = _renderBufferHeight = -1;
@@ -113,9 +113,9 @@
     }
     for( APIShaderPassInput* input in shaderPass.inputs )  {
         channelsUsed[[input.channel intValue]] = true;
-        if( [input.ctype isEqualToString:@"cubemap"] ) {
+        if (input.type.integerValue == STInputTypeCubemap) {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform highp samplerCube iChannel%@;\n", input.channel];
-        } else if( [input.ctype isEqualToString:@"volume"] ) {
+        } else if (input.type.integerValue == STInputTypeVolume) {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform highp sampler3D iChannel%@;\n", input.channel];
         } else {
             FragmentShaderCode = [FragmentShaderCode stringByAppendingFormat:@"uniform highp sampler2D iChannel%@;\n", input.channel];
@@ -136,7 +136,7 @@
     
     FragmentShaderCode = [FragmentShaderCode stringByAppendingString:code];
     
-    if( [shaderPass.type isEqualToString:@"sound"] ) {
+    if (shaderPass.type.integerValue == STPassTypeSound) {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[[NSString alloc] readFromFile:@"/shaders/fragment_main_sound" ofType:@"glsl"]];
     } else if( _vrSettings ) {
         FragmentShaderCode = [FragmentShaderCode stringByAppendingString:[_vrSettings getFragmentShaderCode]];
@@ -188,7 +188,7 @@
 }
 
 - (void) initCopyProgram {
-    if( [_shaderPass.type isEqualToString:@"buffer"] ) {
+    if (_shaderPass.type.integerValue == STPassTypeBuffer) {
         NSString *VertexShaderCode = [[NSString alloc] readFromFile:@"/shaders/vertex_main" ofType:@"glsl"];
         NSString *FragmentShaderCode =[[NSString alloc] readFromFile:@"/shaders/fragment_main_copy" ofType:@"glsl"];
         NSString *error;
@@ -329,11 +329,11 @@
     }
 }
 
-- (NSNumber *) getOutputId {
+- (NSString *) getOutputId {
     if(_shaderPass.outputs && [_shaderPass.outputs count] > 0) {
         return ((APIShaderPassOutput *)[_shaderPass.outputs objectAtIndex:0]).outputId;
     }
-    return [NSNumber numberWithInteger:0];
+    return @"0";
 }
 
 - (void)allocChannels {

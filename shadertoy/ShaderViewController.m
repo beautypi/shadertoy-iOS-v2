@@ -24,6 +24,12 @@
 
 #import "SoundPassPlayer.h"
 
+#if BUILD_TARGET_STDEBUG
+#import "Shadertoy_debug-Swift.h"
+#elif BUILD_TARGET_ST
+#import "Shadertoy-Swift.h"
+#endif
+
 @interface ShaderViewController () {
     APIShaderObject* _shader;
     SoundPassPlayer* _soundPassPlayer;
@@ -203,7 +209,7 @@
     _shader = shader;
     
     // invalidate, will refresh next view
-    APIShaderRepository* _repository = [[APIShaderRepository alloc] init];
+    APIShaderRepository* _repository = [APIShaderRepository sharedRepo];
     [_repository invalidateShader:_shader.shaderId];
     
     // add image shader canvas
@@ -224,6 +230,24 @@
         NSString *error;
         
         if( [shaderViewController compileShader:self->_shader soundPass:soundPass theError:&error] ) {
+            [self->_shaderCompileInfoButton setHidden:NO];
+            [self->_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
+                UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Shader Compiled" message:error preferredStyle:UIAlertControllerStyleAlert ];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Try experimental GLView" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                    NSLog(@"Try using my experimental STRenderer and GLView");
+                    GLView* glView = [[GLView alloc] initWithFrame:self.view.bounds];
+                    STRenderer* renderer = [[STRenderer alloc] init:self->_shader];
+                    [glView setRenderer:renderer];
+                    [self->_imageShaderView removeFromSuperview];
+                    self->_imageShaderView = glView;
+                    [self.view addSubview:glView];
+                }]];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * action) {
+                    [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                }]];
+                [self presentViewController:myAlertController animated:YES completion:nil];
+            } forControlEvents:UIControlEventTouchDown];
+            
             [self bk_performBlock:^(id obj) {
                 success();
             } afterDelay:0.05f];
@@ -235,10 +259,18 @@
             [self->_shaderCompileInfoButton setHidden:NO];
             [self->_shaderCompileInfoButton bk_addEventHandler:^(id sender) {
                 UIAlertController *myAlertController = [UIAlertController alertControllerWithTitle:@"Shader error" message:error preferredStyle:UIAlertControllerStyleAlert ];
-                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
-                                               {
-                                                   [myAlertController dismissViewControllerAnimated:YES completion:nil];
-                                               }]];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                    [myAlertController dismissViewControllerAnimated:YES completion:nil];
+                }]];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Try experimental GLView" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                    NSLog(@"Try using my experimental STRenderer and GLView");
+                    GLView* glView = [[GLView alloc] initWithFrame:self.view.bounds];
+                    STRenderer* renderer = [[STRenderer alloc] init:self->_shader];
+                    [glView setRenderer:renderer];
+                    [self->_imageShaderView removeFromSuperview];
+                    self->_imageShaderView = glView;
+                    [self.view addSubview:glView];
+                }]];
                 [self presentViewController:myAlertController animated:YES completion:nil];
             } forControlEvents:UIControlEventTouchDown];
         }
@@ -265,6 +297,15 @@
                                                    [myAlertController dismissViewControllerAnimated:YES completion:nil];
                                                    
                                                }]];
+                [myAlertController addAction: [UIAlertAction actionWithTitle:@"Try experimental GLView" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+                    NSLog(@"Try using my experimental STRenderer and GLView");
+                    GLView* glView = [[GLView alloc] initWithFrame:self.view.bounds];
+                    STRenderer* renderer = [[STRenderer alloc] init:self->_shader];
+                    [glView setRenderer:renderer];
+                    [self->_imageShaderView removeFromSuperview];
+                    self->_imageShaderView = glView;
+                    [self.view addSubview:glView];
+                }]];
                 [weakSelf presentViewController:myAlertController animated:YES completion:nil];
             } forControlEvents:UIControlEventTouchDown];
             
